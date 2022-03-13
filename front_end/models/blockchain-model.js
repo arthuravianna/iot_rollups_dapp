@@ -1,27 +1,23 @@
-const blockchain_conn = require("../config/eth-connection.js")
+const web3_connection = require("../config/eth-connection.js")
 
 
 module.exports = {
-    getAccounts:function(callback) {
-        blockchain_conn.eth.getAccounts().then(callback)
+    getAccounts:async function(callback) {
+        conn = await web3_connection
+        conn.web3.eth.getAccounts()
+        .then(callback)
     },
 
-    addInput:function(fromAdress, input, success, fail) {
-        // blockchain_conn.input_contract.methods.addInput(input).call(
-        //     { from: fromAdress }
-        // ).then(callback)
-
-        blockchain_conn.input_contract_func(function(result) {
-            if (result.success == false) {
-                fail(result.value)
-                return
-            }
-
-            const inputContract = result.value
-            inputContract.methods.addInput(input).call(
+    addInput:async function(fromAdress, input, success, fail) {
+        conn = await web3_connection
+        if (!conn.web3.utils.isHex(input)) {
+            fail( {reason: "invalid arrayify value", code: "INVALID_ARGUMENT", argument: "value", value: input} )
+            return
+        }
+        conn.input_contract.methods.addInput(input).call(
                 { from: fromAdress }
             )
             .then(success)
-        })
-    }
+            .catch(fail)
+    },
 }

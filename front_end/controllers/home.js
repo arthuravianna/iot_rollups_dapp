@@ -16,8 +16,13 @@ module.exports={
                 res.json({success: true, result: "Added Input: " + result})
             },
             function(error) {
-                //console.log("error:", error)
-                res.json({success: false, result: error})
+                //console.log(error)
+                const error_str =   "## ERROR ##" + 
+                                    "\nreason: " + error.reason +
+                                    "\ncode: " + error.code + 
+                                    "\nargument: " + error.argument +
+                                    "\nvalue: "  + error.value
+                res.json({success: false, result: error_str})
             }
         )
     },
