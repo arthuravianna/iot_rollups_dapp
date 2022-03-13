@@ -1,6 +1,6 @@
 const Web3 = require('web3');
-const rollups_jsonInterface = require("./ABI/RollupsImpl_ABI.json")
-const input_jsonInterface = require("./ABI/InputImpl_ABI.json")
+const rollups_jsonInterface = require("./public/ABI/RollupsImpl_ABI.json")
+const input_jsonInterface = require("./public/ABI/InputImpl_ABI.json")
 
 const provider = "http://localhost:8545" // node running Hardhat
 const web3 = new Web3(Web3.givenProvider || provider);

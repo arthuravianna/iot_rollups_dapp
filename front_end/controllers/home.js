@@ -9,11 +9,16 @@ module.exports={
     },
 
     formSubmit:function(req, res) {
-        blockchainModel.addInput(req.query.fromAddress, req.query.input, function(result) {
-            //res.redirect("/");
-            console.log("addInput:", result)
-            //res.jsonp({success: true, data: result})
-            res.json({success: true, result: "Added Input: " + result})
-        })
+        console.log("POST", req.body)
+        blockchainModel.addInput(req.body.fromAddress, req.body.input,
+            function(result) {
+                //console.log("addInput:", result)
+                res.json({success: true, result: "Added Input: " + result})
+            },
+            function(error) {
+                //console.log("error:", error)
+                res.json({success: false, result: error})
+            }
+        )
     },
 }

@@ -6,15 +6,22 @@ module.exports = {
         blockchain_conn.eth.getAccounts().then(callback)
     },
 
-    addInput:function(fromAdress, input, callback) {
+    addInput:function(fromAdress, input, success, fail) {
         // blockchain_conn.input_contract.methods.addInput(input).call(
         //     { from: fromAdress }
         // ).then(callback)
 
-        blockchain_conn.input_contract_func(function(inputContract) {
+        blockchain_conn.input_contract_func(function(result) {
+            if (result.success == false) {
+                fail(result.value)
+                return
+            }
+
+            const inputContract = result.value
             inputContract.methods.addInput(input).call(
                 { from: fromAdress }
-            ).then(callback)
+            )
+            .then(success)
         })
     }
 }

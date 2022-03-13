@@ -8,7 +8,7 @@ var router = express.Router();
 router.get('/', homeController.homePage);
 
 // form submit
-router.get("/submit", homeController.formSubmit);
+router.post("/submit", homeController.formSubmit);
 
 
 module.exports = router

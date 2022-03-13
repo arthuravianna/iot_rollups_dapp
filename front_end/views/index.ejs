@@ -9,7 +9,7 @@
 
 <body id="home">
 	<div class="container">
-        <form onsubmit="formSubmit()">
+        <form>
             <div class="mb-3">
                 <label for="selectedAddress" class="form-label">From Address</label>
                 <select id="selectedAddress" class="form-select">
@@ -27,7 +27,7 @@
                 <input type="text" class="form-control" id="desiredInput">
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" onclick="formSubmit()">Submit</button>
         </form>
     </div>
 </body>
@@ -39,7 +39,7 @@
     function formSubmit() {
         $.ajax({
             url:"/submit",
-            method: "GET",
+            type: "POST",
             async: false,
             data : {
                 fromAddress : document.getElementById("selectedAddress").value,
@@ -50,10 +50,13 @@
                 if(res["success"]){
                     alert(res["result"]);
                 }
+                else if (!res["success"]) {
+                    alert(res["result"])
+                }
             },
             error : function () {
                 // some error handling part
-                alert("Oops! Something went wrong.");
+                alert("Request Failed");
             }
         });
     };
