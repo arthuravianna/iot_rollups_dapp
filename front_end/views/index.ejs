@@ -13,7 +13,7 @@
             <div class="mb-3">
                 <label for="selectedAddress" class="form-label">From Address</label>
                 <select id="selectedAddress" class="form-select">
-                  <option selected> Choose Address</option>
+                  <option selected value=""> Choose Address</option>
                   <% for(var i = 1; i < accounts.length; i++){ %>
                     <option>
                             <%= accounts[i] %>
@@ -22,12 +22,21 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="desiredInput" class="form-label">Input</label>
-                <input type="text" class="form-control" id="desiredInput">
+            <div class="mb-3 row">
+                <div class="col-6">
+                    <label for="latInput" class="form-label">Latitude</label>
+                    <input type="text" class="form-control" id="latInput">    
+                </div>
+
+                <div class="col-6">
+                    <label for="lonInput" class="form-label">Longitude</label>
+                    <input type="text" class="form-control" id="lonInput">
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" onclick="formSubmit()">Submit</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary text-center" onclick="formSubmit()">Submit</button>
+            </div>
         </form>
     </div>
 </body>
@@ -37,13 +46,23 @@
  
  
     function formSubmit() {
+        const fromAddress = document.getElementById("selectedAddress").value
+        const lat = document.getElementById("latInput").value
+        const lon = document.getElementById("lonInput").value
+
+        if (fromAddress == "" || lat == "" || lon == "") {
+            alert("Error: Missing Arguments.")
+            return
+        }
+
         $.ajax({
             url:"/submit",
             type: "POST",
             async: false,
             data : {
-                fromAddress : document.getElementById("selectedAddress").value,
-                input : document.getElementById("desiredInput").value
+                fromAddress: document.getElementById("selectedAddress").value,
+                lat: document.getElementById("latInput").value,
+                lon: document.getElementById("lonInput").value
             },
             cache : false,
             success : function (res) {

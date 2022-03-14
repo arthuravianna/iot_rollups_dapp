@@ -15,7 +15,6 @@ import logging
 import requests
 from flask import Flask, request
 
-from floc_simhash import SimHash
 import db_manager as db
 
 DB_FILE = "simhashes.db"
@@ -29,26 +28,6 @@ def hex_to_string(hex):
 def hex_to_bin(hex):
     return bin(int(hex, base=16))[2:]
 
-# hamming distance(bits)
-def hamming_distance(s1, s2, d=4):
-    diff_bits = 0
-    for i in range(len(s1)):
-        if s1[i] != s2[i]:
-            diff_bits += 1
-            if diff_bits > d: return False
-    
-    return True # is similar
-
-
-def is_similar(conn, bit_simhash):
-    hashes = db.select_simhashes(conn)
-
-    for hash in hashes:
-        if hamming_distance(bit_simhash, hash[0]):
-            return True
-    
-    return False
-
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
@@ -61,32 +40,16 @@ def advance():
     body = request.get_json()
     
     ### calculate payload's simhash
-    document = hex_to_string(body["payload"])
-    hex_simhash = SimHash(n_bits=128).hash(document)
-    bit_simhash = hex_to_bin(hex_simhash)
-    
-    new_payload = "0x" + hex_simhash
+    payload_utf8 = hex_to_string(body["payload"])
     app.logger.info(f"#############################")
-    app.logger.info(f"Input's SimHash: {hex_simhash}")
+    app.logger.info(f"Payload UTF-8: {payload_utf8}")
     app.logger.info(f"#############################\n")
 
-    ### Compare to other simhashes
-    bit_simhash = hex_to_bin(hex_simhash)
-    conn = db.create_connection(DB_FILE)
-    if not is_similar(conn, bit_simhash):
-        db.insert_simhash(conn, bit_simhash, "0x00")
-        app.logger.info(f"Input Accepted!!!\n")
-    else:
-        app.logger.info(f"Input Rejected!!!\n")
-    conn.close()
-    
-
     ### request to /notice to add info
-    del body["payload"]
     app.logger.info(f"Received advance request body {body}")
     
     app.logger.info("Adding notice")
-    response = requests.post(dispatcher_url + "/notice", json={"payload": new_payload})
+    response = requests.post(dispatcher_url + "/notice", json={"payload": body["payload"]})
     app.logger.info(f"Received notice status {response.status_code} body {response.content}")
 
     ### request to /finish to complete

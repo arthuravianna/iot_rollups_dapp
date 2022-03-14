@@ -9,11 +9,11 @@ module.exports={
     },
 
     formSubmit:function(req, res) {
-        console.log("POST", req.body)
-        blockchainModel.addInput(req.body.fromAddress, req.body.input,
+        console.log("POST Body: ", req.body)
+        blockchainModel.addInput(req.body.fromAddress, req.body.lat, req.body.lon,
             function(result) {
                 //console.log("addInput:", result)
-                res.json({success: true, result: "Added Input: " + result})
+                res.json({success: true, result: "Tx Hash: " + result.transactionHash})
             },
             function(error) {
                 //console.log(error)

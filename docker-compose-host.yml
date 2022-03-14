@@ -5,6 +5,8 @@ services:
     build: ./contracts
     command: ["node", "--write", "true", "--network", "hardhat", "--export", "/opt/cartesi/share/blockchain/dapp.json"]
     init: true
+    ports:
+      - 8545:8545
     volumes:
       - blockchain_data:/opt/cartesi/share/blockchain
 
