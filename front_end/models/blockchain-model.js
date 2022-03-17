@@ -9,11 +9,10 @@ module.exports = {
         .then(callback)
     },
 
-    addInput:async function(fromAdress, lat, lon, success, fail) {
+    addInput:async function(fromAdress, data, success, fail) {
         conn = await web3_connection
         
-        const input = "{\"lat\": " + lat + ", \"lon\": " + lon + "}"
-        const input_hex = conn.web3.utils.utf8ToHex(input)
+        const input_hex = conn.web3.utils.utf8ToHex(data)
         console.log("Input Hex:", input_hex)
 
         conn.input_contract.methods.addInput(input_hex).send(

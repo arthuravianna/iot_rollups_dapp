@@ -10,7 +10,7 @@ module.exports={
 
     formSubmit:function(req, res) {
         console.log("POST Body: ", req.body)
-        blockchainModel.addInput(req.body.fromAddress, req.body.lat, req.body.lon,
+        blockchainModel.addInput(req.body.fromAddress, req.body.data,
             function(result) {
                 //console.log("addInput:", result)
                 res.json({success: true, result: "Tx Hash: " + result.transactionHash})
