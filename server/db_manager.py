@@ -45,13 +45,21 @@ def create_table(conn, create_table_sql):
 ### :return: None
 #######################################################
 def create_database(DATABASE, conn = None):
-    sql_simhash_table = """ CREATE TABLE IF NOT EXISTS simhashes (
-                                simhash VARCHAR(128),
-                                owner_eth_addr varchar(40),
+    sql_bus_line_table = """ CREATE TABLE IF NOT EXISTS bus_line (
+                                id VARCHAR(32),
+                                route TEXT,
 
-                                CONSTRAINT PK_simhashes PRIMARY KEY (simhash)
+                                CONSTRAINT PK_bus_line PRIMARY KEY (id)
                             ); """
 
+    sql_car_schedule_table = """ CREATE TABLE IF NOT EXISTS car_schedule (
+                                id INT,
+                                bus_line_id VARCHAR(32),
+                                schedule TEXT,
+
+                                CONSTRAINT PK_schedule PRIMARY KEY (id, bus_line_id),
+                                CONSTRAINT FK_car_schedule_bus_line FOREIGN KEY (bus_line_id) REFERENCES bus_line(id)
+                            ); """
 
     close_at_end = False
     # create a database connection
@@ -61,8 +69,11 @@ def create_database(DATABASE, conn = None):
 
     # create tables
     if conn is not None:
-        # create simhash table
-        create_table(conn, sql_simhash_table)
+        # create bus_line table
+        create_table(conn, sql_bus_line_table)
+
+        # create car_schedule table
+        create_table(conn, sql_car_schedule_table)
 
         if close_at_end: conn.close()
     else:
@@ -76,11 +87,21 @@ def create_database(DATABASE, conn = None):
 #                                                                 #
 ###################################################################
 
-def insert_simhash(conn, simhash, owner_eth_addr):
-    sql = ''' INSERT INTO simhashes(simhash, owner_eth_addr)
+def insert_bus_line(conn, bus_line_id, route):
+    sql = ''' INSERT INTO bus_line(id, route)
               VALUES(?, ?) '''
     cur = conn.cursor()
-    cur.execute(sql, (simhash, owner_eth_addr))
+    cur.execute(sql, (bus_line_id, route))
+
+    conn.commit()
+
+
+def insert_schedule(conn, bus_line_id, car_id, schedule):
+    sql = ''' INSERT INTO car_schedule(id, bus_line_id, schedule)
+              VALUES(?, ?, ?) '''
+    cur = conn.cursor()
+    cur.execute(sql, (car_id, bus_line_id, schedule))    
+        
     conn.commit()
 
 ###################################################################
@@ -88,17 +109,25 @@ def insert_simhash(conn, simhash, owner_eth_addr):
 #                            QUERIES                              #
 #                                                                 #
 ###################################################################
-def select_simhashes(conn):
-    sql = ''' SELECT * FROM simhashes '''
+def select_lines(conn):
+    sql = ''' SELECT * FROM bus_line '''
     cur = conn.cursor()
     cur.execute(sql)
 
     return cur.fetchall()
 
 
-def select_simhashes_from_owner(conn, owner_eth_addr):
-    sql = ''' SELECT * FROM simhashes WHERE owner_eth_addr = ? '''
+def select_line(conn, id):
+    sql = ''' SELECT * FROM bus_line WHERE id = ?'''
     cur = conn.cursor()
-    cur.execute(sql, (owner_eth_addr,))
+    cur.execute(sql, (id,))
+
+    return cur.fetchall()
+
+
+def select_schedule(conn, car_id, bus_line_id):
+    sql = ''' SELECT schedule FROM car_schedule WHERE id = ? AND bus_line_id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (car_id, bus_line_id))
 
     return cur.fetchall()

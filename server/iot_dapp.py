@@ -14,10 +14,11 @@ from os import environ
 import logging
 import requests
 from flask import Flask, request
+import json
 
 import db_manager as db
 
-DB_FILE = "simhashes.db"
+DB_FILE = "schedules.db"
 
 def hex_to_string(hex):
     if hex[:2] == '0x':
@@ -44,6 +45,29 @@ def advance():
     app.logger.info(f"#############################")
     app.logger.info(f"Payload UTF-8: {payload_utf8}")
     app.logger.info(f"#############################\n")
+
+    ### managing database
+    conn = db.create_connection(DB_FILE)
+
+
+    payload_dict = json.loads(payload_utf8)
+    #### is new Schedule
+    if payload_dict["new_schedule"]:
+        car_id = 0
+        bus_id = payload_dict["bus_id"]
+        route = payload_dict["route"]
+        db.insert_bus_line(conn, bus_id, route)
+        
+        for schedule in payload_dict["schedule"]:
+            car_id += 1
+            db.insert_schedule(conn, bus_id, car_id, str(schedule))
+
+    else:
+        # TODO
+        # received timestamp and location
+        # check schedule to know if a fine must be generated
+        pass
+
 
     ### request to /notice to add info
     app.logger.info(f"Received advance request body {body}")
