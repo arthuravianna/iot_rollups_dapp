@@ -4,11 +4,14 @@ var homeController = require('../controllers/home');
 
 var router = express.Router();
 
-// index page(form)
-router.get('/', homeController.homePage);
+// index page(dashboard)
+// router.get('/', homeController.homePage);
 
-// form submit
-router.post("/submit", homeController.formSubmit);
+// form page
+router.get('/form', homeController.formPage);
+
+// submit data
+router.post("/submit", homeController.submit);
 
 
 module.exports = router

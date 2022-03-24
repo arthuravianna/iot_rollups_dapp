@@ -167,7 +167,7 @@
                 json = JSON.parse(textFromFileLoaded)
                 if (!json.hasOwnProperty("bus_id")) { throw "JSON Error: Missing \"bus_id\" key." }
                 if (!json.hasOwnProperty("route")) { throw "JSON Error: Missing \"route\" key." }
-                if (!json.hasOwnProperty("stations")) { throw "JSON Error: Missing \"stations\" key." }
+                if (!json.hasOwnProperty("stops")) { throw "JSON Error: Missing \"stations\" key." }
                 if (!json.hasOwnProperty("schedule")) { throw "JSON Error: Missing \"schedule\" key." }
 
                 json.new_schedule = true

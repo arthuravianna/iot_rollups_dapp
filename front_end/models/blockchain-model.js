@@ -13,7 +13,7 @@ module.exports = {
         conn = await web3_connection
         
         const input_hex = conn.web3.utils.utf8ToHex(data)
-        console.log("Input Hex:", input_hex)
+        // console.log("Input Hex:", input_hex)
 
         conn.input_contract.methods.addInput(input_hex).send(
                 { from: fromAdress }
