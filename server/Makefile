@@ -29,9 +29,10 @@ $(MACHINE_DIR): $(DAPP_FS_BIN) $(BINARIES)
 	@if docker inspect $(CONTAINER_NAME) > /dev/null 2>&1; then \
 		docker rm -f $(CONTAINER_NAME) > /dev/null; \
 	fi
-	@docker run -it \
+	@docker run \
 		--name $(CONTAINER_NAME) \
 		--hostname server-manager-env \
+		--platform linux/amd64 \
 		-v `pwd`:$(CONTAINER_BASE) \
 		-w $(CONTAINER_BASE) \
 		$(DAPP_SERVER_MANAGER_IMG) $(CONTAINER_BASE)/build-machine.sh
@@ -44,6 +45,7 @@ console: $(DAPP_FS_BIN) $(BINARIES)
 	@docker run --hostname server-manager-env -it --rm \
 		-v `pwd`:$(CONTAINER_BASE) \
 		-w $(CONTAINER_BASE) \
+		--platform linux/amd64 \
 		$(DAPP_SERVER_MANAGER_IMG) $(CONTAINER_BASE)/run-machine-console.sh
 
 $(BINARIES) &:
@@ -51,17 +53,17 @@ $(BINARIES) &:
 	@wget -q -nc -i dependencies -P .
 	@shasum -c shasumfile
 
-#$(DAPP_FS_BIN): echo.py run.sh
-$(DAPP_FS_BIN): simhash_dapp.py get-pip.py floc_simhash-0.1.0-py3-none-any.whl run.sh
+$(DAPP_FS_BIN): echo.py run.sh
 	@echo "Building echo-dapp filesystem..."
 	@if docker inspect $(CONTAINER_NAME) > /dev/null 2>&1; then \
 		docker rm -f $(CONTAINER_NAME) > /dev/null; \
 	fi
-	@docker run -it \
+	@docker run \
 		--name $(CONTAINER_NAME) \
 		--hostname server-manager-env \
 		-v `pwd`:$(CONTAINER_BASE) \
 		-w $(CONTAINER_BASE) \
+		--platform linux/amd64 \
 		$(DAPP_SERVER_MANAGER_IMG) $(CONTAINER_BASE)/build-dapp-fs.sh
 	@docker cp $(CONTAINER_NAME):$(CONTAINER_DAPP_FS_BIN) $@
 	@docker rm -f $(CONTAINER_NAME) > /dev/null
