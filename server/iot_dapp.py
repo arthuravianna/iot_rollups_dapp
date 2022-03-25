@@ -17,18 +17,9 @@ from flask import Flask, request
 import json
 
 import db_manager as db
+import util
 
 DB_FILE = "schedules.db"
-
-def hex_to_string(hex):
-    if hex[:2] == '0x':
-        hex = hex[2:]
-    string_value = bytes.fromhex(hex).decode('utf-8')
-    return string_value
-
-def hex_to_bin(hex):
-    return bin(int(hex, base=16))[2:]
-
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
@@ -40,11 +31,11 @@ app.logger.info(f"HTTP dispatcher url is {dispatcher_url}\n\n")
 def advance():
     body = request.get_json()
     
-    ### calculate payload's simhash
-    payload_utf8 = hex_to_string(body["payload"])
-    app.logger.info(f"#############################")
-    app.logger.info(f"Payload UTF-8: {payload_utf8}")
-    app.logger.info(f"#############################\n")
+    ### payload to UTF-8
+    payload_utf8 = util.hex_to_str(body["payload"])
+    # app.logger.info(f"#############################")
+    # app.logger.info(f"Payload UTF-8: {payload_utf8}")
+    # app.logger.info(f"#############################\n")
 
     ### managing database
     conn = db.create_connection(DB_FILE)
@@ -52,29 +43,65 @@ def advance():
 
     payload_dict = json.loads(payload_utf8)
     #### is new Schedule
-    if payload_dict["new_schedule"]:
-        car_id = 0
-        bus_id = payload_dict["bus_id"]
+    if "new_schedule" in payload_dict:
+        count = 0
+        bus_id = payload_dict["bus_id"] # bus line id
         route = payload_dict["route"]
+        stops = payload_dict["stops"]
         db.insert_bus_line(conn, bus_id, route)
         
         for schedule in payload_dict["schedule"]:
-            car_id += 1
-            db.insert_schedule(conn, bus_id, car_id, str(schedule))
+            count += 1
+            trip_id = f"{bus_id};{count}"
+            db.insert_trip_schedule(conn, trip_id, bus_id, schedule)
+        
+        stop_id = 0
+        for stop in stops:
+            stop_id += 1
+            db.insert_stop(conn, stop_id, bus_id, stop)
 
     else:
-        # TODO
-        # received timestamp and location
-        # check schedule to know if a fine must be generated
-        pass
+        # check route
+        route = db.select_route_of_line(conn, payload_dict["bus_id"])
+
+        # check schedule
+        stop, stop_time = db.select_stop_schedule(conn, payload_dict["next_stop"], payload_dict["bus_id"], payload_dict["trip_id"])
+
+        fine_dsc = None
+
+        if not util.in_route(payload_dict["lat"], payload_dict["lon"], route):
+            fine_dsc = {
+                "ts": payload_dict["ts"],
+                "dsc": ["Different route"],
+                "bus_line": payload_dict["bus_id"],
+                "trip": payload_dict["trip_id"],
+                "value": 5
+            }
 
 
-    ### request to /notice to add info
-    app.logger.info(f"Received advance request body {body}")
-    
-    app.logger.info("Adding notice")
-    response = requests.post(dispatcher_url + "/notice", json={"payload": body["payload"]})
-    app.logger.info(f"Received notice status {response.status_code} body {response.content}")
+        if util.is_late(payload_dict["ts"], payload_dict["lat"], payload_dict["lon"], stop, stop_time):
+            if fine_dsc is None:
+                fine_dsc = {
+                    "ts": payload_dict["ts"],
+                    "dsc": ["Late, according to Schedule"],
+                    "bus_line": payload_dict["bus_id"],
+                    "trip": payload_dict["trip_id"],
+                    "value": 10
+                }
+            else:
+                fine_dsc["value"] += 10
+                fine_dsc["dsc"].append("Late, according to Schedule")
+
+        if fine_dsc:
+            notice_payload = util.str_to_eth_hex(str(fine_dsc))
+            app.logger.info("### Notice Payload ###")
+            app.logger.info(notice_payload)
+            app.logger.info("### Notice Payload ###")
+            app.logger.info("Adding notice")
+            response = requests.post(dispatcher_url + "/notice", json={ "payload": notice_payload })
+            app.logger.info(f"Received notice status {response.status_code} body {response.content}")
+
+
 
     ### request to /finish to complete
     app.logger.info("Finishing")

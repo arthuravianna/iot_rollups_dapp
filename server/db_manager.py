@@ -45,20 +45,30 @@ def create_table(conn, create_table_sql):
 ### :return: None
 #######################################################
 def create_database(DATABASE, conn = None):
-    sql_bus_line_table = """ CREATE TABLE IF NOT EXISTS bus_line (
+    sql_bus_line_table = """ CREATE TABLE IF NOT EXISTS line (
                                 id VARCHAR(32),
                                 route TEXT,
 
-                                CONSTRAINT PK_bus_line PRIMARY KEY (id)
+                                CONSTRAINT PK_line PRIMARY KEY (id)
                             ); """
 
-    sql_car_schedule_table = """ CREATE TABLE IF NOT EXISTS car_schedule (
-                                id INT,
+    sql_trip_schedule_table = """ CREATE TABLE IF NOT EXISTS trip_schedule (
+                                id VARCHAR(48),
                                 bus_line_id VARCHAR(32),
                                 schedule TEXT,
 
-                                CONSTRAINT PK_schedule PRIMARY KEY (id, bus_line_id),
-                                CONSTRAINT FK_car_schedule_bus_line FOREIGN KEY (bus_line_id) REFERENCES bus_line(id)
+                                CONSTRAINT PK_trip_schedule PRIMARY KEY (id),
+                                CONSTRAINT FK_trip_schedule_bus_line FOREIGN KEY (bus_line_id) REFERENCES line(id)
+                            ); """
+
+    sql_stop_table = """ CREATE TABLE IF NOT EXISTS stop (
+                                stop_order INT,
+                                bus_line_id VARCHAR(32),
+                                lat FLOAT,
+                                lon FLOAT,
+
+                                CONSTRAINT PK_stop PRIMARY KEY (stop_order, bus_line_id),
+                                CONSTRAINT FK_stop_line FOREIGN KEY (bus_line_id) REFERENCES line(id)
                             ); """
 
     close_at_end = False
@@ -69,16 +79,39 @@ def create_database(DATABASE, conn = None):
 
     # create tables
     if conn is not None:
-        # create bus_line table
+        # create line table
         create_table(conn, sql_bus_line_table)
 
-        # create car_schedule table
-        create_table(conn, sql_car_schedule_table)
+        # create trip_schedule table
+        create_table(conn, sql_trip_schedule_table)
+
+        # create stop table
+        create_table(conn, sql_stop_table)
 
         if close_at_end: conn.close()
     else:
         print("Error! cannot create the database connection.")
 
+
+###################################################################
+#                                                                 #
+#                         AUX FUNCTIONS                           #
+#                                                                 #
+###################################################################
+def str_to_coords(coords_str:str):
+    coords = coords_str.split(";")
+
+    for i in range(len(coords)):
+        coords[i] = list(map(float, coords[i].split(",")))
+    
+    return coords
+
+def coords_to_str(coords:list):
+    s = ""
+    for coord in coords:
+        s += str(coord)[1:-1] + ";" # lat0,lon1;lat1,lon1;lat2,lon2
+    
+    return s[:-1] # remove last ";"
 
 
 ###################################################################
@@ -86,21 +119,35 @@ def create_database(DATABASE, conn = None):
 #                            INSERTS                              #
 #                                                                 #
 ###################################################################
-
-def insert_bus_line(conn, bus_line_id, route):
-    sql = ''' INSERT INTO bus_line(id, route)
+def insert_bus_line(conn, bus_line_id, route:list):
+    sql = ''' INSERT INTO line(id, route)
               VALUES(?, ?) '''
     cur = conn.cursor()
-    cur.execute(sql, (bus_line_id, route))
+
+    route_str = coords_to_str(route)
+    cur.execute(sql, (bus_line_id, route_str))
 
     conn.commit()
 
 
-def insert_schedule(conn, bus_line_id, car_id, schedule):
-    sql = ''' INSERT INTO car_schedule(id, bus_line_id, schedule)
+def insert_trip_schedule(conn, trip_id, bus_line_id, schedule:list):
+    sql = ''' INSERT INTO trip_schedule(id, bus_line_id, schedule)
               VALUES(?, ?, ?) '''
     cur = conn.cursor()
-    cur.execute(sql, (car_id, bus_line_id, schedule))    
+
+    schedule_str = coords_to_str(schedule)
+    cur.execute(sql, (trip_id, bus_line_id, schedule_str))
+        
+    conn.commit()
+
+
+def insert_stop(conn, stop_order, bus_line_id, coord:list):
+    sql = ''' INSERT INTO stop(stop_order, bus_line_id, lat, lon)
+              VALUES(?, ?, ?, ?) '''
+    cur = conn.cursor()
+
+    lat, lon = coord
+    cur.execute(sql, (stop_order, bus_line_id, lat, lon))
         
     conn.commit()
 
@@ -110,7 +157,7 @@ def insert_schedule(conn, bus_line_id, car_id, schedule):
 #                                                                 #
 ###################################################################
 def select_lines(conn):
-    sql = ''' SELECT * FROM bus_line '''
+    sql = ''' SELECT * FROM line '''
     cur = conn.cursor()
     cur.execute(sql)
 
@@ -118,16 +165,52 @@ def select_lines(conn):
 
 
 def select_line(conn, id):
-    sql = ''' SELECT * FROM bus_line WHERE id = ?'''
+    sql = ''' SELECT * FROM line WHERE id = ? '''
     cur = conn.cursor()
     cur.execute(sql, (id,))
 
-    return cur.fetchall()
+    result = list(cur.fetchone()) # [id. route_str]
+    
+    coords_str = result[1]
+
+    result[1] = str_to_coords(coords_str)
+
+    return result
 
 
-def select_schedule(conn, car_id, bus_line_id):
-    sql = ''' SELECT schedule FROM car_schedule WHERE id = ? AND bus_line_id = ? '''
+def select_route_of_line(conn, id):
+    sql = ''' SELECT route FROM line WHERE id = ? '''
     cur = conn.cursor()
-    cur.execute(sql, (car_id, bus_line_id))
+    cur.execute(sql, (id,))
 
-    return cur.fetchall()
+    coords_str = cur.fetchone()[0]
+
+    route = str_to_coords(coords_str)
+    
+    return route
+
+
+def select_trip_schedule(conn, trip_id):
+    sql = ''' SELECT schedule FROM trip_schedule WHERE id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (trip_id,))
+
+    return cur.fetchone()[0].split(";")
+
+
+def select_stop_schedule(conn, next_stop, bus_line_id, trip_id):
+    result = [None, None]
+    
+    sql = ''' SELECT lat,lon FROM stop WHERE stop_order = ? AND bus_line_id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (next_stop, bus_line_id))
+
+    result[0] = cur.fetchone()
+
+    sql = ''' SELECT schedule FROM trip_schedule WHERE id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (trip_id,))
+
+    result[1] = cur.fetchone()[0].split(";")[next_stop-1]
+
+    return result

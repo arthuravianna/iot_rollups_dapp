@@ -20,29 +20,11 @@ HTTP_DISPATCHER_PORT=5004
 # Change dir to echo-dapp root
 cd /mnt/echo-dapp
 
-#### BEGIN SIMHASH ###
-
-# Installing pip
-df -h
-echo "Installing pip..."
-python get-pip.py --prefix=/usr/local/
-#python get-pip.py --prefix=/dev
-
-# Installing floc_simhash and it's dependencies
-easy_install joblib-1.1.0-py2.py3-none-any.whl --no-cache-dir
-easy_install threadpoolctl-3.1.0-py3-none-any.whl --no-cache-dir
-easy_install numpy-1.22.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl --no-cache-dir
-easy_install scipy-1.8.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl --no-cache-dir
-easy_install scikit_learn-0.24.2-cp38-cp38-manylinux2010_x86_64.whl --no-cache-dir
-easy_install floc_simhash-0.1.0-py3-none-any.whl
-
-##### END SIMHASH #####
-
 # Start echo dapp
 echo -n "Starting echo-dapp: "
 HTTP_DISPATCHER_URL="http://127.0.0.1:$HTTP_DISPATCHER_PORT" \
-gunicorn --preload --workers 1 --bind 127.0.0.1:$DAPP_PORT simhash_dapp:app &
-#gunicorn --preload --workers 1 --bind 127.0.0.1:$DAPP_PORT echo:app &
+gunicorn --preload --workers 1 --bind 127.0.0.1:$DAPP_PORT iot_dapp:app &
+
 
 # Wait for the echo dapp to start up
 RETRY=0
