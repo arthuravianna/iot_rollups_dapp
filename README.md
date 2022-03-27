@@ -51,7 +51,7 @@ $ docker-compose down -v
 With the infrastructure in place, go to a separate terminal window and send an input as follows:
 
 ```shell
-$ docker exec echo_hardhat_1 npx hardhat --network localhost echo:addInput --input "0x636172746573690D0A"
+npx hardhat --network localhost echo:addInput --input "0x63617274657369"
 ```
 
 The input will have been accepted when you receive a response similar to the following one:
@@ -87,7 +87,7 @@ When developing an application, it is often important to easily test and debug i
 The first step is to run the environment in host mode using the following command:
 
 ```shell
-docker-compose -f docker-compose-host.yml up --build
+docker-compose -f docker-compose.yml -f docker-compose-host.yml up --build
 ```
 
 The next step is to run the echo server in your machine. The application is written in Python, so you need to have `python3` installed.
@@ -99,7 +99,7 @@ cd echo/server/
 python3 -m venv .env
 . .env/bin/activate
 pip install -r requirements.txt
-HTTP_DISPATCHER_URL="http://127.0.0.1:5004" gunicorn --preload --workers 1 --bind 0.0.0.0:5003 echo:app
+HTTP_DISPATCHER_URL="http://127.0.0.1:5004" gunicorn --preload --workers 1 --bind 0.0.0.0:5003 iot_dapp:app
 ```
 
 The echo server will run on port `5003` and send the corresponding notices to port `5004`. After it's successfully started, it should print an output like the following:
@@ -127,5 +127,5 @@ When you add an input, you should see it being processed by the echo server as f
 Finally, to stop the containers, removing any associated volumes, execute:
 
 ```shell
-docker-compose -f docker-compose-host.yml down -v
+docker-compose -f docker-compose.yml -f docker-compose-host.yml down -v
 ```
