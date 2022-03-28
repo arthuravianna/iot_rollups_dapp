@@ -45,7 +45,8 @@ def in_route(lat, lon, route):
 def is_late(curr_time, lat, lon, stop, stop_time):
     #curr_time = "%Y-%m-%d %H:%M:%S"
     #stop_time = "%H:%M:%S"
-    curr_datetime = datetime.datetime.strptime(curr_time, "%Y-%m-%d %H:%M:%S")
+    curr_hour = curr_time.split(" ")[1]
+    curr_datetime = datetime.datetime.strptime(curr_hour, "%H:%M:%S")
     stop_datetime = datetime.datetime.strptime(stop_time, "%H:%M:%S")
 
     stop_lat, stop_lon = stop
