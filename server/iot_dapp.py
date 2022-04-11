@@ -93,7 +93,7 @@ def advance():
                 fine_dsc["dsc"].append("Late, according to Schedule")
 
         if fine_dsc:
-            notice_payload = util.str_to_eth_hex(str(fine_dsc))
+            notice_payload = util.str_to_eth_hex(json.dumps(fine_dsc))
             app.logger.info("### Notice Payload ###")
             app.logger.info(notice_payload)
             app.logger.info("### Notice Payload ###")
