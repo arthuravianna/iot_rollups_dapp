@@ -1,7 +1,39 @@
 const web3_connection = require("../config/eth-connection.js")
-
+const request = require('request');
 
 module.exports = {
+    getNoticePage:async function(page, filter, callback) {
+        conn = await web3_connection
+
+        const options = {
+            url: 'http://localhost:4000/graphql',
+            json: true,
+            body: {
+                query: "query getNotice { GetNotice( query: { } ) { session_id epoch_index input_index notice_index payload } }"
+            }
+        };
+
+        request.post(options, (err, res, body) => {
+            if (err) {       
+                return console.log(err)
+            }
+        
+            //console.log(`Status: ${res.statusCode}`);        
+            //console.log(body);
+
+            const val = body.data.GetNotice
+            var payloads = new Array(val.length)
+            for (var i = 0; i < val.length; i++) {
+                payload = conn.web3.utils.hexToUtf8("0x" + val[i].payload)
+                //console.log("payload Hex", val[i].payload)
+                //console.log("payload UTF8", payload)
+                payloads[i] = JSON.parse(payload)
+            }
+            callback(payloads)
+        });
+
+    },
+
     getAccounts:async function(callback) {
         conn = await web3_connection
         

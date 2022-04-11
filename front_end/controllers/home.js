@@ -2,9 +2,16 @@ var blockchainModel = require('../models/blockchain-model.js');
 
 
 module.exports={
+    homePage:function(req, res) {
+        blockchainModel.getNoticePage(0, 0, function(result) {
+            console.log(result)
+            res.render("index", {"notices": result});
+        });
+    },
+
     formPage:function(req, res) {
         blockchainModel.getAccounts(function(result) {
-            res.render("index", { "accounts": result });
+            res.render("form", { "accounts": result });
         })
     },
 

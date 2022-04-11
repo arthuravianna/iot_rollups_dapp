@@ -5,7 +5,7 @@ var homeController = require('../controllers/home');
 var router = express.Router();
 
 // index page(dashboard)
-// router.get('/', homeController.homePage);
+router.get('/', homeController.homePage);
 
 // form page
 router.get('/form', homeController.formPage);
