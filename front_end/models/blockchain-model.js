@@ -15,21 +15,27 @@ module.exports = {
 
         request.post(options, (err, res, body) => {
             if (err) {       
-                return console.log(err)
+                console.log(err)
+                return callback(null)
             }
         
             //console.log(`Status: ${res.statusCode}`);        
             //console.log(body);
 
             const val = body.data.GetNotice
-            var payloads = new Array(val.length)
-            for (var i = 0; i < val.length; i++) {
-                payload = conn.web3.utils.hexToUtf8("0x" + val[i].payload)
-                //console.log("payload Hex", val[i].payload)
-                //console.log("payload UTF8", payload)
-                payloads[i] = JSON.parse(payload)
+            if (!val || val.length == 0) {
+                callback(null)
             }
-            callback(payloads)
+            else {
+                var payloads = new Array(val.length)
+                for (var i = 0; i < val.length; i++) {
+                    payload = conn.web3.utils.hexToUtf8("0x" + val[i].payload)
+                    //console.log("payload Hex", val[i].payload)
+                    //console.log("payload UTF8", payload)
+                    payloads[i] = JSON.parse(payload)
+                }
+                callback(payloads)
+            }
         });
 
     },

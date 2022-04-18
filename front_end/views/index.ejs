@@ -27,20 +27,24 @@
             </thead>
             
             <tbody>
-                <% for (var i = 0; i < notices.length; i++) { %>
-                    <% var dsc = "" %> 
-                    <tr>
-                        <td><%= notices[i].bus_line %></td>
-                        <td><%= notices[i].ts %></td>
-                        <% for (var j = 0; j < notices[i].dsc.length; j++) { 
-                            dsc += notices[i].dsc[j]
-                            if (j != notices[i].dsc.length - 1) {
-                                dsc += " and "
-                            }
-                        } %>
-                        <td><%= dsc %></td>
-                        <td><%= notices[i].value %></td>
-                    </tr>
+                <% if (notices) { %>
+                    <% for (var i = 0; i < notices.length; i++) { %>
+                        <% var dsc = "" %> 
+                        <tr>
+                            <td><%= notices[i].bus_line %></td>
+                            <td><%= notices[i].ts %></td>
+                            <% for (var j = 0; j < notices[i].dsc.length; j++) { 
+                                dsc += notices[i].dsc[j]
+                                if (j != notices[i].dsc.length - 1) {
+                                    dsc += " and "
+                                }
+                            } %>
+                            <td><%= dsc %></td>
+                            <td><%= notices[i].value %></td>
+                        </tr>
+                    <% } %>
+                <% } else { %>
+                    <tr><td colspan="4" class="text-center">Nothing to show</td></tr>
                 <% } %>
             </tbody>
         </table>
