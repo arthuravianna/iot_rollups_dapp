@@ -77,7 +77,7 @@ The response should be something like this:
 To advance time, in order to simulate the passing of epochs, run:
 
 ```shell
-$ docker exec echo_hardhat_1 npx hardhat --network localhost util:advanceTime --seconds 864010
+$ docker exec iot_rollups_dapp-hardhat-1 npx hardhat --network localhost util:advanceTime --seconds 864010
 ```
 
 ## Running the environment in host mode

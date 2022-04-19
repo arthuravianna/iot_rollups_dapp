@@ -3,9 +3,68 @@ var blockchainModel = require('../models/blockchain-model.js');
 
 module.exports={
     homePage:function(req, res) {
-        blockchainModel.getNoticePage(0, 0, function(result) {
-            console.log(result)
-            res.render("index", {"notices": result});
+        let page
+        if (!req.query.page) {
+            page = 1
+        }
+        else {
+            page = parseInt(req.query.page)
+        }
+
+        blockchainModel.getNoticePage(page-1, function(notices, current_epoch) {            
+            let last_page
+            let pagination
+
+            if (current_epoch != undefined) {
+                last_page = current_epoch + 1
+                pagination = []
+
+                if (last_page == 1) {
+                    pagination.push( {"val": "prev", "disabled": true} )
+                    pagination.push( {"val": page, "disabled": false} )
+                    pagination.push( {"val": "next", "disabled": true} )
+                }
+                else if (last_page <= 3) {
+                    pagination.push( {"val": "prev", "disabled": false} )
+                    for (var i = 1; i <= last_page; i++) {
+                        if (i == page) {
+                            pagination.push( {"val": i, "disabled": true} )
+                        }
+                        else {
+                            pagination.push( {"val": i, "disabled": false} )
+                        }   
+                    }                    
+                    pagination.push( {"val": "next", "disabled": false} )
+                }
+                else {
+                    pagination.push( {"val": "prev", "disabled": false} )
+                    
+                    if (page - 1 == 1) {
+                        pagination.push( {"val": 1, "disabled": false} )
+                    }
+                    else {
+                        pagination.push( {"val": 1, "disabled": false} )
+                        pagination.push( {"val": "...", "disabled": true} )
+                        pagination.push( {"val": page-1, "disabled": false} )
+                    }
+
+                    pagination.push( {"val": page, "disabled": true} )
+                
+                    if (page + 1 == last_page) {
+                        pagination.push( {"val": page+1, "disabled": false} )
+                        pagination.push( {"val": "next", "disabled": true} )
+                    }
+                    else {
+                        pagination.push( {"val": "...", "disabled": true} )
+                        pagination.push( {"val": page+1, "disabled": false} )
+                        pagination.push( {"val": "next", "disabled": false} )
+                    }
+                }
+            }
+
+            // console.log(notices)
+            // console.log(pagination)
+            res.render("index", {"notices": notices, "pagination": pagination});
         });
     },
 
