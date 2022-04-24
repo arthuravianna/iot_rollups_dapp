@@ -55,10 +55,11 @@
                 <ul class="pagination justify-content-center">
                     <% for (var i = 0; i < pagination.length; i++) { %>
                         <% const item = pagination[i] %>
+                        <% const page_href = "/?page=" + item.val %>
                         <% if (item.disabled) { %>
-                            <li class="page-item disabled"><a class="page-link" href="#"><%= item.val %> </a></li>
+                            <li class="page-item disabled"><a class="page-link" href=<%= page_href %> title="Epoch" > <%= item.label %> </a></li>
                         <% } else { %>
-                            <li class="page-item"><a class="page-link" href="#"><%= item.val %> </a></li>
+                            <li class="page-item"><a class="page-link" href=<%= page_href %> title="Epoch" > <%= item.label %> </a></li>
                         <% } %> 
                     <% } %> 
                 </ul>
