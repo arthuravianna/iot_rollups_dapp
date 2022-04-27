@@ -57,9 +57,9 @@
                         <% const item = pagination[i] %>
                         <% const page_href = "/?page=" + item.val %>
                         <% if (item.disabled) { %>
-                            <li class="page-item disabled"><a class="page-link" href=<%= page_href %> title="Epoch" > <%= item.label %> </a></li>
+                            <li class="page-item disabled"><a class="page-link" href=<%= page_href %> title=<%= item.title %> > <%= item.label %> </a></li>
                         <% } else { %>
-                            <li class="page-item"><a class="page-link" href=<%= page_href %> title="Epoch" > <%= item.label %> </a></li>
+                            <li class="page-item"><a class="page-link" href=<%= page_href %> title=<%= item.title %> > <%= item.label %> </a></li>
                         <% } %> 
                     <% } %> 
                 </ul>
