@@ -214,3 +214,11 @@ def select_stop_schedule(conn, next_stop, bus_line_id, trip_id):
     result[1] = cur.fetchone()[0].split(";")[next_stop-1]
 
     return result
+    
+    
+def select_stops(conn, bus_line_id):    
+    sql = ''' SELECT lat,lon,stop_order FROM stop WHERE bus_line_id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (bus_line_id,))
+
+    return cur.fetchone()
