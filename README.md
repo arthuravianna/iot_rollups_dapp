@@ -1,131 +1,99 @@
-# Simple Echo DApp
+# IoT Rollups DApp
 
-This example shows how to build and interact with a minimalistic Cartesi Rollups application that simply copies (or "echoes") each input received as a corresponding output notice. This DApp's back-end is written in Python.
+## Project Overview
+This project uses Cartesi Rollups to build a DApp (Decentralized Application) with verifiable logic. The purpose of this application is to verify verify if a public transportation service is complying with its schedules and routes, if not, the DApp will automatically generate a fine for that bus line.
 
-## Building the environment
+To be able to do that the DApp only needs to load (once) the schedule of the Public Transport. After that whenever it receives GPS data from one vehicle that has to comply with the loaded schedule it will generate or not a fine.
 
-To run the echo example, clone the repository as follows:
 
-```shell
-$ git clone https://github.com/cartesi/rollups-examples.git
+## Project Requirements
+- npm
+- nodeJS
+- python3
+- docker
+- docker-compose
+
+
+## Running the Dapp
+To run the DApp is necessary to execute the front-end and the back-end, the later has two modes, Production Mode and Host Mode.
+
+In Production Mode the back-end will run inside the Cartesi Machine, in Host Mode it will run on the local machine, this mode is usefull when developing an application.
+
+After executing the Front-End and **one** of the Back-End modes the user will be able to interact with de DApp the way described [in this section](#interacting-with-the-application).
+
+## Front-End
+The DApp front-end consists of an Web server developed in NodeJS, it's objective is to insteract with Cartesis's contracts in the Blockchain (Layer-1), and for that it uses the Web3.js module.
+
+The server runs on port `3000` and has 3 routes:
+- `/` : Dashboard containing info about the fines to be paid. To retrive this information the Web Server makes queries to the graphql server running on port `4000`. Each page of the dashboard has data of an different epoch;
+- `/form` : A page were an user can upload a bus line schedule. The bus line schedule should be stored in a JSON file and should follow the same format of the files in the `front_end/data_demo` directory;
+- `/submit` : Doesn't have a page, it's the route used to send inputs(real-time GPS data) to the Web server, the Web server will then forward this data to the Contract in the Blockchain and the Contract will forward it to the back-end.
+
+### Installing & Running
+``` Bash
+cd front_end
+npm install
+node app.js
 ```
 
-Then, build the back-end for the echo example:
 
-```shell
-$ cd rollups-examples/echo
-$ make machine
+
+
+## Back-End
+The DApp back-end consists of the verifiable logic that will run inside Cartesi Rollups; this will store and update the application state given user input, and will produce outputs as vouchers (transactions that can be carried out on Layer1) and notices (informational). **The current version only uses notices**.
+
+
+### Production Mode
+To execute the back-end in production mode it's necessary to generate an cartesi machine that contains the back-end logic and then run the production enviroment (containers).
+
+#### Generating Cartesi Machine
+``` Bash
+make machine
 ```
 
-## Running the environment
-
+#### Running the environment
 In order to start the containers in production mode, simply run:
-
-```shell
-$ docker-compose up --build
+``` Bash
+docker-compose up --build
 ```
 
-_Note:_ If you decide to use [Docker Compose V2](https://docs.docker.com/compose/cli-command/), make sure you set the [compatibility flag](https://docs.docker.com/compose/cli-command-compatibility/) when executing the command (e.g., `docker compose --compatibility up`).
-
-Allow some time for the infrastructure to be ready.
-How much will depend on your system, but after some time showing the error `"concurrent call in session"`, eventually the container logs will repeatedly show the following:
-
-```shell
-server_manager_1      | Received GetVersion
-server_manager_1      | Received GetStatus
-server_manager_1      |   default_rollups_id
-server_manager_1      | Received GetSessionStatus for session default_rollups_id
-server_manager_1      |   0
-server_manager_1      | Received GetEpochStatus for session default_rollups_id epoch 0
-```
-
+#### Stopping the environment
 To stop the containers, first end the process with `Ctrl + C`.
 Then, remove the containers and associated volumes by executing:
-
-```shell
-$ docker-compose down -v
+``` Bash
+docker-compose down -v
 ```
 
-## Interacting with the application
 
-With the infrastructure in place, go to a separate terminal window and send an input as follows:
 
-```shell
-npx hardhat --network localhost echo:addInput --input "0x63617274657369"
-```
 
-The input will have been accepted when you receive a response similar to the following one:
 
-```shell
-Added input '0x636172746573690D0A' to epoch '0' (timestamp: 1640643170, signer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, tx: 0x31d7e9e810d8702196623837b8512097786b544a4b5ffb52f693b9ff7d424147)
-```
+### Host Mode
+To execute the back-end in host mode it's necessary to run the DApp back-end logic locally and then run the host enviroment (containers).
 
-In order to verify the notices generated by your inputs, run the command:
-
-```shell
-$ curl http://localhost:4000/graphql -H 'Content-Type: application/json' -d '{ "query" : "query getNotice { GetNotice( query: { session_id: \"default_rollups_id\", epoch_index: \"0\", input_index: \"0\" } ) { session_id epoch_index input_index notice_index payload } }" }'
-```
-
-The response should be something like this:
-
-```shell
-{"data":{"GetNotice":[{"session_id":"default_rollups_id","epoch_index":"0","input_index":"0","notice_index":"0","payload":"63617274657369da"}]}}
-```
-
-## Advancing time
-
-To advance time, in order to simulate the passing of epochs, run:
-
-```shell
-$ docker exec iot_rollups_dapp-hardhat-1 npx hardhat --network localhost util:advanceTime --seconds 864010
-```
-
-## Running the environment in host mode
-
-When developing an application, it is often important to easily test and debug it. For that matter, it is possible to run the Cartesi Rollups environment in [host mode](../README.md#host-mode), so that the DApp's back-end can be executed directly on the host machine, allowing it to be debugged using regular development tools such as an IDE.
-
-The first step is to run the environment in host mode using the following command:
-
-```shell
-docker-compose -f docker-compose.yml -f docker-compose-host.yml up --build
-```
-
-The next step is to run the echo server in your machine. The application is written in Python, so you need to have `python3` installed.
-
-In order to start the echo server, run the following commands in a dedicated terminal:
-
-```shell
-cd echo/server/
+#### Running the back-end locally
+The first step is to run the back-end in your machine. In order to start the server, run the following commands in a dedicated terminal:
+``` Bash
+cd server
 python3 -m venv .env
 . .env/bin/activate
 pip install -r requirements.txt
 HTTP_DISPATCHER_URL="http://127.0.0.1:5004" gunicorn --preload --workers 1 --bind 0.0.0.0:5003 iot_dapp:app
 ```
 
-The echo server will run on port `5003` and send the corresponding notices to port `5004`. After it's successfully started, it should print an output like the following:
+The server will run on port `5003` and send the corresponding notices to port `5004`. After that, you can interact with the application normally.
 
-```
-[2022-01-21 12:38:23,971] INFO in echo: HTTP dispatcher url is http://127.0.0.1:5004
-[2022-01-21 12:38:23 -0500] [79032] [INFO] Starting gunicorn 19.9.0
-[2022-01-21 12:38:23 -0500] [79032] [INFO] Listening at: http://0.0.0.0:5003 (79032)
-[2022-01-21 12:38:23 -0500] [79032] [INFO] Using worker: sync
-[2022-01-21 12:38:23 -0500] [79035] [INFO] Booting worker with pid: 79035
+#### Running the environment
+In order to start the containers in host mode, simply run:
+``` Bash
+docker-compose -f docker-compose.yml -f docker-compose-host.yml up --build
 ```
 
-After that, you can interact with the application normally [as explained above](#interacting-with-the-application).
 
-When you add an input, you should see it being processed by the echo server as follows:
-
-```shell
-[2022-01-21 15:58:39,555] INFO in echo: Received advance request body {'metadata': {'msg_sender': '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', 'epoch_index': 0, 'input_index': 0, 'block_number': 11, 'time_stamp': 1642791522}, 'payload': '0x636172746573690d0a'}
-[2022-01-21 15:58:39,556] INFO in echo: Adding notice
-[2022-01-21 15:58:39,650] INFO in echo: Received notice status 201 body b'{"index":0}'
-[2022-01-21 15:58:39,651] INFO in echo: Finishing
-[2022-01-21 15:58:39,666] INFO in echo: Received finish status 202
-```
-
+#### Stopping the environment
 Finally, to stop the containers, removing any associated volumes, execute:
-
-```shell
+``` Bash
 docker-compose -f docker-compose.yml -f docker-compose-host.yml down -v
 ```
+
+## interacting-with-the-application
