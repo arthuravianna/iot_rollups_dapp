@@ -221,4 +221,4 @@ def select_stops(conn, bus_line_id):
     cur = conn.cursor()
     cur.execute(sql, (bus_line_id,))
 
-    return cur.fetchone()
+    return cur.fetchall()

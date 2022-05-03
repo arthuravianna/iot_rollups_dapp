@@ -58,7 +58,7 @@ def is_late(curr_time, lat, lon, stop, stop_time):
     
     
 def next_stop(lat, lon, stops):
-    for r_coord in route:
+    for r_coord in stops:
         r_lat, r_lon, r_id = r_coord
         if distance_between_coordinates(lat, lon, r_lat, r_lon) <= DIST_TOLERANCE:
             return r_id

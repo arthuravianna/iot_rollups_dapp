@@ -61,10 +61,10 @@ def advance():
             db.insert_stop(conn, stop_id, bus_id, stop)
 
     else:
-    	# get stop
-    	stops = select_stops(conn, payload_dict["bus_id"])
-    	stop_id = util.next_stop(payload_dict["lat"], payload_dict["lon"], stops)  
-    
+        # get stop
+        stops = db.select_stops(conn, payload_dict["bus_id"])
+        stop_id = util.next_stop(payload_dict["lat"], payload_dict["lon"], stops)  
+
         # check route
         route = db.select_route_of_line(conn, payload_dict["bus_id"])
 
