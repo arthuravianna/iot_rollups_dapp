@@ -13,19 +13,19 @@
 DAPP_SERVER_MANAGER_TAG := 0.1.0
 DAPP_SERVER_MANAGER_IMG := cartesi/server-manager:$(DAPP_SERVER_MANAGER_TAG)
 
-CONTAINER_NAME := cartesi-echo-dapp
+CONTAINER_NAME := cartesi-iot-dapp
 CONTAINER_BASE := /opt/cartesi/echo
-CONTAINER_DAPP_FS_BIN := /opt/cartesi/echo-dapp-fs/echo-dapp.ext2
+CONTAINER_DAPP_FS_BIN := /opt/cartesi/iot-dapp-fs/iot-dapp.ext2
 CONTAINER_MACHINE_DIR := /opt/cartesi/echo-machine
 
-DAPP_FS_BIN := echo-dapp.ext2
+DAPP_FS_BIN := iot-dapp.ext2
 BINARIES := rootfs.ext2 linux-5.5.19-ctsi-3.bin rom.bin
 MACHINE_DIR := machine
 
 .PHONY: console clean
 
 $(MACHINE_DIR): $(DAPP_FS_BIN) $(BINARIES)
-	@echo "Building cartesi-machine echo-dapp instance..."
+	@echo "Building cartesi-machine iot-dapp instance..."
 	@if docker inspect $(CONTAINER_NAME) > /dev/null 2>&1; then \
 		docker rm -f $(CONTAINER_NAME) > /dev/null; \
 	fi
@@ -53,8 +53,8 @@ $(BINARIES) &:
 	@wget -q -nc -i dependencies -P .
 	@shasum -c shasumfile
 
-$(DAPP_FS_BIN): echo.py run.sh
-	@echo "Building echo-dapp filesystem..."
+$(DAPP_FS_BIN): iot_dapp.py db_manager.py util.py run.sh
+	@echo "Building iot-dapp filesystem..."
 	@if docker inspect $(CONTAINER_NAME) > /dev/null 2>&1; then \
 		docker rm -f $(CONTAINER_NAME) > /dev/null; \
 	fi

@@ -16,9 +16,9 @@ MACHINE_DIR=/opt/cartesi/echo-machine
 cartesi-machine \
     --ram-length=512Mi \
     --rollup \
-    --flash-drive=label:echo-dapp,filename:echo-dapp.ext2 \
+    --flash-drive=label:iot-dapp,filename:iot-dapp.ext2 \
     --flash-drive=label:root,filename:rootfs.ext2 \
     --ram-image=linux-5.5.19-ctsi-3.bin \
     --rom-image=rom.bin \
     --store=$MACHINE_DIR \
-    -- "/mnt/echo-dapp/run.sh"
+    -- "/mnt/iot-dapp/run.sh"
