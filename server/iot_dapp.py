@@ -61,11 +61,12 @@ def advance():
             db.insert_stop(conn, stop_id, bus_id, stop)
 
     else:
+    	# get stop
+    	stops = select_stops(conn, payload_dict["bus_id"])
+    	stop_id = util.next_stop(payload_dict["lat"], payload_dict["lon"], stops)  
+    
         # check route
         route = db.select_route_of_line(conn, payload_dict["bus_id"])
-
-        # check schedule
-        stop, stop_time = db.select_stop_schedule(conn, payload_dict["next_stop"], payload_dict["bus_id"], payload_dict["trip_id"])
 
         fine_dsc = None
 
@@ -79,18 +80,22 @@ def advance():
             }
 
 
-        if util.is_late(payload_dict["ts"], payload_dict["lat"], payload_dict["lon"], stop, stop_time):
-            if fine_dsc is None:
-                fine_dsc = {
-                    "ts": payload_dict["ts"],
-                    "dsc": ["Late, according to Schedule"],
-                    "bus_line": payload_dict["bus_id"],
-                    "trip": payload_dict["trip_id"],
-                    "value": 10
-                }
-            else:
-                fine_dsc["value"] += 10
-                fine_dsc["dsc"].append("Late, according to Schedule")
+        # check schedule
+        if stop_id:
+            stop, stop_time = db.select_stop_schedule(conn, stop_id, payload_dict["bus_id"], payload_dict["trip_id"])
+        
+            if util.is_late(payload_dict["ts"], payload_dict["lat"], payload_dict["lon"], stop, stop_time):
+                if fine_dsc is None:
+                    fine_dsc = {
+                        "ts": payload_dict["ts"],
+                        "dsc": ["Late, according to Schedule"],
+                        "bus_line": payload_dict["bus_id"],
+                        "trip": payload_dict["trip_id"],
+                        "value": 10
+                    }
+                else:
+                    fine_dsc["value"] += 10
+                    fine_dsc["dsc"].append("Late, according to Schedule")
 
         if fine_dsc:
             notice_payload = util.str_to_eth_hex(json.dumps(fine_dsc))
