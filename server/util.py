@@ -50,8 +50,8 @@ def is_late(curr_time, lat, lon, stop, stop_time):
     stop_datetime = datetime.datetime.strptime(stop_time, "%H:%M:%S")
 
     stop_lat, stop_lon = stop
-    distance = distance_between_coordinates(lat, lon, stop_lat, stop_lon)
-    if curr_datetime > stop_datetime and distance > DIST_TOLERANCE:
+    #distance = distance_between_coordinates(lat, lon, stop_lat, stop_lon)
+    if curr_datetime > stop_datetime: #and distance > DIST_TOLERANCE:
         return True
     
     return False
