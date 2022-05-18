@@ -1,30 +1,41 @@
 const Web3 = require('web3');
-const rollups_jsonInterface = require("./public/ABI/RollupsImpl_ABI.json")
-const input_jsonInterface = require("./public/ABI/InputImpl_ABI.json")
+const rollups = require("./public/ABI/localhost/RollupsFacet.json")
+const input = require("./public/ABI/localhost/InputFacet.json")
+
 
 const provider = "http://localhost:8545" // node running Hardhat
 const web3 = new Web3(Web3.givenProvider || provider);
 
 //web3.eth.defaultAccount = ... // to set a default "from" parameter
-web3.eth.getAccounts().then(console.log).catch(function(error) {console.log("Error: Couldn't get accounts list!")});
+//web3.eth.getAccounts().then(console.log).catch(function(error) {console.log("Error: Couldn't get accounts list!")});
 
-const rollups_contract_addr = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
-const rollups_contract = new web3.eth.Contract(rollups_jsonInterface, rollups_contract_addr)
 
-//console.log(rollups_contract)
+const rollups_contract = new web3.eth.Contract(rollups.abi, rollups.address)
+const input_contract = new web3.eth.Contract(input.abi, input.address)
 
-rollups_contract.methods.getInputAddress().call({ from: "0xcd3b766ccdd6ae721141f452c550ca635964ce71" }).then(
-    function(result) {
-        const input_contract_addr = result
-        //console.log("Input Contract Address: " + input_contract_addr)
 
-        const input_contract = new web3.eth.Contract(input_jsonInterface, input_contract_addr)
+const input_hex = "0x63617274657369"
 
-        input_contract.methods.addInput("0x636172746573690D0A").call({ from: "0xcd3b766ccdd6ae721141f452c550ca635964ce71" }).then(
-            function(result) {
-                console.log("Add Input Result: " + result)
-            }
-        ).catch(function(error) { console.log("Error: Couldn't execute Input contract method.")} )
-    }
-).catch(function(error) { console.log("Error: Couldn't get Input contract address!")} )
+rollups_contract.methods.getCurrentEpoch().send({ from: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" })
+.then(function(result) {
+    console.log("Current Epoch:", result)
+})
+.catch(function(error) {
+    console.log(error)
+})
 
+input_contract.methods.getInput(0).send({ from: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" })
+.then(function(result) {
+    console.log("getInput:", result)
+})
+.catch(function(error) {
+    console.log(error)
+})
+
+input_contract.methods.addInput(input_hex).send({ from: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" })
+.then(function(result) {
+    console.log("addInput:", result)
+})
+.catch(function(error) {
+    console.log(error)
+})
