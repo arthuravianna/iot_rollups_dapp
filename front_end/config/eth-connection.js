@@ -29,9 +29,10 @@ const web3 = new Web3(Web3.givenProvider || provider)
 //         return { web3: web3, rollups_contract: rollups_contract, input_contract: input_contract }
 //     })();
 
-const hardhat = require("../public/ABI/hardhat.json")
+const rollups_facet = require("../public/ABI/localhost/RollupsFacet.json")
+const input_facet = require("../public/ABI/localhost/InputFacet.json")
 
-const rollups_contract = new web3.eth.Contract(hardhat.contracts.RollupsFacet.abi, hardhat.contracts.RollupsFacet.address)
-const input_contract = new web3.eth.Contract(hardhat.contracts.InputFacet.abi, hardhat.contracts.InputFacet.address)
+const rollups_contract = new web3.eth.Contract(rollups_facet.abi, rollups_facet.address)
+const input_contract = new web3.eth.Contract(input_facet.abi, input_facet.address)
 
 module.exports = { web3: web3, rollups_contract: rollups_contract, input_contract: input_contract }

@@ -78,7 +78,7 @@ cd server
 python3 -m venv .env
 . .env/bin/activate
 pip install -r requirements.txt
-HTTP_DISPATCHER_URL="http://127.0.0.1:5004" gunicorn --preload --workers 1 --bind 0.0.0.0:5003 iot_dapp:app
+ROLLUP_HTTP_SERVER_URL="http://127.0.0.1:5004" python3 iot_dapp.py
 ```
 
 The server will run on port `5003` and send the corresponding notices to port `5004`. After that, you can interact with the application normally.
