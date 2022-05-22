@@ -148,8 +148,11 @@ def handle_advance(data):
     ### managing database
     conn = db.create_connection(DB_FILE)
 
+    try:
+        payload_dict = json.loads(payload_utf8)
+    except json.decoder.JSONDecodeError:
+        return "reject"
 
-    payload_dict = json.loads(payload_utf8)
     #### is new Schedule
     if "new_schedule" in payload_dict:
         count = 0
