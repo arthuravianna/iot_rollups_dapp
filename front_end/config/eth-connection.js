@@ -4,6 +4,8 @@ const Web3 = require('web3')
 const provider = "http://localhost:8545" // node running Hardhat
 const web3 = new Web3(Web3.givenProvider || provider)
 
+web3.eth.getAccounts().then(console.log).catch(function(error) {console.log("Error: Couldn't get accounts list!")});
+
 
 // const rollups_contract_addr = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
 // const rollups_jsonInterface = require("../public/ABI/RollupsImpl_ABI.json")
@@ -29,10 +31,16 @@ const web3 = new Web3(Web3.givenProvider || provider)
 //         return { web3: web3, rollups_contract: rollups_contract, input_contract: input_contract }
 //     })();
 
-const rollups_facet = require("../public/ABI/localhost/RollupsFacet.json")
-const input_facet = require("../public/ABI/localhost/InputFacet.json")
+// const rollups_facet = require("../public/ABI/localhost/RollupsFacet.json")
+// const input_facet = require("../public/ABI/localhost/InputFacet.json")
 
-const rollups_contract = new web3.eth.Contract(rollups_facet.abi, rollups_facet.address)
-const input_contract = new web3.eth.Contract(input_facet.abi, input_facet.address)
+// const rollups_contract = new web3.eth.Contract(rollups_facet.abi, rollups_facet.address)
+// const input_contract = new web3.eth.Contract(input_facet.abi, input_facet.address)
+
+const hardhat = require("../public/ABI/localhost.json")
+
+
+const rollups_contract = new web3.eth.Contract(hardhat.contracts.RollupsFacet.abi, hardhat.contracts.RollupsFacet.address)
+const input_contract = new web3.eth.Contract(hardhat.contracts.InputFacet.abi, hardhat.contracts.InputFacet.address)
 
 module.exports = { web3: web3, rollups_contract: rollups_contract, input_contract: input_contract }

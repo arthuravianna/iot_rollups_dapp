@@ -91,11 +91,11 @@ module.exports={
         // console.log("POST Body: ", req.body)
         blockchainModel.addInput(req.body.fromAddress, req.body.data,
             function(result) {
-                //console.log("addInput:", result)
+                console.log("addInput:", result)
                 res.json({success: true, result: "Tx Hash: " + result.transactionHash})
             },
             function(error) {
-                //console.log(error)
+                console.log(error)
                 const error_str =   "## ERROR ##" + 
                                     "\nreason: " + error.reason +
                                     "\ncode: " + error.code + 
