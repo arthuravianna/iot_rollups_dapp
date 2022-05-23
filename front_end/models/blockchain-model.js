@@ -1,11 +1,8 @@
-//const web3_connection = require("../config/eth-connection.js")
 const conn = require("../config/eth-connection.js")
 const request = require('request');
 
 module.exports = {
     getNoticePage:async function(page, callback) {
-        //conn = await web3_connection
-
         let options = {
             url: 'http://localhost:4000/graphql',
             json: true,
@@ -68,21 +65,15 @@ module.exports = {
     },
 
     getAccounts:async function(callback) {
-        //conn = await web3_connection
-        
         conn.web3.eth.getAccounts()
         .then(callback)
     },
 
-    addInput:async function(fromAdress, data, success, fail) {
-        //conn = await web3_connection
-        
-        const input_hex = conn.web3.utils.utf8ToHex(data)
-        console.log("Input Hex:", input_hex)
+    addInput:async function(input, success, fail) {
+        const input_hex = conn.web3.utils.utf8ToHex(input)
+        // console.log("Input Hex:", input_hex)
 
-        conn.input_contract.methods.addInput(input_hex).send(
-                { from: fromAdress }
-            )
+        conn.input_contract.methods.addInput(input_hex).send({ from: conn.web3.eth.defaultAccount })
             .then(success)
             .catch(fail)
     },

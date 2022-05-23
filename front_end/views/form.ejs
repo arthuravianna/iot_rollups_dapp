@@ -94,7 +94,7 @@
 
         if (textFromFileLoaded) {
             try {
-                json = JSON.parse(textFromFileLoaded)
+                let json = JSON.parse(textFromFileLoaded)
                 if (!json.hasOwnProperty("bus_id")) { throw "JSON Error: Missing \"bus_id\" key." }
                 if (!json.hasOwnProperty("route")) { throw "JSON Error: Missing \"route\" key." }
                 if (!json.hasOwnProperty("stops")) { throw "JSON Error: Missing \"stops\" key." }
@@ -119,10 +119,13 @@
             url:"/submit",
             type: "POST",
             async: false,
-            data : {
-                fromAddress: document.getElementById("selectedAddress").value,
-                data: body
-            },
+            data: body,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            // data : {
+            //     fromAddress: document.getElementById("selectedAddress").value,
+            //     data: body
+            // },
             cache : false,
             success : function (res) {
                 if(res["success"]){
