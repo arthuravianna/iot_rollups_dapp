@@ -3,4 +3,4 @@ node_modules
 *.db
 *.bin
 /machine
-public/ABI/
+front_end/public/ABI/
