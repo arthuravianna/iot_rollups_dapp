@@ -31,57 +31,80 @@ def handle_advance(data):
     try:
         payload_dict = json.loads(payload_utf8)
     except json.decoder.JSONDecodeError:
+        conn.close()
         return "reject"
 
     #### is new Schedule
     if "new_schedule" in payload_dict:
         count = 0
-        bus_id = payload_dict["bus_id"] # bus line id
-        route = payload_dict["route"]
+        bus_id = payload_dict["bus_id"] # bus line id       
+        route = payload_dict["route"]    
         stops = payload_dict["stops"]
-        db.insert_bus_line(conn, bus_id, route)
+        schedules = payload_dict["schedule"]     
+
+        if not db.insert_bus_line(conn, bus_id, route):
+            conn.close()
+            return "reject"
         
-        for schedule in payload_dict["schedule"]:
+        for schedule in schedules:
             count += 1
             trip_id = f"{bus_id};{count}"
-            db.insert_trip_schedule(conn, trip_id, bus_id, schedule)
+            if not db.insert_trip_schedule(conn, trip_id, bus_id, schedule):
+                conn.close()
+                return "reject"
         
         stop_id = 0
         for stop in stops:
             stop_id += 1
-            db.insert_stop(conn, stop_id, bus_id, stop)
+            if not db.insert_stop(conn, stop_id, bus_id, stop):
+                conn.close()
+                return "reject"
 
     else:
+        bus_id = payload_dict["bus_id"]
+        trip_id = payload_dict["trip_id"]
+        curr_lat = payload_dict["lat"]
+        curr_lon = payload_dict["lon"]
+        ts = payload_dict["ts"]
+        
         # get stop
-        stops = db.select_stops(conn, payload_dict["bus_id"])
-        stop_id = util.next_stop(payload_dict["lat"], payload_dict["lon"], stops)  
+        stops = db.select_stops(conn, bus_id)
+        stop_id = util.next_stop(curr_lat, curr_lon, stops) 
 
         # check route
-        route = db.select_route_of_line(conn, payload_dict["bus_id"])
+        route = db.select_route_of_line(conn, bus_id)
+        if route is None:
+            conn.close()
+            return "reject"
 
         fine_dsc = None
 
-        if not util.in_route(payload_dict["lat"], payload_dict["lon"], route):
+        if not util.in_route(curr_lat, curr_lon, route):
             fine_dsc = {
-                "ts": payload_dict["ts"],
+                "ts": ts,
                 "dsc": ["Different route"],
-                "bus_line": payload_dict["bus_id"],
-                "trip": payload_dict["trip_id"],
+                "bus_line": bus_id,
+                "trip": trip_id,
                 "value": 5
             }
 
 
         # check schedule
-        if stop_id:
-            stop, stop_time = db.select_stop_schedule(conn, stop_id, payload_dict["bus_id"], payload_dict["trip_id"])
+        if stop_id is not None:
+            result = db.select_stop_schedule(conn, stop_id, bus_id, trip_id)
+            if result is None:
+                conn.close()
+                return "reject"
+            
+            stop, stop_time = result
         
-            if util.is_late(payload_dict["ts"], payload_dict["lat"], payload_dict["lon"], stop, stop_time):
+            if util.is_late(ts, curr_lat, curr_lon, stop, stop_time):
                 if fine_dsc is None:
                     fine_dsc = {
-                        "ts": payload_dict["ts"],
+                        "ts": ts,
                         "dsc": ["Late, according to Schedule"],
-                        "bus_line": payload_dict["bus_id"],
-                        "trip": payload_dict["trip_id"],
+                        "bus_line": bus_id,
+                        "trip": trip_id,
                         "value": 10
                     }
 

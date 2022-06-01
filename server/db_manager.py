@@ -123,11 +123,15 @@ def insert_bus_line(conn, bus_line_id, route:list):
     sql = ''' INSERT INTO line(id, route)
               VALUES(?, ?) '''
     cur = conn.cursor()
-
     route_str = coords_to_str(route)
-    cur.execute(sql, (bus_line_id, route_str))
-
-    conn.commit()
+    
+    try:
+        cur.execute(sql, (bus_line_id, route_str))
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        return False
+    
+    return True
 
 
 def insert_trip_schedule(conn, trip_id, bus_line_id, schedule:list):
@@ -136,9 +140,14 @@ def insert_trip_schedule(conn, trip_id, bus_line_id, schedule:list):
     cur = conn.cursor()
 
     schedule_str = coords_to_str(schedule)
-    cur.execute(sql, (trip_id, bus_line_id, schedule_str))
-        
-    conn.commit()
+
+    try:
+        cur.execute(sql, (trip_id, bus_line_id, schedule_str))    
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        return False
+    
+    return True
 
 
 def insert_stop(conn, stop_order, bus_line_id, coord:list):
@@ -147,9 +156,14 @@ def insert_stop(conn, stop_order, bus_line_id, coord:list):
     cur = conn.cursor()
 
     lat, lon = coord
-    cur.execute(sql, (stop_order, bus_line_id, lat, lon))
-        
-    conn.commit()
+
+    try:
+        cur.execute(sql, (stop_order, bus_line_id, lat, lon))
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        return False
+    
+    return True
 
 ###################################################################
 #                                                                 #
@@ -183,9 +197,11 @@ def select_route_of_line(conn, id):
     cur = conn.cursor()
     cur.execute(sql, (id,))
 
-    coords_str = cur.fetchone()[0]
-
-    route = str_to_coords(coords_str)
+    try:
+        coords_str = cur.fetchone()[0]
+        route = str_to_coords(coords_str)
+    except TypeError as e:
+        return None
     
     return route
 
@@ -209,9 +225,12 @@ def select_stop_schedule(conn, next_stop, bus_line_id, trip_id):
 
     sql = ''' SELECT schedule FROM trip_schedule WHERE id = ? '''
     cur = conn.cursor()
-    cur.execute(sql, (trip_id,))
 
-    result[1] = cur.fetchone()[0].split(";")[next_stop-1]
+    try:
+        cur.execute(sql, (trip_id,))
+        result[1] = cur.fetchone()[0].split(";")[next_stop-1]
+    except TypeError as e:
+        return None
 
     return result
     
