@@ -22,7 +22,7 @@ In Production Mode the back-end will run inside the Cartesi Machine, in Host Mod
 After executing the Front-End and **one** of the Back-End modes the user will be able to interact with de DApp the way described [in this section](#interacting-with-the-application).
 
 ## Front-End
-The DApp front-end consists of an Web server developed in NodeJS, it's objective is to insteract with Cartesis's contracts in the Blockchain (Layer-1), and for that it uses the Web3.js module.
+The DApp front-end consists of a Web server developed in NodeJS, it's objective is to insteract with Cartesis's contracts in the Blockchain (Layer-1), and for that it uses the Web3.js module.
 
 The server runs on port `3000` and has 3 routes:
 - `/` : Dashboard containing info about the fines to be paid. To retrive this information the Web Server makes queries to the graphql server running on port `4000`. Each page of the dashboard has data of an different epoch;
@@ -44,7 +44,7 @@ The DApp back-end consists of the verifiable logic that will run inside Cartesi 
 
 
 ### Production Mode
-To execute the back-end in production mode it's necessary to generate an cartesi machine that contains the back-end logic and then run the production enviroment (containers).
+To execute the back-end in production mode it's necessary to generate a cartesi machine that contains the back-end logic and then run the production enviroment (containers).
 
 #### Generating Cartesi Machine
 ``` Bash
@@ -71,8 +71,14 @@ docker-compose down -v
 ### Host Mode
 To execute the back-end in host mode it's necessary to run the DApp back-end logic locally and then run the host enviroment (containers).
 
+#### Running the environment
+The first step is to start the containers in host mode:
+``` Bash
+docker-compose -f docker-compose.yml -f docker-compose-host.yml up --build
+```
+
 #### Running the back-end locally
-The first step is to run the back-end in your machine. In order to start the server, run the following commands in a dedicated terminal:
+The second step is to run the back-end in your machine. In order to start the server, run the following commands in a dedicated terminal:
 ``` Bash
 cd server
 python3 -m venv .env
@@ -83,15 +89,9 @@ ROLLUP_HTTP_SERVER_URL="http://127.0.0.1:5004" python3 iot_dapp.py
 
 The server will run on port `5003` and send the corresponding notices to port `5004`. After that, you can interact with the application normally.
 
-#### Running the environment
-In order to start the containers in host mode, simply run:
-``` Bash
-docker-compose -f docker-compose.yml -f docker-compose-host.yml up --build
-```
-
-
 #### Stopping the environment
-Finally, to stop the containers, removing any associated volumes, execute:
+To stop the containers, first end the process with `Ctrl + C`.
+Then, remove the containers and associated volumes by executing:
 ``` Bash
 docker-compose -f docker-compose.yml -f docker-compose-host.yml down -v
 ```
@@ -118,7 +118,7 @@ curl -H "Content-Type: application/json" -d @data_demo/schedule1.json http://loc
 ```
 
 ### Send Vehicle Data
-The Vehicle Data doesn't hava a page for it, assuming that this operation will be done by IoT devices there won't be need of a web page.
+The Vehicle Data doesn't have a page for it, assuming that this operation will be done by IoT devices there won't be need of a web page.
 
 Example 1) Execute the curl command bellow to send data of a vehicle that is out of its route. This vehicle is of bus line "18C" described in "schedule1.json".
 
