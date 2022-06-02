@@ -11,14 +11,25 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+# DAPP_FS=/opt/cartesi/iot-dapp-fs/iot-dapp
+# DAPP_FS_BIN=/opt/cartesi/iot-dapp-fs/iot-dapp.ext2
+
+# mkdir -p $DAPP_FS
+# cp ./iot_dapp.py $DAPP_FS
+# cp ./db_manager.py $DAPP_FS
+# cp ./util.py $DAPP_FS
+# cp ./run.sh $DAPP_FS
+# genext2fs -f -b 128000 -d $DAPP_FS $DAPP_FS_BIN
+
 DAPP_FS=/opt/cartesi/iot-dapp-fs/iot-dapp
+DAPP_FS_TAR=/opt/cartesi/iot-dapp-fs/iot-dapp.tar
 DAPP_FS_BIN=/opt/cartesi/iot-dapp-fs/iot-dapp.ext2
 
 mkdir -p $DAPP_FS
 cp ./iot_dapp.py $DAPP_FS
 cp ./db_manager.py $DAPP_FS
 cp ./util.py $DAPP_FS
-cp ./run.sh $DAPP_FS
-#genext2fs -f -i 512 -b 16 -d $DAPP_FS $DAPP_FS_BIN
-#truncate -s %4096 $DAPP_FS_BIN
-genext2fs -f -b 128000 -d $DAPP_FS $DAPP_FS_BIN
+(cd $DAPP_FS; tar --sort=name --mtime="2022-01-01" --owner=0 --group=0 --numeric-owner -cf $DAPP_FS_TAR *.py)
+#genext2fs -f -i 8.192 -b 16 -a $DAPP_FS_TAR $DAPP_FS_BIN
+genext2fs -f -b 128000 -a $DAPP_FS_TAR $DAPP_FS_BIN
+truncate -s %4096 $DAPP_FS_BIN
