@@ -96,4 +96,37 @@ Finally, to stop the containers, removing any associated volumes, execute:
 docker-compose -f docker-compose.yml -f docker-compose-host.yml down -v
 ```
 
+
+
 ## interacting-with-the-application
+Before sending vehicle data, first upload a bus schedule.
+
+### Send Bus Schedule
+This operation can be done in two ways, using the interface or direct communication with the web server via ``curl`` command.
+
+#### Web Page
+1) Go to page http://localhost:3000/form
+2) Select a valid schedule file. (it can be one of the located in "data_demo" folder)
+3) Press "Submit"
+
+Now the back-end has added that bus line schedule to its database.
+
+#### Via curl command
+Execute the curl command bellow.
+``` Bash
+curl -H "Content-Type: application/json" -d @data_demo/schedule1.json http://localhost:3000/submit
+```
+
+### Send Vehicle Data
+The Vehicle Data doesn't hava a page for it, assuming that this operation will be done by IoT devices there won't be need of a web page.
+
+Example 1) Execute the curl command bellow to send data of a vehicle that is out of its route. This vehicle is of bus line "18C" described in "schedule1.json".
+
+``` Bash
+curl -H "Content-Type: application/json" -d '{"bus_id": "18C", "trip_id":"18C;1","lat": 57.828261, "lon": 26.535419,"ts": "2022-03-25 07:45:50" }' http://localhost:3000/submit
+```
+
+Example 2) Execute the curl command bellow to send data of a vehicle that is late. This vehicle is of bus line "18C" described in "schedule1.json".
+``` Bash
+curl -H "Content-Type: application/json" -d '{"bus_id": "18C", "trip_id":"18C;1", "lat": 57.82847892, "lon": 26.53362055,"ts": "2022-05-04 07:48:30"}' http://localhost:3000/submit
+```
