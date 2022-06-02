@@ -37,24 +37,18 @@
 
     <div class="container mt-4">
         <form>
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label for="selectedAddress" class="form-label">From Address</label>
                 <select id="selectedAddress" class="form-select">
                   <option selected value=""> Choose Address</option>
-                  <% for (var i = 1; i < accounts.length; i++) { %>
+                  <% //for (var i = 1; i < accounts.length; i++) { %>
                     <option>
-                            <%= accounts[i] %>
+                            <%= //accounts[i] %>
                     </option>
-                    <% } %>
+                    <% //} %>
                 </select>
-            </div>
-
-            <div id="buttonsDiv" style="display:none">
-                <button type="button" class="btn btn-primary" onclick="addRow()"><i class="bi bi-plus-circle"></i></button>
-                <button type="button" class="btn btn-danger" onclick="delRow()"><i class="bi bi-dash-circle"></i></button>
-                <hr>
-            </div>
-    
+            </div> -->
+   
             <div class="mb-3">
                 <label for="scheduleFile" class="form-label">Load Schedule From JSON file</label>
                 <input class="form-control" type="file" accept=".json" id="scheduleFile" onchange="loadFileContent()">
@@ -75,8 +69,7 @@
         var fileReader = new FileReader();
         fileReader.onload = function(fileLoadedEvent){
             textFromFileLoaded = fileLoadedEvent.target.result;
-            console.log(textFromFileLoaded)
-            //document.getElementById("scheduleFile").value = textFromFileLoaded;
+            //console.log(textFromFileLoaded)
         };
 
         fileReader.readAsText(fileToLoad, "UTF-8");
@@ -84,24 +77,17 @@
 
  
     function formSubmit() {
-        const fromAddress = document.getElementById("selectedAddress").value
+        //const fromAddress = document.getElementById("selectedAddress").value
         let body = undefined
 
-        if (fromAddress == "") {
-            alert("Error: Please select an Address.")
-            return
-        }
+        // if (fromAddress == "") {
+        //     alert("Error: Please select an Address.")
+        //     return
+        // }
 
         if (textFromFileLoaded) {
             try {
                 let json = JSON.parse(textFromFileLoaded)
-                if (!json.hasOwnProperty("bus_id")) { throw "JSON Error: Missing \"bus_id\" key." }
-                if (!json.hasOwnProperty("route")) { throw "JSON Error: Missing \"route\" key." }
-                if (!json.hasOwnProperty("stops")) { throw "JSON Error: Missing \"stops\" key." }
-                if (!json.hasOwnProperty("schedule")) { throw "JSON Error: Missing \"schedule\" key." }
-
-                json.new_schedule = true
-
                 body = JSON.stringify(json)
             }
             catch (error) {
