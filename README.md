@@ -33,7 +33,7 @@ The server runs on port `3000` and has 3 routes:
 ``` Bash
 cd front_end
 npm install
-node app.js
+bash run_front_end.sh
 ```
 
 
