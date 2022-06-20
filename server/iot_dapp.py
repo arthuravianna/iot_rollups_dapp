@@ -67,10 +67,6 @@ def handle_advance(data):
         curr_lon = payload_dict["lon"]
         ts = payload_dict["ts"]
         
-        # get stop
-        stops = db.select_stops(conn, bus_id)
-        stop_id = util.next_stop(curr_lat, curr_lon, stops) 
-
         # check route
         route = db.select_route_of_line(conn, bus_id)
         if route is None:
@@ -82,30 +78,39 @@ def handle_advance(data):
         if not util.in_route(curr_lat, curr_lon, route):
             fine_dsc = {
                 "ts": ts,
-                "dsc": ["Different route"],
+                "tp": 1,                                    # type 1: different route
+                "dsc": "Different route",
+                "expected_route": route,
+                "curr_coords": (curr_lat, curr_lon),
                 "bus_line": bus_id,
                 "trip": trip_id,
                 "value": 5
             }
+        else: # is on route
+            # get stop
+            stops = db.select_stops(conn, bus_id)
+            stop_id = util.next_stop(curr_lat, curr_lon, stops)
 
-
-        # check schedule
-        if stop_id is not None:
-            result = db.select_stop_schedule(conn, stop_id, bus_id, trip_id)
-            if result is None:
-                conn.close()
-                return "reject"
+            # check schedule
+            if stop_id is not None: # arrived at next_stop
+                result = db.select_stop_schedule(conn, stop_id, bus_id, trip_id)
+                if result is None:
+                    conn.close()
+                    return "reject"
+                
+                stop, stop_time = result
+                late = util.is_late(ts, curr_lat, curr_lon, stop, stop_time)
             
-            stop, stop_time = result
-        
-            if util.is_late(ts, curr_lat, curr_lon, stop, stop_time):
-                if fine_dsc is None:
+                if late:
                     fine_dsc = {
                         "ts": ts,
-                        "dsc": ["Late, according to Schedule"],
+                        "tp": 2,                                # type 2: late, according to Schedule
+                        "dsc": "Late, according to Schedule",
+                        "curr_stop": stop,
+                        "late": str(late),                      # how much is late
                         "bus_line": bus_id,
                         "trip": trip_id,
-                        "value": 10
+                        "value": 0.05 * late.seconds            # 0.05 cents for each second
                     }
 
         if fine_dsc:
