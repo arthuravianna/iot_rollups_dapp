@@ -20,22 +20,44 @@
                <img src="assets/images/logo.png" style="height: 48px;" alt="IoT Rollups DApp">
             </a>
 
-            <!-- <div class="collapse navbar-collapse"> -->
-            <ul class="navbar-nav position-absolute top-50 start-50 translate-middle">
-                <li class="nav-item">
-                    <a class="nav-link active disabled font-weight-bolder" aria-current="Dashboard" href="">Dashboard</a>
-                </li>
-
-                <li class="nav-item">
-                <a class="nav-link" aria-current="Form" href="/form">Form</a>
-                </li>
-            </ul>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav position-absolute top-50 start-50 translate-middle">
+                    <li class="nav-item">
+                        <a class="nav-link active disabled font-weight-bolder" aria-current="Dashboard" href="">Dashboard</a>
+                    </li>
     
-            <!-- </div> -->
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="Form" href="/form">Form</a>
+                    </li>                        
+                </ul>
+            </div>
+
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="float-start mt-4 ms-5 p-1 text-center position-fixed">
+        <hr>
+        <h4>Filter</h4>
+        <form>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="filterBusLine">
+                <label for="filterBusLine">Filter by Bus Line</label>
+            </div>
+    
+            <div class="form-floating mb-3">
+                <select class="form-select" id="fineTypeSelector" aria-label="Fine Select Filter">
+                    <option value="0" selected>All</option>
+                    <option value="1">Out of Route</option>
+                    <option value="2">Late</option>
+                </select>
+                <label for="fineTypeSelector">Fine Type</label>
+            </div>
+        </form>
+        
+        <hr>
+    </div>
+
+    <div class="container mt-4">      
         <table id="finesTable" class="table table-striped">
             <thead>
                 <tr>
@@ -47,19 +69,12 @@
             </thead>
             
             <tbody>
-                <% if (notices) { %>
-                    <% for (var i = 0; i < notices.length; i++) { %>
-                        <% var dsc = "" %> 
+                <% if (notices) { //if (notices)%>
+                    <% for (var i = 0; i < notices.length; i++) { //notices.length%>
                         <tr>
                             <td><%= notices[i].bus_line %></td>
                             <td><%= notices[i].ts %></td>
-                            <% for (var j = 0; j < notices[i].dsc.length; j++) { 
-                                dsc += notices[i].dsc[j]
-                                if (j != notices[i].dsc.length - 1) {
-                                    dsc += " and "
-                                }
-                            } %>
-                            <td><%= dsc %></td>
+                            <td><%= notices[i].dsc %></td>
                             <td><%= notices[i].value %></td>
                         </tr>
                     <% } %>
@@ -67,8 +82,7 @@
                     <tr><td colspan="4" class="text-center">No data to show</td></tr>
                 <% } %>
             </tbody>
-        </table>
-
+        </table>   
 
         <% if (pagination) { %>
             <nav aria-label="Page navigation">
