@@ -96,7 +96,11 @@ Then, remove the containers and associated volumes by executing:
 docker-compose -f docker-compose.yml -f docker-compose-host.yml down -v
 ```
 
-
+## Advancing Time
+The command bellow advance 1 epoch
+``` Bash
+docker exec iot_rollups_dapp_hardhat_1 npx hardhat --network localhost util:advanceTime --seconds 864010
+```
 
 ## interacting-with-the-application
 Before sending vehicle data, first upload a bus schedule.

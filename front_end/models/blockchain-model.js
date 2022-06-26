@@ -2,12 +2,13 @@ const conn = require("../config/eth-connection.js")
 const request = require('request');
 
 module.exports = {
-    getNoticePage:async function(page, callback) {
+    getNoticePage:async function(page, filter_options, callback) {
         let options = {
             url: 'http://localhost:4000/graphql',
             json: true,
             body: {
                 query: 'query processed {GetProcessedInput (query: {input_index: "0"}) {epoch_index} }'
+                // query: `query getNotice { GetNotice( query: { input_index: "0" } ) { epoch_index index payload } }`
             }
         };
 
@@ -21,6 +22,7 @@ module.exports = {
             }
 
             let val = body.data.GetProcessedInput
+            // let val = body.data.GetNotice
             if (!val || val.length == 0) {
                 callback(null)
                 return
@@ -28,6 +30,18 @@ module.exports = {
 
             let current_epoch = 0
             for (var i = 0; i < val.length; i++) {
+                // // apply filter
+                // if (filter_options) {
+                //     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
+                //     if (filter_options.filterBusLine && payload.bus_line != filter_options.filterBusLine) {
+                //         continue
+                //     }
+                //     else if (filter_options.fineTypeSelector && payload.tp != filter_options.fineTypeSelector) {
+                //         continue
+                //     }
+                // }
+                
+
                 let epoch = parseInt(val[i].epoch_index)
                 if (val[i].epoch_index > current_epoch) {
                     current_epoch = epoch
@@ -53,10 +67,22 @@ module.exports = {
                     return
                 }
                 
-                var payloads = new Array(val.length)
+                //var payloads = new Array(val.length)
+                let payloads = new Array()
                 for (var i = 0; i < val.length; i++) {
-                    payload = conn.web3.utils.hexToUtf8("0x" + val[i].payload)
-                    payloads[i] = JSON.parse(payload)
+                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
+                    // apply filter
+                    if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
+                        continue
+                    }
+                    else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
+                        continue
+                    }
+
+                    payloads.push(payload)
+                }
+                if (payloads.length == 0) {
+                    payloads = null
                 }
                 callback(payloads, current_epoch)
             });
