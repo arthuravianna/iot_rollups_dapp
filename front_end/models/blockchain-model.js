@@ -67,15 +67,17 @@ module.exports = {
                     return
                 }
                 
-                //var payloads = new Array(val.length)
                 let payloads = new Array()
+                //console.log(filter_options)
                 for (var i = 0; i < val.length; i++) {
                     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
                     // apply filter
                     if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
+                        //console.log("Diff:",payload.bus_lin, filter_options.filterBusLine)
                         continue
                     }
                     else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
+                        //console.log("Diff:",payload.tp, filter_options.fineTypeSelector)
                         continue
                     }
 

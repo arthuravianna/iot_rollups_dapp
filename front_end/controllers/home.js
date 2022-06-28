@@ -106,13 +106,17 @@ module.exports={
         let url ="/"
         if (req.body.submitButton == "0") {
             res.redirect(url)
-            console.log("after redirect to /")
+            return
         }
 
         let filter_options = req.body
 
         if (filter_options.filterBusLine == "" && filter_options.fineTypeSelector == "0") {
             res.redirect(url)
+        }
+
+        if (filter_options.fineTypeSelector == "0") {
+            filter_options.fineTypeSelector = null
         }
         
         url = build_filter_url(filter_options)
