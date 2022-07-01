@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# create ABI directory
-mkdir public/ABI
-
 # copy localhost's (hardhat) ABI to public/ABI directory
-docker cp iot_rollups_dapp_hardhat_1:/opt/cartesi/share/blockchain/localhost.json ./public/ABI/
+#docker cp iot_rollups_dapp-hardhat-1:/opt/cartesi/share/blockchain/localhost.json ./public/ABI/
+#cp -r ../back_end/deployments ./public/
+
+rsync -r ../deployments public/
 if [ $? != 0 ]
 then
     echo "Error: Must run Back-End first"

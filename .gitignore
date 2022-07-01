@@ -1,6 +1,5 @@
+.env
+__pycache__
 node_modules
-*.txt
-*.db
-*.bin
-/machine
-front_end/public/ABI/
+back_end/*.db
+deployments

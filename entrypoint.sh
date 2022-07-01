@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Copyright 2022 Cartesi Pte. Ltd.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -11,12 +11,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-cartesi-machine \
-    --ram-length=512Mi \
-    --rollup \
-    --flash-drive=label:echo-dapp,filename:echo-dapp.ext2 \
-    --flash-drive=label:root,filename:rootfs.ext2 \
-    --ram-image=linux-5.5.19-ctsi-3.bin \
-    --rom-image=rom.bin \
-    -i \
-    -- "/bin/sh"
+set -e
+python3 back_end/db_manager.py           # create sqlite database
+python3 back_end/iot_rollups_dapp.py
