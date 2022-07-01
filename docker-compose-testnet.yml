@@ -1,35 +1,12 @@
 version: "3.9"
 
 services:
-  hardhat:
-    image: cartesi/rollups-hardhat:0.3.0
-    command:
-      [
-        "node",
-        "--network",
-        "hardhat",
-        "--export",
-        "/opt/cartesi/share/blockchain/localhost.json",
-      ]
-    init: true
-    ports:
-      - "8545:8545"
-    healthcheck:
-      test:
-        ["CMD", "test", "-f", "/opt/cartesi/share/blockchain/localhost.json"]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-    volumes:
-      - blockchain-data:/opt/cartesi/share/blockchain
-      - ./deployments:/app/deployments
-
   rollups_dispatcher:
     image: cartesi/rollups-dispatcher:0.3.0
     command:
       [
         "--dapp-contract-address-file",
-        "/deployments/localhost/dapp.address",
+        "/deployments/${NETWORK:?undefined NETWORK}/${DAPP_NAME:?undefined DAPP_NAME}.address",
         "--logic-config-path",
         "/opt/cartesi/share/config/logic-config.toml",
         "--sf-config",
@@ -39,16 +16,16 @@ services:
         "--tm-config",
         "/opt/cartesi/share/config/tm-config.toml",
         "--mnemonic",
-        "test test test test test test test test test test test junk",
+        "${MNEMONIC:?undefined MNEMONIC}",
+        "--provider-http-endpoint",
+        "${RPC_URL:?undefined RPC_URL}",
+        "--ws-endpoint",
+        "${WSS_URL:?undefined WSS_URL}",
         "--chain-id",
-        "31337",
+        "${CHAIN_ID:?undefined CHAIN_ID}",
       ]
     restart: always
     depends_on:
-      hardhat:
-        condition: service_healthy
-      deployer:
-        condition: service_completed_successfully
       state_server:
         condition: service_started
       server_manager:
@@ -67,9 +44,9 @@ services:
         "--sf-config",
         "/opt/cartesi/share/config/sf-config.toml",
         "--url",
-        "http://hardhat:8545",
+        "${RPC_URL:?undefined RPC_URL}",
         "--ws-url",
-        "ws://hardhat:8545",
+        "${WSS_URL:?undefined WSS_URL}",
         "rollups",
       ]
     restart: always
@@ -78,9 +55,6 @@ services:
     #      interval: 10s
     #      timeout: 5s
     #      retries: 5
-    depends_on:
-      hardhat:
-        condition: service_healthy
     volumes:
       - blockchain-data:/opt/cartesi/share/blockchain:ro
       - ./config:/opt/cartesi/share/config/
@@ -95,48 +69,17 @@ services:
     volumes:
       - machine:/opt/cartesi/share/dapp-bin
 
-  deployer:
-    image: cartesi/rollups-cli:0.3.0
-    restart: on-failure
-    depends_on:
-      hardhat:
-        condition: service_healthy
-      server_manager:
-        condition: service_started
-    command:
-      [
-        "create",
-        "--rpc",
-        "http://hardhat:8545",
-        "--deploymentFile",
-        "/opt/cartesi/share/blockchain/localhost.json",
-        "--mnemonic",
-        "test test test test test test test test test test test junk",
-        "--templateHashFile",
-        "/opt/cartesi/share/dapp-bin/hash",
-        "--outputFile",
-        "/deployments/localhost/dapp.address",
-      ]
-    volumes:
-      - blockchain-data:/opt/cartesi/share/blockchain
-      - machine:/opt/cartesi/share/dapp-bin:ro
-      - ./deployments:/deployments
-
   rollups_indexer:
     image: cartesi/rollups-indexer:0.3.0
     command:
       [
         "--dapp-contract-address-file",
-        "/deployments/localhost/dapp.address",
+        "/deployments/${NETWORK:?undefined NETWORK}/${DAPP_NAME:?undefined DAPP_NAME}.address",
         "--indexer-config-path",
         "/opt/cartesi/share/config/indexer-config.toml",
       ]
     restart: always
     depends_on:
-      hardhat:
-        condition: service_healthy
-      deployer:
-        condition: service_completed_successfully
       state_server:
         condition: service_started
       server_manager:

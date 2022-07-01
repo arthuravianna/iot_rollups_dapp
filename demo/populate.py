@@ -5,7 +5,7 @@ import json
 import datetime
 from random import randint
 
-DATA_DEMO_DIR = "./data_demo"
+DATA_DEMO_DIR = "./schedules_demo"
 END_POINT = "http://localhost:3000/submit"
 
 def generate_random_data(schedule, n):

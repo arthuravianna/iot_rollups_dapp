@@ -241,3 +241,7 @@ def select_stops(conn, bus_line_id):
     cur.execute(sql, (bus_line_id,))
 
     return cur.fetchall()
+
+
+if __name__ == "__main__":
+    create_database("schedules.db", None)
