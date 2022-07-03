@@ -49,6 +49,15 @@ To build the application, run the following command:
 docker buildx bake -f docker-bake.hcl -f docker-bake.override.hcl --load
 ```
 
+In some Linux distributions you may need to configure the ``buildx`` command before running the build command, for that execute the commands bellow (You will need jq command to be able to get the latest version).
+``` Bash
+LATEST=$(wget -qO- "https://api.github.com/repos/docker/buildx/releases/latest" | jq -r .name)
+wget https://github.com/docker/buildx/releases/download/$LATEST/buildx-$LATEST.linux-amd64
+chmod a+x buildx-$LATEST.linux-amd64
+mkdir -p ~/.docker/cli-plugins
+mv buildx-$LATEST.linux-amd64 ~/.docker/cli-plugins/docker-buildx
+```
+
 ### Production Mode
 To execute the back-end in production mode it's necessary to generate a cartesi machine that contains the back-end logic and then run the production enviroment (containers).
 

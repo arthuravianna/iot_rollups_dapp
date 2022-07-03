@@ -10,6 +10,22 @@
 
     <!-- Bootstrap Font Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""/>
+
+    <!-- Leaflet Javacript (Make sure you put this AFTER Leaflet's CSS) -->
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+    crossorigin=""></script>
+
+    <style>
+        .clickable-row{
+            cursor:pointer;
+        }
+    </style>
 </head>
 
 <body id="home" style="padding-top: 70px;">
@@ -91,7 +107,7 @@
                 <tbody>
                     <% if (notices) { %>
                         <% for (var i = 0; i < notices.length; i++) { %>
-                            <tr>
+                            <tr class="clickable-row" id="<%= i %>" onclick="draw_notice('<%= JSON.stringify(notices[i])%>')">
                                 <td><%= notices[i].bus_line %></td>
                                 <td><%= notices[i].ts %></td>
                                 <td><%= notices[i].dsc %></td>
@@ -123,8 +139,53 @@
         </div>
     </div>
 
+    <div id="map" style="height: 300px;"></div>
+
 </body>
 
 <script>
+    function draw_notice(notice_str) {
+        let notice = JSON.parse(notice_str)
+
+        let myStyle = {
+            "color": "#ff7800",
+            "weight": 5,
+            "opacity": 0.65
+        };
+        
+        let route = []
+        for (let i = 0; i < notice.expected_route.length; i++) {
+            route.push([ notice.expected_route[i][1], notice.expected_route[i][0] ])
+        }
+
+        let geo_line = {
+            "type": "LineString",
+            "coordinates": route
+        }
+
+
+        let curr_coord = [ notice.curr_coords[1], notice.curr_coords[0] ]
+        let geo_point = {
+            "type": "Point",
+            "coordinates": curr_coord
+        }
+
+        map.flyTo(notice.curr_coords)
+
+        L.geoJSON(geo_line, {
+            style: myStyle
+        }).addTo(map);
+
+        L.geoJSON(geo_point, {
+            style: myStyle
+        }).addTo(map);
+
+    }
+
+    var map = L.map('map').setView([57.828479, 26.533621], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
 </script>
