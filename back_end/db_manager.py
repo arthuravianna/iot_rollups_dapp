@@ -106,10 +106,14 @@ def str_to_coords(coords_str:str):
     
     return coords
 
-def coords_to_str(coords:list):
+def list_to_str(my_list:list):
     s = ""
-    for coord in coords:
-        s += str(coord)[1:-1] + ";" # lat0,lon1;lat1,lon1;lat2,lon2
+    if type(my_list[0]) == list: # coordinates list: [[lat0, lon0], [lat1, lon1],...]
+        for coord in my_list:
+            s += f"{coord[0]},{coord[1]};" # lat0,lon1;lat1,lon1;lat2,lon2
+    else: # schedule list: ['07:45:0', '07:46:0',...]
+        for ts in my_list:
+            s += f"{ts};"
     
     return s[:-1] # remove last ";"
 
@@ -123,7 +127,7 @@ def insert_bus_line(conn, bus_line_id, route:list):
     sql = ''' INSERT INTO line(id, route)
               VALUES(?, ?) '''
     cur = conn.cursor()
-    route_str = coords_to_str(route)
+    route_str = list_to_str(route)
     
     try:
         cur.execute(sql, (bus_line_id, route_str))
@@ -139,7 +143,7 @@ def insert_trip_schedule(conn, trip_id, bus_line_id, schedule:list):
               VALUES(?, ?, ?) '''
     cur = conn.cursor()
 
-    schedule_str = coords_to_str(schedule)
+    schedule_str = list_to_str(schedule)
 
     try:
         cur.execute(sql, (trip_id, bus_line_id, schedule_str))    
