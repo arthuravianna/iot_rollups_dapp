@@ -4,9 +4,14 @@
 <head lang="pt-br">
 	<title>Cartesi Rollups Dapp</title>
 	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap -->
-	<link href="bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script> -->
 
     <!-- Bootstrap Font Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
@@ -25,8 +30,87 @@
         .clickable-row{
             cursor:pointer;
         }
+        .clickable-row:hover{
+            /* background-color: rgb(237, 245, 129); */
+            background-color: bisque;
+        }
+        .btn-light:hover, .btn-light:focus{
+            background-color: bisque;
+        }
     </style>
 </head>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Fines's Filter</h5>
+            </div>
+
+            <!-- BEGIN FORM -->
+            <form action="/" method="post" >
+
+                <!-- BEGIN MODAL BODY -->
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <% if (filter_options.filterBusLine) { %>
+                                <input type="text" class="form-control" id="filterBusLine" name="filterBusLine" value=<%= filter_options.filterBusLine %>>
+                            <% } else { %>
+                                <input type="text" class="form-control" id="filterBusLine" name="filterBusLine" value="">
+                            <% } %>
+                            <label for="filterBusLine">Filter by Bus Line</label>
+                        </div>
+                
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="fineTypeSelector" name="fineTypeSelector" aria-label="Fine Select Filter">
+                                <% if (filter_options.fineTypeSelector) { %>
+                                    <% let options = {"0": "All", "1": "Out of Route", "2": "Late"} %>
+                                    <% for (k in options) { %>
+                                        <% if (filter_options.fineTypeSelector == k) { %>
+                                            <option value=<%= k %> selected> <%= options[k] %> </option>
+                                        <% } else { %>
+                                            <option value=<%= k %> > <%= options[k] %> </option>
+                                        <% } %>            
+                                    <% } %>
+                                <% } else { %>
+                                    <option value="0" selected>All</option>
+                                    <option value="1">Out of Route</option>
+                                    <option value="2">Late</option>
+                                <% } %>
+                            </select>
+                            <label for="fineTypeSelector">Fine Type</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="epochSelector" name="epochSelector" aria-label="Epoch Select">
+                                <option value="0" selected>0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                            <label for="epochSelector">Epoch</label>
+                        </div>
+                    </div>
+                
+                <!-- END MODAL BODY -->
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary mb-3" data-bs-dismiss="modal" name="submitButton" value="1">Filter</button>
+                    <button type="submit" class="btn btn-danger mb-3" data-bs-dismiss="modal" name="submitButton" value="0">Clear</button>
+                </div>
+            
+            <!-- END FORM -->                 
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
 
 <body id="home" style="padding-top: 70px;">
 
@@ -47,59 +131,33 @@
                     </li>                        
                 </ul>
             </div>
-
         </div>
     </nav>
 
     <div class="row mt-4 mx-2">
-        <div class="p-1 text-center col-2">
-            <hr>
-            <h4>Filter</h4>
-            <form action="/" method="post" >
-                <div class="form-floating mb-3">
-                    <% if (filter_options.filterBusLine) { %>
-                        <input type="text" class="form-control" id="filterBusLine" name="filterBusLine" value=<%= filter_options.filterBusLine %>>
-                    <% } else { %>
-                        <input type="text" class="form-control" id="filterBusLine" name="filterBusLine" value="">
-                    <% } %>
-                    <label for="filterBusLine">Filter by Bus Line</label>
-                </div>
-        
-                <div class="form-floating mb-3">
-                    <select class="form-select" id="fineTypeSelector" name="fineTypeSelector" aria-label="Fine Select Filter">
-                        <% if (filter_options.fineTypeSelector) { %>
-                            <% let options = {"0": "All", "1": "Out of Route", "2": "Late"} %>
-                            <% for (k in options) { %>
-                                <% if (filter_options.fineTypeSelector == k) { %>
-                                    <option value=<%= k %> selected> <%= options[k] %> </option>
-                                <% } else { %>
-                                    <option value=<%= k %> > <%= options[k] %> </option>
-                                <% } %>            
-                            <% } %>
-                        <% } else { %>
-                            <option value="0" selected>All</option>
-                            <option value="1">Out of Route</option>
-                            <option value="2">Late</option>
-                        <% } %>
-                    </select>
-                    <label for="fineTypeSelector">Fine Type</label>
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary mb-3" name="submitButton" value="1">Filter</button>
-                    <button type="submit" class="btn btn-danger mb-3" name="submitButton" value="0">Clear</button>
-                </div>
-            </form>
-            
-            <hr>    
-        </div>
+        <div id="map" style="height: 600px;" class="col-9"></div>
 
-        <div class="col-8">
+        <div class="col-3">
+            <div>
+                <ul class="list-group list-group-horizontal mb-1">
+                    <li class="list-group-item border-0 flex-fill p-0">
+                        <h4 class="m-0">Fines's Table</h4>
+                        <small class="text-muted">Epoch: 0/4</small>
+                    </li>
+                    <li class="list-group-item border-0 p-0 me-auto">
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
+                            <i class="bi bi-filter-circle"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
             <table id="finesTable" class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">Bus Line</th>
                         <th scope="col">Timestamp</th>
-                        <th scope="col">Fine Description</th>
+                        <!-- <th scope="col">Fine Description</th> -->
                         <th scope="col">Fine Value (R$)</th>
                     </tr>
                 </thead>
@@ -110,7 +168,7 @@
                             <tr class="clickable-row" id="<%= i %>" onclick="draw_notice('<%= JSON.stringify(notices[i])%>')">
                                 <td><%= notices[i].bus_line %></td>
                                 <td><%= notices[i].ts %></td>
-                                <td><%= notices[i].dsc %></td>
+                                <!-- <td><%= notices[i].dsc %></td> -->
                                 <td><%= notices[i].value %></td>
                             </tr>
                         <% } %>
@@ -139,8 +197,6 @@
         </div>
     </div>
 
-    <div id="map" style="height: 300px;"></div>
-
 </body>
 
 <script>
@@ -164,13 +220,13 @@
             let curr_coord = [ notice.curr_coords[1], notice.curr_coords[0] ]
             mark = notice.curr_coords
 
-            if (!points_in_map.hasOwnProperty(`${notice.bus_line};${notice.ts}`)) {
+            if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
                 features.push({
                     "type": "Point",
                     "popup": `Bus of line ${notice.bus_line} was out of route at ${notice.ts}.`,
                     "coordinates": curr_coord
                 })
-                points_in_map[`${notice.bus_line};${notice.ts}`] = true
+                points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
                 console.log(points_in_map)
             }
 
@@ -197,13 +253,13 @@
             let curr_coord = [ notice.curr_stop[1], notice.curr_stop[0] ]
             mark = notice.curr_stop
 
-            if (!points_in_map.hasOwnProperty(`${notice.bus_line};${notice.ts}`)) {
+            if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
                 features.push({
                     "type": "Point",
                     "popup": `Bus of line ${notice.bus_line} was ${notice.late} late.`,
                     "coordinates": curr_coord
                 })
-                points_in_map[`${notice.bus_line};${notice.ts}`] = true
+                points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
                 console.log(points_in_map)
             }
         }

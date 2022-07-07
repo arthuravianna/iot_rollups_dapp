@@ -81,6 +81,8 @@ module.exports = {
                         continue
                     }
 
+                    payload.epoch_index = val[i].epoch_index
+                    payload.input_index = val[i].input_index
                     payloads.push(payload)
                 }
                 if (payloads.length == 0) {
