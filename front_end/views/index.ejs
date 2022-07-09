@@ -10,9 +10,6 @@
     <link href="bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script> -->
-
     <!-- Bootstrap Font Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
@@ -25,6 +22,9 @@
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
     integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
     crossorigin=""></script>
+    
+    <!-- AJAX -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
     <style>
         .clickable-row{
@@ -40,9 +40,41 @@
     </style>
 </head>
 
+<!-- Schedule Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleModalLabel">Upload Bus Schedule</h5>
+            </div>
+
+            <!-- BEGIN FORM -->
+            <form>
+
+                <!-- BEGIN MODAL BODY -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="scheduleFile" class="form-label">Load Schedule From JSON file</label>
+                        <input class="form-control" type="file" accept=".json" id="scheduleFile" onchange="loadFileContent()">
+                    </div>        
+                <!-- END MODAL BODY -->
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="text-center">
+                        <button type="submit" id="schedule-btn-submit" class="btn btn-primary text-center" onclick="formSubmit()">Submit</button>
+                    </div>
+                </div>
+            
+            <!-- END FORM -->                 
+            </form>
+
+        </div>
+    </div>
+</div>
 
 
-<!-- Modal -->
+<!-- Filter Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -87,9 +119,13 @@
                         
                         <div class="form-floating mb-3">
                             <select class="form-select" id="epochSelector" name="epochSelector" aria-label="Epoch Select">
-                                <option value="0" selected>0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
+                                <% for (var e = 0; e <= current_epoch; e++) { %>
+                                    <% if (e == viewing_epoch) {%>
+                                        <option value=<%= e %> selected><%= e %></option>    
+                                    <% } else { %>
+                                        <option value=<%= e %>><%= e %></option>
+                                    <% } %>
+                                <% } %>
                             </select>
                             <label for="epochSelector">Epoch</label>
                         </div>
@@ -120,7 +156,7 @@
                <img src="assets/images/logo.png" style="height: 48px;" alt="IoT Rollups DApp">
             </a>
 
-            <div class="collapse navbar-collapse">
+            <!-- <div class="collapse navbar-collapse">
                 <ul class="navbar-nav position-absolute top-50 start-50 translate-middle">
                     <li class="nav-item">
                         <a class="nav-link active disabled font-weight-bolder" aria-current="Dashboard" href="">Dashboard</a>
@@ -130,23 +166,53 @@
                         <a class="nav-link" aria-current="Form" href="/form">Form</a>
                     </li>                        
                 </ul>
-            </div>
+            </div> -->
         </div>
     </nav>
 
     <div class="row mt-4 mx-2">
-        <div id="map" style="height: 600px;" class="col-9"></div>
+        <div id="map" class="col-9"></div>
 
         <div class="col-3">
             <div>
                 <ul class="list-group list-group-horizontal mb-1">
                     <li class="list-group-item border-0 flex-fill p-0">
                         <h4 class="m-0">Fines's Table</h4>
-                        <small class="text-muted">Epoch: 0/4</small>
+                        <small class="text-muted"><%= `Epoch: 0/${current_epoch}` %></small>
                     </li>
+
                     <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
+                        <!-- Button trigger modal schedule -->
+                        <button type="button" title="Clear Map" class="btn btn-light" onclick="clear_map()">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </li>
+
+                    <li class="list-group-item border-0 p-0 me-auto">
+                        <!-- Button trigger modal schedule -->
+                        <button type="button" title="Upload Bus Schedule" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                    </li>
+
+
+                    <li class="list-group-item border-0 p-0 me-auto">
+                        <!-- Button to open/close histogram graph -->
+                        <button type="button" title="Histogram" class="btn btn-light">
+                            <i class="bi bi-bar-chart-line"></i>
+                        </button>
+                    </li>
+
+                    <li class="list-group-item border-0 p-0 me-auto">
+                        <!-- Button to open/close time-series graph -->
+                        <button type="button" title="Time Series" class="btn btn-light">
+                            <i class="bi bi-graph-up"></i>
+                        </button>
+                    </li>
+
+                    <li class="list-group-item border-0 p-0 me-auto">
+                        <!-- Button trigger modal filter -->
+                        <button type="button" title="Filter" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
                             <i class="bi bi-filter-circle"></i>
                         </button>
                     </li>
@@ -162,14 +228,17 @@
                     </tr>
                 </thead>
                 
+                <!-- Notices -->
                 <tbody>
                     <% if (notices) { %>
+                        <% let notice %>
                         <% for (var i = 0; i < notices.length; i++) { %>
-                            <tr class="clickable-row" id="<%= i %>" onclick="draw_notice('<%= JSON.stringify(notices[i])%>')">
-                                <td><%= notices[i].bus_line %></td>
-                                <td><%= notices[i].ts %></td>
-                                <!-- <td><%= notices[i].dsc %></td> -->
-                                <td><%= notices[i].value %></td>
+                            <% notice = notices[i] %>
+                            <tr class="clickable-row" id="<%= `${notice.epoch_index};${notice.input_index}` %>" onclick="draw_notice('<%= JSON.stringify(notice)%>')">
+                                <td><%= notice.bus_line %></td>
+                                <td><%= notice.ts %></td>
+                                <!-- <td><%= notice.dsc %></td> -->
+                                <td><%= notice.value %></td>
                             </tr>
                         <% } %>
                     <% } else { %>
@@ -178,6 +247,7 @@
                 </tbody>
             </table>   
     
+            <!-- Pagination -->
             <% if (pagination) { %>
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
@@ -199,113 +269,12 @@
 
 </body>
 
+
+<script src="js/appUI.js"></script>
+<script src="js/connection.js"></script>
 <script>
-    function get_random_color() {
-        var makeColorCode = '0123456789ABCDEF';
-        var code = '#';
-        for (var count = 0; count < 6; count++) {
-            code =code+ makeColorCode[Math.floor(Math.random() * 16)];
-        }
-        return code;
-    }
+    // initializing appUI controller
+    var appUI = new AppUI("map")
 
-    function draw_notice(notice_str) {
-        let notice = JSON.parse(notice_str)
-        let features = []
-        myStyle.color = get_random_color()
-        myStyle.fillColor = myStyle.color
-        let mark
-
-        if (notice.tp == 1) { // Out of Route Fine
-            let curr_coord = [ notice.curr_coords[1], notice.curr_coords[0] ]
-            mark = notice.curr_coords
-
-            if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
-                features.push({
-                    "type": "Point",
-                    "popup": `Bus of line ${notice.bus_line} was out of route at ${notice.ts}.`,
-                    "coordinates": curr_coord
-                })
-                points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
-                console.log(points_in_map)
-            }
-
-            if (!routes_in_map.hasOwnProperty(notice.bus_line)) {
-                let route = []
-                for (let i = 0; i < notice.expected_route.length; i++) {
-                    route.push([ notice.expected_route[i][1], notice.expected_route[i][0] ])
-                }
-
-                features.push({
-                    "type": "LineString",
-                    "popup": `Route of bus ${notice.bus_line}.`,
-                    "coordinates": route
-                })
-                routes_in_map[notice.bus_line] = myStyle.color
-                console.log(routes_in_map)
-            }
-            else {
-                myStyle.color = routes_in_map[notice.bus_line]
-                myStyle.fillColor = myStyle.color
-            }
-        }
-        else if (notice.tp == 2) { // Late fine
-            let curr_coord = [ notice.curr_stop[1], notice.curr_stop[0] ]
-            mark = notice.curr_stop
-
-            if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
-                features.push({
-                    "type": "Point",
-                    "popup": `Bus of line ${notice.bus_line} was ${notice.late} late.`,
-                    "coordinates": curr_coord
-                })
-                points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
-                console.log(points_in_map)
-            }
-        }
-
-
-        // console.log(features)
-        // L.geoJSON(features, {
-        //     style: myStyle,
-        //     onEachFeature: (feature, layer) => {layer.bindPopup(feature.popup)}
-        // }).addTo(map);
-        
-        L.geoJSON(features, {
-            style: myStyle,
-            onEachFeature: (feature, layer) => {layer.bindPopup(feature.popup)},
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng);
-            }
-        }).addTo(map);
-
-
-        if (mark){
-            map.flyTo(mark)
-        }
-    }
-
-    // MAP GLOBAL VARIABLES
-    var map = L.map('map').setView([57.828479, 26.533621], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-    var myStyle = {
-        "color": null,
-        "fillColor": null,
-        "weight": 3,
-        "opacity": 1.0,
-        "fillOpacity": 0.6,
-        "radious": 10
-    };
-
-    var routes_in_map = {} // { bus_line: boolean }
-    var points_in_map = {} // { "bus_line;ts": boolean }
-
-    // to remove the Layers: L.geoJSON.clearLayers()
-    // to add a fine trhourgh map:
-    // map.on('click', function(e) {
-    //     alert(e.latlng);
-    // } );
 </script>
+<script src="js/map_control.js"></script>

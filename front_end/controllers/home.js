@@ -98,7 +98,13 @@ module.exports={
 
             // console.log(notices)
             // console.log(pagination)
-            res.render("index", {"notices": notices, "pagination": pagination, "filter_options": filter_options});
+            res.render("index", {
+                "notices": notices,
+                "pagination": pagination,
+                "filter_options": filter_options,
+                "current_epoch": current_epoch,
+                "viewing_epoch": 0} // change later
+                );
         });
     },
 
