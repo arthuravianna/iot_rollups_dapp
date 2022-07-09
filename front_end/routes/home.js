@@ -16,4 +16,7 @@ router.get('/form', homeController.formPage);
 router.post("/submit", homeController.submit);
 
 
+// get data
+router.post("/query", homeController.query);
+
 module.exports = router

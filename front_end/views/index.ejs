@@ -26,18 +26,8 @@
     <!-- AJAX -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
-    <style>
-        .clickable-row{
-            cursor:pointer;
-        }
-        .clickable-row:hover{
-            /* background-color: rgb(237, 245, 129); */
-            background-color: bisque;
-        }
-        .btn-light:hover, .btn-light:focus{
-            background-color: bisque;
-        }
-    </style>
+    <!-- My custom css -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <!-- Schedule Modal -->
@@ -120,7 +110,7 @@
                         <div class="form-floating mb-3">
                             <select class="form-select" id="epochSelector" name="epochSelector" aria-label="Epoch Select">
                                 <% for (var e = 0; e <= current_epoch; e++) { %>
-                                    <% if (e == viewing_epoch) {%>
+                                    <% if (e == req_epoch) {%>
                                         <option value=<%= e %> selected><%= e %></option>    
                                     <% } else { %>
                                         <option value=<%= e %>><%= e %></option>
@@ -155,19 +145,23 @@
            <a class="navbar-brand" href="/">
                <img src="assets/images/logo.png" style="height: 48px;" alt="IoT Rollups DApp">
             </a>
-
-            <!-- <div class="collapse navbar-collapse">
-                <ul class="navbar-nav position-absolute top-50 start-50 translate-middle">
-                    <li class="nav-item">
-                        <a class="nav-link active disabled font-weight-bolder" aria-current="Dashboard" href="">Dashboard</a>
-                    </li>
-    
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="Form" href="/form">Form</a>
-                    </li>                        
-                </ul>
-            </div> -->
         </div>
+
+        <div class="dropdown me-4">
+            <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <%= `Visualizing Epoch: ${req_epoch}` %>
+            </a>
+          
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <% for (let i = 0; i <= current_epoch; i++) { %>
+                    <% if (i == req_epoch) { %>
+                        <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %> disabled> <%= i %> </a></li>
+                    <% } else {%>
+                        <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %>> <%= i %> </a></li>
+                    <% } %>
+                <% } %>
+            </ul>
+          </div>
     </nav>
 
     <div class="row mt-4 mx-2">
@@ -178,7 +172,7 @@
                 <ul class="list-group list-group-horizontal mb-1">
                     <li class="list-group-item border-0 flex-fill p-0">
                         <h4 class="m-0">Fines's Table</h4>
-                        <small class="text-muted"><%= `Epoch: 0/${current_epoch}` %></small>
+                        <small class="text-muted"><%= `Epoch: ${req_epoch}/${current_epoch}` %></small>
                     </li>
 
                     <li class="list-group-item border-0 p-0 me-auto">
@@ -245,7 +239,7 @@
                         <tr><td colspan="4" class="text-center">No data to show</td></tr>
                     <% } %>
                 </tbody>
-            </table>   
+            </table>
     
             <!-- Pagination -->
             <% if (pagination) { %>

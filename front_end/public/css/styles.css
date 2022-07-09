@@ -1,0 +1,10 @@
+.clickable-row{
+    cursor:pointer;
+}
+.clickable-row:hover{
+    /* background-color: rgb(237, 245, 129); */
+    background-color: bisque;
+}
+.btn-light:hover, .btn-light:focus{
+    background-color: bisque;
+}
