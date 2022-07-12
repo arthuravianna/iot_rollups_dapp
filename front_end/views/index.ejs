@@ -26,6 +26,9 @@
     <!-- AJAX -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
+    <!-- Chart JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+
     <!-- My custom css -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -164,7 +167,7 @@
           </div>
     </nav>
 
-    <div class="row mt-4 mx-2">
+    <div class="row mt-4 mx-2" style="position: relative; z-index: 0">
         <div id="map" class="col-9"></div>
 
         <div class="col-3">
@@ -192,7 +195,7 @@
 
                     <li class="list-group-item border-0 p-0 me-auto">
                         <!-- Button to open/close histogram graph -->
-                        <button type="button" title="Histogram" class="btn btn-light">
+                        <button type="button" id="histogram_btn" title="Histogram" class="btn btn-light">
                             <i class="bi bi-bar-chart-line"></i>
                         </button>
                     </li>
@@ -261,6 +264,15 @@
         </div>
     </div>
 
+    <div id="histogram" style="width: 400px;position: absolute; z-index: 1" class="card visually-hidden">
+        <div id="histogramHeader" class="card-header bg-light p-0" style="cursor: move">
+            <button type="button" id="histogram_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button>
+        </div>
+        <div id="histogramBody" class="card-body p-0">
+            <canvas id="myChart"></canvas>
+        </div>            
+    </div>
+    
 </body>
 
 
@@ -268,7 +280,68 @@
 <script src="js/connection.js"></script>
 <script>
     // initializing appUI controller
-    var appUI = new AppUI("map")
+    var appUI = new AppUI("map", "finesTable",{
+        "div_id": "histogram",
+        "btn_minimize_id": "histogram_btn_minimize", // close
+        "btn_id": "histogram_btn", // open/close
+        "div_width": 400
+    })
+
+    function get_random_color() {
+        var makeColorCode = '0123456789ABCDEF';
+        var code = '#';
+        for (var count = 0; count < 6; count++) {
+            code =code+ makeColorCode[Math.floor(Math.random() * 16)];
+        }
+        return code;
+    }
+
+    const chart_data = {
+        type: 'bar',
+        datasets: [{
+            label: "Bus Fines Qty",
+            data: [{x:"15", y: 21}, {x: "18C", y: 14}],
+            backgroundColor: [get_random_color(), get_random_color(), get_random_color() ]
+        }],
+        borderWidth: 1
+    }
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        // data: {
+        //     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        //     datasets: [{
+        //         label: '# of Votes',
+        //         data: [12, 19, 3, 5, 2, 3],
+        //         backgroundColor: [
+        //             'rgba(255, 99, 132, 0.2)',
+        //             'rgba(54, 162, 235, 0.2)',
+        //             'rgba(255, 206, 86, 0.2)',
+        //             'rgba(75, 192, 192, 0.2)',
+        //             'rgba(153, 102, 255, 0.2)',
+        //             'rgba(255, 159, 64, 0.2)'
+        //         ],
+        //         borderColor: [
+        //             'rgba(255, 99, 132, 1)',
+        //             'rgba(54, 162, 235, 1)',
+        //             'rgba(255, 206, 86, 1)',
+        //             'rgba(75, 192, 192, 1)',
+        //             'rgba(153, 102, 255, 1)',
+        //             'rgba(255, 159, 64, 1)'
+        //         ],
+        //         borderWidth: 1
+        //     }]
+        // },
+        data: chart_data,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 
 </script>
 <script src="js/map_control.js"></script>

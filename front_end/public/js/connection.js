@@ -69,6 +69,39 @@ function formSubmit() {
 };
 
 
+function query_chart_data(epoch, type) {
+    let_body = {
+        "epoch": epoch,
+        "type": type
+    }
+
+    $.ajax({
+        url:"/query",
+        type: "POST",
+        async: false,
+        data: body,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        // data : {
+        //     fromAddress: document.getElementById("selectedAddress").value,
+        //     data: body
+        // },
+        cache : false,
+        success : function (res) {
+            if(res["success"]){
+                return res
+            }
+            else if (!res["success"]) {
+                alert(res["result"])
+            }
+        },
+        error : function () {
+            // some error handling part
+            alert("Request Failed");
+        }
+    });
+}
+
 // prevents page from reloading
 $( "#schedule-btn-submit" ).click(function( event ) {
     event.preventDefault();
