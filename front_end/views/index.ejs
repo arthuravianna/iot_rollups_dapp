@@ -202,7 +202,7 @@
 
                     <li class="list-group-item border-0 p-0 me-auto">
                         <!-- Button to open/close time-series graph -->
-                        <button type="button" title="Time Series" class="btn btn-light">
+                        <button type="button" id="timeSeries_btn" title="Time Series" class="btn btn-light">
                             <i class="bi bi-graph-up"></i>
                         </button>
                     </li>
@@ -272,6 +272,15 @@
             <canvas id="histogramChart"></canvas>
         </div>            
     </div>
+
+    <div id="timeSeries" style="width: 400px;position: absolute; z-index: 1" class="card visually-hidden">
+        <div id="timeSeriesHeader" class="card-header bg-light p-0" style="cursor: move">
+            <button type="button" id="timeSeries_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button>
+        </div>
+        <div id="timeSeriesBody" class="card-body p-0">
+            <canvas id="timeSeriesChart"></canvas>
+        </div>            
+    </div>
     
 </body>
 
@@ -282,12 +291,20 @@
 <script>
     var req_epoch = '<%-req_epoch%>'
     // initializing appUI controller
-    var appUI = new AppUI("map", "finesTable",{
-        "div_id": "histogram",
-        "btn_minimize_id": "histogram_btn_minimize", // close
-        "btn_id": "histogram_btn", // open/close
-        "div_width": 400
-    })
+    var appUI = new AppUI("map", "finesTable",
+        {
+            "div_id": "histogram",
+            "btn_minimize_id": "histogram_btn_minimize", // close
+            "btn_id": "histogram_btn", // open/close
+            "div_width": 400
+        },
+        {
+            "div_id": "timeSeries",
+            "btn_minimize_id": "timeSeries_btn_minimize", // close
+            "btn_id": "timeSeries_btn", // open/close
+            "div_width": 400
+        },
+    )
 
     var barChart = new ChartControl("histogramChart", {
         "type": 'bar',
@@ -311,60 +328,32 @@
         }
     })
 
-    function get_random_color() {
-        var makeColorCode = '0123456789ABCDEF';
-        var code = '#';
-        for (var count = 0; count < 6; count++) {
-            code =code+ makeColorCode[Math.floor(Math.random() * 16)];
+    var timeSeriesChart = new ChartControl("timeSeriesChart", {
+        "type": 'line',
+        "epoch": req_epoch,
+        "select": {
+            datasetKey: "tp",
+            x: "ts",
+            y: "value"
+        },
+        "options": {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Fines's Values"
+                },
+                legend: {
+                    display: true
+                }
+            }
         }
-        return code;
-    }
+    })
 
-    // const chart_data = {
-    //     type: 'bar',
-    //     datasets: [{
-    //         label: "Bus Fines Qty",
-    //         data: [{x:"15", y: 21}, {x: "18C", y: 14}],
-    //         backgroundColor: [get_random_color(), get_random_color(), get_random_color() ]
-    //     }],
-    //     borderWidth: 1
-    // }
-    // const ctx = document.getElementById('myChart').getContext('2d');
-    // const myChart = new Chart(ctx, {
-    //     type: 'bar',
-    //     // data: {
-    //     //     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    //     //     datasets: [{
-    //     //         label: '# of Votes',
-    //     //         data: [12, 19, 3, 5, 2, 3],
-    //     //         backgroundColor: [
-    //     //             'rgba(255, 99, 132, 0.2)',
-    //     //             'rgba(54, 162, 235, 0.2)',
-    //     //             'rgba(255, 206, 86, 0.2)',
-    //     //             'rgba(75, 192, 192, 0.2)',
-    //     //             'rgba(153, 102, 255, 0.2)',
-    //     //             'rgba(255, 159, 64, 0.2)'
-    //     //         ],
-    //     //         borderColor: [
-    //     //             'rgba(255, 99, 132, 1)',
-    //     //             'rgba(54, 162, 235, 1)',
-    //     //             'rgba(255, 206, 86, 1)',
-    //     //             'rgba(75, 192, 192, 1)',
-    //     //             'rgba(153, 102, 255, 1)',
-    //     //             'rgba(255, 159, 64, 1)'
-    //     //         ],
-    //     //         borderWidth: 1
-    //     //     }]
-    //     // },
-    //     data: chart_data,
-    //     options: {
-    //         scales: {
-    //             y: {
-    //                 beginAtZero: true
-    //             }
-    //         }
-    //     }
-    // });
 </script>
 
 </script>

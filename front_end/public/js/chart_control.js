@@ -22,9 +22,8 @@ class ChartControl {
     }
 
     query_data(epoch, select) {
-        let ajaxObj = query_chart_data(epoch, select)
-
-        ajaxObj.done((response) => {
+        query_chart_data(epoch, select, (response) => {
+            console.log(response)
             if (!response.success) {
                 console.log(`ERROR: ${response.result}`)
                 return
@@ -34,12 +33,18 @@ class ChartControl {
             for (let i = 0; i < response.result.length; i++) {
                 colors.push(get_random_color())
             }
-            this.chart.data.datasets.push({
-                backgroundColor: colors,
-                data: response.result
-            })
+            if (this.chart.config.type == 'bar') {
+                this.chart.data.datasets.push({
+                    backgroundColor: colors,
+                    data: response.result
+                })
+            }
+            else if (this.chart.config.type == 'line') {
+                for (let key in response.result) {
+                    console.log(key)
+                }
+            }
             this.chart.update()
         })
-
     }
 }

@@ -69,7 +69,7 @@ function formSubmit() {
 };
 
 
-function query_chart_data(epoch, select) {
+function query_chart_data(epoch, select, callback) {
     let body = JSON.stringify({"epoch": epoch,"select": select})
 
 
@@ -81,9 +81,9 @@ function query_chart_data(epoch, select) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         cache : false,
-        success : function (res) {
-        },
+        success : callback,
         error : function () {
+            alert("Request Failed");
         }
     });
 }

@@ -3,11 +3,12 @@ const div_margin_top = 24 // map parent div margin top
 
 
 class AppUI {
-    constructor(map_id, table_id, histogram) {
+    constructor(map_id, table_id, histogram, timeSeries) {
         // UI elements
         this.map_id = map_id
         this.table_id = table_id
         this.histogram_conf = histogram
+        this.timeSeries_conf = timeSeries
 
         // set initial map height
         this.prepare_elements()
@@ -16,11 +17,13 @@ class AppUI {
         //     this.prepare_elements()
         // });
 
-        // make histogram minizable
+        // make charts minizable
         this.chart_btn_on_click(this.histogram_conf)
+        this.chart_btn_on_click(this.timeSeries_conf)
 
         // make element draggable
         this.dragElement(document.getElementById(this.histogram_conf.div_id))
+        this.dragElement(document.getElementById(this.timeSeries_conf.div_id))
     }
 
     //-------------------------------------------
@@ -32,6 +35,11 @@ class AppUI {
         let histogram_elem = document.getElementById(this.histogram_conf.div_id)
         histogram_elem.style.top = navbar_height + "px"
         histogram_elem.style.left = 0
+
+        let timeSeries_elem = document.getElementById(this.timeSeries_conf.div_id)
+        timeSeries_elem.style.top = navbar_height + "px"
+        timeSeries_elem.style.left = 0
+
     }
 
     //-------------------------------------------

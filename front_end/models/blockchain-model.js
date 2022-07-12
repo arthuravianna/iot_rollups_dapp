@@ -130,15 +130,45 @@ module.exports = {
             }
           
             if (select.hasOwnProperty("x") && select.hasOwnProperty("y")) {
-                for (let i = 0; i < data.length; i++) {
-                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
-    
-                    if (!(payload.hasOwnProperty(select.x) && payload.hasOwnProperty(select.y))) {
-                        error(`Notice Payload doesn't have ${select.x} and ${select.y}!`)
-                        return
+                if (select.hasOwnProperty("datasetKey")) {
+                    let temp = {}
+                    for (let i = 0; i < data.length; i++) {
+                        let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
+                        
+                        
+                        let key = payload[select.datasetKey]
+
+                        if (!(temp.hasOwnProperty(key))) {
+                            temp[key] = [{x: payload[select.x], y: payload[select.y]}]
+                        }
+                        else {
+                            temp[key].push({x: payload[select.x], y: payload[select.y]})
+                        }
                     }
-                    response.push([payload[select.x], payload[select.y]])
-                }    
+
+                    for (let key in temp) {
+                        temp[key].sort((a, b) => {
+                            if (a.x < b.x) {
+                                return -1;
+                            }
+                            if (a.x > b.x) {
+                                return 1;
+                            }
+                        })
+                    }
+                    response = temp
+                }
+                else {
+                    for (let i = 0; i < data.length; i++) {
+                        let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
+        
+                        if (!(payload.hasOwnProperty(select.x) && payload.hasOwnProperty(select.y))) {
+                            error(`Notice Payload doesn't have ${select.x} and ${select.y}!`)
+                            return
+                        }
+                        response.push([payload[select.x], payload[select.y]])
+                    }
+                }
             }
             else if (select.hasOwnProperty("x")) {
                 let temp = {}
