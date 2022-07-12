@@ -105,4 +105,71 @@ module.exports = {
             .then(success)
             .catch(fail)
     },
+
+    getData:async function(epoch, select, success, error) {
+        let options = {
+            url: 'http://localhost:4000/graphql',
+            json: true,
+            body: {
+                query: `query getNotice { GetNotice( query: { epoch_index: "${epoch}" } ) { payload } }`
+            }
+        };
+
+        request.post(options, (err, res, body) => {
+            if (err) {       
+                console.log(err)
+                error("Unable to get data from GraphQl.")
+                return
+            }
+
+            const data = body.data.GetNotice
+            let response = []
+            if (data.length == 0) {
+                success(response) // return empty array
+                return
+            }
+          
+            if (select.hasOwnProperty("x") && select.hasOwnProperty("y")) {
+                for (let i = 0; i < data.length; i++) {
+                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
+    
+                    if (!(payload.hasOwnProperty(select.x) && payload.hasOwnProperty(select.y))) {
+                        error(`Notice Payload doesn't have ${select.x} and ${select.y}!`)
+                        return
+                    }
+                    response.push([payload[select.x], payload[select.y]])
+                }    
+            }
+            else if (select.hasOwnProperty("x")) {
+                let temp = {}
+
+                for (let i = 0; i < data.length; i++) {
+                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
+    
+                    if (!(payload.hasOwnProperty(select.x))) {
+                        error(`Notice Payload doesn't have ${select.x}!`)
+                        return
+                    }
+
+                    let key = payload[select.x]
+
+                    if (!(temp.hasOwnProperty(key))) {
+                        temp[key] = 1
+                    }
+                    else {
+                        temp[key]++
+                    }
+                }
+                for (let x in temp) {
+                    response.push({x: x, y: temp[x]})
+                }
+            }
+            else {
+                error("Invalid select option!")
+                return
+            }
+
+            success(response)
+        })
+    },
 }

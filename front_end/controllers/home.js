@@ -223,6 +223,19 @@ module.exports={
     },
 
     query:function(req, res) {
+        let json = req.body
+        if (!(json.hasOwnProperty("epoch") && json.hasOwnProperty("select"))) {
+            res.json({success: false, result: "Body must have 'epoch' and 'select'!"})
+            return
+        }
 
-    }
+        blockchainModel.getData(json.epoch, json.select,
+            function(result){
+                res.json({success: true, result: result})
+            },
+            function(error) {
+                res.json({success: false, result: error})
+            }
+        )
+    },
 }

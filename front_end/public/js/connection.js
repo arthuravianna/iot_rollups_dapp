@@ -69,35 +69,21 @@ function formSubmit() {
 };
 
 
-function query_chart_data(epoch, type) {
-    let_body = {
-        "epoch": epoch,
-        "type": type
-    }
+function query_chart_data(epoch, select) {
+    let body = JSON.stringify({"epoch": epoch,"select": select})
 
-    $.ajax({
+
+    return $.ajax({
         url:"/query",
         type: "POST",
-        async: false,
+        //async: false,
         data: body,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        // data : {
-        //     fromAddress: document.getElementById("selectedAddress").value,
-        //     data: body
-        // },
         cache : false,
         success : function (res) {
-            if(res["success"]){
-                return res
-            }
-            else if (!res["success"]) {
-                alert(res["result"])
-            }
         },
         error : function () {
-            // some error handling part
-            alert("Request Failed");
         }
     });
 }
