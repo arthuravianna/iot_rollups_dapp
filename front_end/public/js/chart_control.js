@@ -9,16 +9,32 @@ function get_random_color() {
 
 
 class ChartControl {
-    constructor(chart_id, chart) {
+    constructor(chart_id, chart, data) {
         const ctx = document.getElementById(chart_id).getContext('2d');
         this.chart = new Chart(ctx, {
             type: chart.type,
             options: chart.options,
             datasets: []
         });
+
+        let colors = []
+        for (let i = 0; i < data.length; i++) {
+            colors.push(get_random_color())
+        }
+        if (this.chart.config.type == 'bar') {
+            this.chart.data.datasets.push({
+                backgroundColor: colors,
+                data: data
+            })
+        }
+        else if (this.chart.config.type == 'line') {
+            for (let key in data) {
+                console.log(key)
+            }
+        }
        
         // initial data
-        this.query_data(chart.epoch, chart.select)
+        //this.query_data(chart.epoch, chart.select)
     }
 
     query_data(epoch, select) {

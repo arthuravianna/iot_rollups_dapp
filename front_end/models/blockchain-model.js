@@ -5,7 +5,7 @@ const request = require('request');
 const page_size = 15 // 15 notices per page
 
 module.exports = {
-    getNoticePage:async function(epoch, page, filter_options, callback) {
+    getNoticePage:async function(epoch, filter_options, callback) {
         let options = {
             url: 'http://localhost:4000/graphql',
             json: true,
@@ -19,13 +19,13 @@ module.exports = {
         request.post(options, (err, res, body) => {
             if (err) {       
                 console.log(err)
-                callback(null)
+                callback(null, null, null, null)
                 return
             }
 
             let val = body.data.GetProcessedInput
             if (!val || val.length == 0) {
-                callback(null)
+                callback(null, null, null, null)
                 return
             }
 
@@ -46,26 +46,21 @@ module.exports = {
             request.post(options, (err, res, body) => {
                 if (err) {       
                     console.log(err)
-                    callback(null, current_epoch)
+                    callback(null, null, null, current_epoch)
                     return
                 }
             
-                //console.log(`Status: ${res.statusCode}`);        
-                //console.log(body);
-
                 const val = body.data.GetNotice
                 if (val.length == 0) {
-                    callback(null, current_epoch)
+                    callback(null, null, null, current_epoch)
                     return
                 }
                 
-                let payloads = new Array()
-                let num_pages = parseInt(val.length / page_size)
-                if (val.length % page_size != 0) {
-                    num_pages++
-                }
                 //console.log(filter_options)
-                for (let i = (page -1)*page_size; i < val.length; i++) {
+                let notices_table = [] // [[payload0,..., payload14], [payload15, ...], ...]
+                let time_series = {} // {"bus_line0": [{x: x, y: y}, ...], "bus_line1": [{x: x, y: y}, ...], ...}
+                let histogram = [] // {{x: "bus_line0", y: count}}
+                for (let i = 0; i < val.length; i++) {
                     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
                     // apply filter
                     if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
@@ -77,16 +72,37 @@ module.exports = {
 
                     payload.epoch_index = val[i].epoch_index
                     payload.input_index = val[i].input_index
-                    payloads.push(payload)
+                    
+                    // populate notices table
+                    if (notices_table.length > 0 && notices_table[notices_table.length -1].length < page_size) {
+                        notices_table[notices_table.length -1].push(payload)
+                    }
+                    else {
+                        notices_table.push([payload]) // new notice page
+                    }
 
-                    if (payloads.length == page_size) {
-                        break
+                    // populate time series
+                    if (!(time_series.hasOwnProperty(payload.bus_line))) {
+                        time_series[payload.bus_line] = [{x: payload.ts, y: payload.value}]
+                    }
+                    else {
+                        time_series[payload.bus_line].push({x: payload.ts, y: payload.value})
+                    }
+
+                    // populate histogram
+                    if (!(histogram.hasOwnProperty(payload.bus_line))) {
+                        histogram[payload.bus_line] = 1
+                    }
+                    else {
+                        histogram[payload.bus_line]++
                     }
                 }
-                if (payloads.length == 0) {
-                    payloads = null
+                if (notices_table.length == 0) {
+                    callback(null, null, null, current_epoch)
+                    return
                 }
-                callback(payloads, current_epoch, num_pages)
+
+                callback(notices_table, time_series, histogram, current_epoch)
             });
 
         })

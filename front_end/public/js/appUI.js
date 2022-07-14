@@ -3,10 +3,9 @@ const div_margin_top = 24 // map parent div margin top
 
 
 class AppUI {
-    constructor(map_id, table_id, histogram, timeSeries) {
+    constructor(map_id, histogram, timeSeries) {
         // UI elements
         this.map_id = map_id
-        this.table_id = table_id
         this.histogram_conf = histogram
         this.timeSeries_conf = timeSeries
 

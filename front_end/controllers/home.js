@@ -18,7 +18,6 @@ function build_filter_url(filter_options) {
 
 module.exports={
     homePage:function(req, res) {
-        let page
         let req_epoch
 
         if (!req.query.epoch) {
@@ -27,113 +26,20 @@ module.exports={
         else {
             req_epoch = parseInt(req.query.epoch)
         }
-        if (!req.query.page) {
-            page = 1
-        }
-        else {
-            page = parseInt(req.query.page)
-        }
+
         let filter_options = {}
         filter_options.filterBusLine = req.query.filterBusLine
         filter_options.fineTypeSelector = req.query.fineTypeSelector
 
-        //req_epoch = page - 1
-        blockchainModel.getNoticePage(req_epoch, page, filter_options, function(notices, current_epoch, num_pages) {            
-            let pagination // pages array
-            let next_epoch
-            let prev_epoch
-            let prev_disabled = false // previous page button state
-            let next_disabled = false // next page button state
-            let url = build_filter_url(filter_options)
-            if (url.length < 2) { url = "/?page="}
-            else {url = `${url}&page=`}
-
-            if (current_epoch != undefined) {
-                pagination = []
-
-                // if (req_epoch === undefined) {
-                //     req_epoch = current_epoch
-                // }
-
-                // page check
-                if (page == 1) {
-                    prev_disabled = true
-                }
-                if (page == num_pages) {
-                    next_disabled = true
-                }
-
-                // epoch check
-                if (req_epoch < current_epoch) {
-                    next_epoch = req_epoch + 1
-                }
-                if (req_epoch > 0) {
-                    prev_epoch = req_epoch - 1
-                }
-
-                // previous button
-                if (prev_epoch != undefined && page == 1) {
-                    pagination.push( {"label": "prev epoch", "val": `${url + (1)}&epoch=${prev_epoch}`, "title": "Previous-Epoch", "disabled": false} )
-                }
-                else {
-                    pagination.push( {"label": "prev", "val": `${url + (page-1)}&epoch=${req_epoch}`, "title": "Previous-Page", "disabled": prev_disabled} )
-                }
-
-                if (num_pages <= 5) {
-                    for (var i = 1; i <= num_pages; i++) {
-                        if (i == page) {
-                            pagination.push( {"label": page, "val": `${url + (page)}&epoch=${req_epoch}`, "title": `Page-${page}`, "disabled": true} )
-                        }
-                        else {
-                            pagination.push( {"label": i, "val": `${url + (i)}&epoch=${req_epoch}`, "title": `Page-${i}`, "disabled": false} )
-                        }   
-                    }                  
-                }
-                else {
-                    if (page - 3 > 1) {
-                        pagination.push( {"label": 1, "val": `${url + (1)}&epoch=${req_epoch}`, "title": `Page-${1}`, "disabled": false} )
-                        pagination.push( {"label": "...", "val": "", "title": "", "disabled": true} )
-                        pagination.push( {"label": page-1, "val": `${url + (page-1)}&epoch=${req_epoch}`, "title": `Page-${page-1}`, "disabled": false} )
-                    }
-                    else {
-                        for (let i = 1; i < page; i++) {
-                            pagination.push( {"label": i, "val": `${url + (i)}&epoch=${req_epoch}`, "title": `Page-${i}`, "disabled": false} )
-                        }
-                    }
-                    
-                    pagination.push( {"label": page, "val": `${url + (page)}&epoch=${req_epoch}`, "title": `Page-${page}`, "disabled": true} )
-
-                    if (page + 3 < num_pages) {
-                        pagination.push( {"label": page+1, "val": `${url + (page+1)}&epoch=${req_epoch}`, "title": `Page-${page+1}`, "disabled": false} )
-                        pagination.push( {"label": "...", "val": "", "title": "", "disabled": true} )
-                        pagination.push( {"label": num_pages, "val": `${url + (num_pages)}&epoch=${req_epoch}`, "title": `Epoch-${req_epoch}`, "disabled": false} )
-                    }
-                    else {
-                        for (let i = page+1; i <= num_pages; i++) {
-                            pagination.push( {"label": i, "val": `${url + (i)}&epoch=${req_epoch}`, "title": `Page-${i}`, "disabled": false} )
-                        }
-                    }
-                }
-
-                // next button
-                if (next_epoch != undefined && page == num_pages) {
-                    pagination.push( {"label": "next epoch", "val": `${url + 1}&epoch=${next_epoch}`, "title": "Next-Epoch", "disabled": false} )
-                }
-                else {
-                    pagination.push( {"label": "next", "val": `${url + (page+1)}&epoch=${req_epoch}`, "title": "Next-Page", "disabled": next_disabled} )
-                }
-
-            }
-
-            // console.log(notices)
-            // console.log(pagination)
+        blockchainModel.getNoticePage(req_epoch, filter_options, function(notices_table, time_series, histogram, current_epoch) {
             res.render("index", {
-                "notices": notices,
-                "pagination": pagination,
+                "notices_table": notices_table,
+                "ts": time_series,
+                "hist": histogram,
                 "filter_options": filter_options,
                 "current_epoch": current_epoch,
-                "req_epoch": req_epoch}
-                );
+                "req_epoch": req_epoch
+            });
         });
     },
 
