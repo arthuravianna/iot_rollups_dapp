@@ -17,11 +17,11 @@ class ChartControl {
             datasets: []
         });
 
-        let colors = []
-        for (let i = 0; i < data.length; i++) {
-            colors.push(get_random_color())
-        }
         if (this.chart.config.type == 'bar') {
+            let colors = []
+            for (let i = 0; i < data.length; i++) {
+                colors.push(get_random_color())
+            }
             this.chart.data.datasets.push({
                 backgroundColor: colors,
                 data: data
@@ -29,7 +29,12 @@ class ChartControl {
         }
         else if (this.chart.config.type == 'line') {
             for (let key in data) {
-                console.log(key)
+                this.chart.data.datasets.push({
+                    fill: false,
+                    borderColor: get_random_color(),
+                    label: key,
+                    data: data[key]
+                })
             }
         }
        

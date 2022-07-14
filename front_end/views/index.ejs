@@ -247,7 +247,7 @@
         </div>            
     </div>
 
-    <div id="timeSeries" style="width: 400px;position: absolute; z-index: 1" class="card visually-hidden">
+    <div id="timeSeries" style="width: 800px;position: absolute; z-index: 1" class="card visually-hidden">
         <div id="timeSeriesHeader" class="card-header bg-light p-0" style="cursor: move">
             <button type="button" id="timeSeries_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button>
         </div>
@@ -257,14 +257,14 @@
     </div>
     
 </body>
-
+</html>
 
 <script src="js/appUI.js"></script>
 <script src="js/connection.js"></script>
 <script src="js/chart_control.js"></script>
 <script>
-    var req_epoch = '<%-req_epoch%>'
-    var curr_epoch = '<%-current_epoch%>'
+    var req_epoch = parseInt('<%-req_epoch%>')
+    var curr_epoch = parseInt('<%-current_epoch%>')
     var filter_options = JSON.parse('<%-JSON.stringify(filter_options)%>')
     var notices_table = JSON.parse('<%-JSON.stringify(notices_table)%>')
 
@@ -310,7 +310,7 @@
                 }
             }
         },
-        '<%-hist%>' // histogram data sent by NodeJS
+        JSON.parse('<%-JSON.stringify(hist)%>') // histogram data sent by NodeJS
     )
 
     var timeSeriesChart = new ChartControl("timeSeriesChart",
@@ -339,7 +339,7 @@
                 }
             }
         },
-        '<%-ts%>' // time Series data sent by NodeJS
+        JSON.parse('<%-JSON.stringify(ts)%>') // time Series data sent by NodeJS
     )
 
     build_table("finesTable", "paginationList")

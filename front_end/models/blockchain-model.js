@@ -59,7 +59,8 @@ module.exports = {
                 //console.log(filter_options)
                 let notices_table = [] // [[payload0,..., payload14], [payload15, ...], ...]
                 let time_series = {} // {"bus_line0": [{x: x, y: y}, ...], "bus_line1": [{x: x, y: y}, ...], ...}
-                let histogram = [] // {{x: "bus_line0", y: count}}
+                let histogram = [] // [{x: "bus_line0", y: count}]
+                let hist_dict = {}
                 for (let i = 0; i < val.length; i++) {
                     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
                     // apply filter
@@ -89,17 +90,21 @@ module.exports = {
                         time_series[payload.bus_line].push({x: payload.ts, y: payload.value})
                     }
 
-                    // populate histogram
-                    if (!(histogram.hasOwnProperty(payload.bus_line))) {
-                        histogram[payload.bus_line] = 1
+                    // counting bus_line fine's
+                    if (!(hist_dict.hasOwnProperty(payload.bus_line))) {
+                        hist_dict[payload.bus_line] = 1
                     }
                     else {
-                        histogram[payload.bus_line]++
+                        hist_dict[payload.bus_line]++
                     }
                 }
                 if (notices_table.length == 0) {
                     callback(null, null, null, current_epoch)
                     return
+                }
+
+                for (let x in hist_dict) {
+                    histogram.push({x: x, y: hist_dict[x]})
                 }
 
                 callback(notices_table, time_series, histogram, current_epoch)
