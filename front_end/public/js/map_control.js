@@ -7,8 +7,8 @@ function get_random_color() {
     return code;
 }
 
-function draw_notice(notice_str) {
-    let notice = JSON.parse(notice_str)
+function draw_notice(notice) {
+    //let notice = JSON.parse(notice_str)
     let features = []
     myStyle.color = get_random_color()
     myStyle.fillColor = myStyle.color

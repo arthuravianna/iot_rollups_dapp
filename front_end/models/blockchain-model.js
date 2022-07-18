@@ -4,6 +4,94 @@ const request = require('request');
 
 const page_size = 15 // 15 notices per page
 
+
+function build_dataset(obj_arr, data) {
+    for (let i = 0; i < obj_arr.length; i++) {
+        let curr_obj = obj_arr[i]
+        let pos
+        if (data.length == 24) { // by hour
+            pos = curr_obj.x.getHours()
+        }
+        else if (data.length == 12) {  // by month
+            pos = curr_obj.x.getMonth()
+        }
+        else { //by day
+            pos = curr_obj.x.getDate()
+        }
+
+        if (!data[pos]) {
+            data[pos] = []
+        }
+        data[pos].push(curr_obj.y)
+    }
+
+    for (let i = 0; i < data.length; i++) {
+        if (!data[i]) {
+            data[i] = 0
+            continue
+        }
+        
+        let avg = 0
+        for (let j = 0; j < data[i].length; j++) {
+            avg += data[i][j]
+        }
+        data[i] = avg / data[i].length
+    }
+}
+
+function build_ts(ts_dict, min_date, max_date) {
+    let labels = []
+    let datasets = {}
+
+    let delta = max_date - min_date // delta in milliseconds
+    let year = min_date.getFullYear()
+    let month = min_date.getMonth()
+    let day = min_date.getDate()
+
+    if (delta <= 86400000) { // day
+        for (let i = 0; i < 24; i++) {
+            //let date = new Date(min_date.getFullYear(),min_date.getMonth(), min_date.getDate(), i)
+            let hour_str = i.toString()
+            if (hour_str.length < 2) { hour_str = 0 + hour_str }
+
+            let date = `${year}-${month}-${day} ${hour_str}:00:00`
+            labels.push(date)
+        }
+    }
+    // else if (delta <= 604800017) { // week
+
+    // }
+    else if (delta <= 2629800000) { // month
+        let n_days = new Date(min_date.getFullYear, min_date.getMonth, 0).getDate()
+        for (let i = 0; i < n_days; i++) {
+            //let date = new Date(min_date.getFullYear(),min_date.getMonth(), i)
+            let day_str = i.toString()
+            if (day_str.length < 2) { day_str = 0 + day_str }
+
+            let date = `${year}-${month}-${day_str}`
+            labels.push(date)
+        }
+    }
+    else if (delta <= 31557600000) { // year
+        for (let i = 0; i < 12; i++) {
+            //let date = new Date(min_date.getFullYear(), i)
+            let month_str = i.toString()
+            if (month_str.length < 2) { month_str = 0 + month_str }
+
+            let date = `${year}-${month_str}`
+            labels.push(date)
+        }
+    }
+
+    for (let key in ts_dict) {
+        datasets[key] = new Array(labels.length)
+        build_dataset(ts_dict[key], datasets[key])
+    }
+
+    let result = {"labels": labels, "datasets": datasets}
+    return result
+}
+
 module.exports = {
     getNoticePage:async function(epoch, filter_options, callback) {
         let options = {
@@ -61,6 +149,8 @@ module.exports = {
                 let time_series = {} // {"bus_line0": [{x: x, y: y}, ...], "bus_line1": [{x: x, y: y}, ...], ...}
                 let histogram = [] // [{x: "bus_line0", y: count}]
                 let hist_dict = {}
+                let min_date
+                let max_date
                 for (let i = 0; i < val.length; i++) {
                     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
                     // apply filter
@@ -83,11 +173,20 @@ module.exports = {
                     }
 
                     // populate time series
+                    let ts_date = new Date(payload.ts)
                     if (!(time_series.hasOwnProperty(payload.bus_line))) {
-                        time_series[payload.bus_line] = [{x: payload.ts, y: payload.value}]
+                        time_series[payload.bus_line] = [{x: ts_date, y: payload.value}]
                     }
                     else {
-                        time_series[payload.bus_line].push({x: payload.ts, y: payload.value})
+                        time_series[payload.bus_line].push({x: ts_date, y: payload.value})
+                    }
+
+                    // att min and max ts
+                    if (!min_date || ts_date < min_date) {
+                        min_date = ts_date
+                    }
+                    if (!max_date || ts_date > max_date) {
+                        max_date = ts_date
                     }
 
                     // counting bus_line fine's
@@ -107,7 +206,8 @@ module.exports = {
                     histogram.push({x: x, y: hist_dict[x]})
                 }
 
-                callback(notices_table, time_series, histogram, current_epoch)
+                //callback(notices_table, time_series, histogram, current_epoch)
+                callback(notices_table, build_ts(time_series, min_date, max_date), histogram, current_epoch)
             });
 
         })

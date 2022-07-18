@@ -28,12 +28,14 @@ class ChartControl {
             })
         }
         else if (this.chart.config.type == 'line') {
-            for (let key in data) {
+            this.chart.data.labels = data.labels
+            for (let key in data.datasets) {
                 this.chart.data.datasets.push({
+                    labels: data.labels,
                     fill: false,
                     borderColor: get_random_color(),
                     label: key,
-                    data: data[key]
+                    data: data.datasets[key]
                 })
             }
         }

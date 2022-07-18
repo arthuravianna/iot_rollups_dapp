@@ -4,20 +4,22 @@ function build_table(table_id, pagination_id) {
 
     if (notices_table) {
         // building table body
-        let table_html = ''
+        //let table_html = ''
+        table_elem.innerHTML = ""
         for (let i = 0; i < notices_table[curr_page-1].length; i++) {
             let notice = notices_table[curr_page-1][i]
-            //console.log(notice)
-            let td_html = ''
-            + `<tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}" onclick="draw_notice(${JSON.stringify(notice)})">`
+            let tr_html = ''
+            + `<pre><tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
             + `<td>${notice.bus_line}</td>`
             + `<td>${notice.ts}</td>`
             + `<td>${notice.value}</td>`
             + `</tr>`
 
-            table_html += td_html
+            //table_html += tr_html
+            table_elem.insertAdjacentHTML("beforeend", tr_html)
+            document.getElementById(`${notice.epoch_index};${notice.input_index}`).onclick = () => {draw_notice(notice)}
         }
-        table_elem.innerHTML = table_html
+        //table_elem.innerHTML = table_html
         
         
         
