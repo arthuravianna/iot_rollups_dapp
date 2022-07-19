@@ -65,14 +65,14 @@ To execute the back-end in production mode it's necessary to generate a cartesi 
 #### Running the environment
 In order to start the containers in production mode, simply run:
 ``` Bash
-docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+docker compose -f docker-compose.yml -f docker-compose.override.yml up
 ```
 
 #### Stopping the environment
 To stop the containers, first end the process with `Ctrl + C`.
 Then, remove the containers and associated volumes by executing:
 ``` Bash
-docker-compose -f docker-compose.yml -f docker-compose.override.yml down -v
+docker compose -f docker-compose.yml -f docker-compose.override.yml down -v
 ```
 
 
@@ -85,7 +85,7 @@ To execute the back-end in host mode it's necessary to run the DApp back-end log
 #### Running the environment
 The first step is to start the containers in host mode:
 ``` Bash
-docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose-host.yml up
+docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose-host.yml up
 ```
 
 #### Running the back-end locally
@@ -104,7 +104,7 @@ The server will run on port `5003` and send the corresponding notices to port `5
 To stop the containers, first end the process with `Ctrl + C`.
 Then, remove the containers and associated volumes by executing:
 ``` Bash
-docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose-host.yml down -v
+docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose-host.yml down -v
 ```
 
 ## Advancing Time

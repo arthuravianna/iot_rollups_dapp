@@ -181,6 +181,17 @@ def select_lines(conn):
 
     return cur.fetchall()
 
+def select_lines_id(conn):
+    sql = ''' SELECT id FROM line '''
+    cur = conn.cursor()
+    cur.execute(sql)
+
+    result = []
+    for item in cur.fetchall(): # fetchall = [(id0,), (id1,), (id2,), ...]
+        result.append(item[0])
+    
+    return result
+
 
 def select_line(conn, id):
     sql = ''' SELECT * FROM line WHERE id = ? '''

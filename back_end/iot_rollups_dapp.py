@@ -34,7 +34,7 @@ def handle_advance(data):
 
         ### payload to UTF-8
         payload_utf8 = util.hex_to_str(data["payload"])
-        logger.info(f"Payload UTF-8 {payload_utf8}")
+        # logger.info(f"Payload UTF-8 {payload_utf8}")
 
         ### managing database
         conn = db.create_connection(DB_FILE)
@@ -126,27 +126,58 @@ def handle_advance(data):
 
             if fine_dsc:
                 notice_payload = util.str_to_eth_hex(json.dumps(fine_dsc))
-                logger.info("### Notice Payload ###")
-                logger.info(notice_payload)
-                logger.info("### Notice Payload ###")
+                # logger.info("### Notice Payload ###")
+                # logger.info(notice_payload)
+                # logger.info("### Notice Payload ###")
                 logger.info("Adding notice")
                 response = requests.post(rollup_server + "/notice", json={ "payload": notice_payload })
                 logger.info(f"Received notice status {response.status_code} body {response.content}")
 
         conn.close()
         return "accept"
-    except Error as e:
+    except Exception as e:
         logger.info(f"Unexpected Error: {e}\nRejecting...")
         conn.close()
         return "reject"
 
 def handle_inspect(data):
-    logger.info(f"Received inspect request data {data}")
-    logger.info("Adding report")
-    response = requests.post(rollup_server + "/report", json={"payload": data["payload"]})
-    logger.info(f"Received report status {response.status_code}")
-    return "accept"
+    try:
+        #logger.info(f"Received inspect request data {data}")
+        
+        ### payload to UTF-8
+        payload_utf8 = util.hex_to_str(data["payload"])
+        logger.info(f"Inspect Payload UTF-8 {payload_utf8}")
 
+        payload_dict = json.loads(payload_utf8)
+        logger.info(f"Payload DICT {payload_dict}")
+
+        # get route of bus
+        if "route" in payload_dict:
+            conn = db.create_connection(DB_FILE)
+            bus_id = payload_dict["route"]
+            route = db.select_route_of_line(conn, bus_id)
+            conn.close()
+
+            result = util.str_to_eth_hex(json.dumps(route))
+        elif "bus_id" in payload_dict:
+            conn = db.create_connection(DB_FILE)
+            ids = db.select_lines_id(conn)
+            conn.close()
+
+            result = util.str_to_eth_hex(json.dumps(ids))
+        else:
+            result = util.str_to_eth_hex("Invalid JSON Options. Inspect must have <route> or <bus_id>.\n")
+        
+
+
+        logger.info("Adding report")
+        response = requests.post(rollup_server + "/report", json={"payload": result})
+        logger.info(f"Received report status {response.status_code}")
+        return "accept"
+    
+    except Exception as e:
+        logger.info(f"Unexpected Error: {e}\nRejecting...")
+        return "reject"
 
 
 handlers = {
@@ -165,8 +196,8 @@ while True:
         logger.info("No pending rollup request, trying again")
     else:
         rollup_request = response.json()
-        metadata = rollup_request["data"]["metadata"]
-        if metadata["epoch_index"] == 0 and metadata["input_index"] == 0:
+        metadata = rollup_request["data"].get("metadata")
+        if metadata and metadata["epoch_index"] == 0 and metadata["input_index"] == 0:
             rollup_address = metadata["msg_sender"]
             logger.info(f"Captured rollup address: {rollup_address}")
         else:
