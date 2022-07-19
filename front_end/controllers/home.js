@@ -114,6 +114,7 @@ module.exports={
             }
         }
         catch (error) {
+            console.log("ERROR", error)
             res.json({success: false, result: error})
             return
         }

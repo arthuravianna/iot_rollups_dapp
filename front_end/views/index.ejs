@@ -146,32 +146,41 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="fineModalLabel">Add Fine</h5>
+                <h5 class="modal-title" id="fineModalLabel">Send Trip Info</h5>
             </div>
 
             <!-- BEGIN FORM -->
+            <!-- <form action="/submit" method="post"> -->
             <form>
 
                 <!-- BEGIN MODAL BODY -->
                 <div class="modal-body">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="fineModalBusLine" name="fineModalBusLine" value="">
-                        <label for="fineModalBusLine">Bus Line</label>
+                    <div class="mb-3 row">
+
+                        <div class="form-floating col">
+                            <input type="text" class="form-control" id="fineModalBusId" name="bus_id" value="">
+                            <label for="fineModalBusId">Bus Line</label>
+                        </div>
+
+                        <div class="form-floating col">
+                            <input type="text" class="form-control" id="fineModalTripId" name="trip_id" value="">
+                            <label for="fineModalTripId">Trip Id</label>
+                        </div>
                     </div>
 
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="fineModalTimestamp" name="fineModalTimestamp" value="">
+                        <input type="text" class="form-control" id="fineModalTimestamp" name="ts" value="">
                         <label for="fineModalTimestamp">Timestamp</label>
                     </div>
 
                     <div class="mb-3 row">
                         <div class="form-floating col">
-                            <input type="text" class="form-control" id="fineModalLat" name="fineModalLat" value="" disabled>
+                            <input type="text" class="form-control" id="fineModalLat" name="lat" value="" readonly>
                             <label for="fineModalLat">Latitude</label>
                         </div>
 
                         <div class="form-floating col">
-                            <input type="text" class="form-control disabled" id="fineModalLng" name="fineModalLng" value="" disabled>
+                            <input type="text" class="form-control disabled" id="fineModalLng" name="lon" value="" readonly>
                             <label for="fineModalLng">Longitude</label>
                         </div>
                     </div>
@@ -182,6 +191,7 @@
                 <div class="modal-footer">
                     <div class="text-center">
                         <button type="submit" id="fine-btn-submit" class="btn btn-light text-center" onclick="fineSubmit()">Submit</button>
+                        <!-- <button type="submit" id="fine-btn-submit" class="btn btn-light text-center">Submit</button> -->
                     </div>
                 </div>
             

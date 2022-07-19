@@ -16,7 +16,7 @@ function do_json_submit(body, is_async) {
     $.ajax({
         url:"/submit",
         type: "POST",
-        async: false,
+        async: is_async,
         data: body,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
@@ -69,6 +69,23 @@ function scheduleSubmit() {
     modal.toggle()
 };
 
+function fineSubmit() {
+    let body = {}
+    body.bus_id = document.getElementById('fineModalBusId').value
+    body.trip_id = document.getElementById('fineModalTripId').value
+    body.ts = document.getElementById('fineModalTimestamp').value
+    body.lat = parseFloat(document.getElementById('fineModalLat').value)
+    body.lon = parseFloat(document.getElementById('fineModalLng').value)
+
+    body = JSON.stringify(body)
+
+    do_json_submit(body, false)
+
+    // hide modal window
+    let myModalEl = document.getElementById('fineModal')
+    let modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
+    modal.toggle()
+}
 
 function query_chart_data(epoch, select, callback) {
     let body = JSON.stringify({"epoch": epoch,"select": select})
@@ -91,5 +108,10 @@ function query_chart_data(epoch, select, callback) {
 
 // prevents page from reloading
 $( "#schedule-btn-submit" ).click(function( event ) {
+    event.preventDefault();
+})
+
+// prevents page from reloading
+$( "#fine-btn-submit" ).click(function( event ) {
     event.preventDefault();
 })

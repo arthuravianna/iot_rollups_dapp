@@ -5,20 +5,12 @@ const request = require('request');
 const page_size = 15 // 15 notices per page
 
 
-function build_dataset(obj_arr, data) {
+function build_dataset(obj_arr, data, agg_map) {
+    //console.log(agg_map)
     for (let i = 0; i < obj_arr.length; i++) {
         let curr_obj = obj_arr[i]
-        let pos
-        if (data.length == 24) { // by hour
-            pos = curr_obj.x.getHours()
-        }
-        else if (data.length == 12) {  // by month
-            pos = curr_obj.x.getMonth()
-        }
-        else { //by day
-            pos = curr_obj.x.getDate()
-        }
-
+        let pos = agg_map.map_func(curr_obj)
+        
         if (!data[pos]) {
             data[pos] = []
         }
@@ -44,48 +36,78 @@ function build_ts(ts_dict, min_date, max_date) {
     let datasets = {}
 
     let delta = max_date - min_date // delta in milliseconds
-    let year = min_date.getFullYear()
-    let month = min_date.getMonth()
-    let day = min_date.getDate()
 
-    if (delta <= 86400000) { // day
-        for (let i = 0; i < 24; i++) {
-            //let date = new Date(min_date.getFullYear(),min_date.getMonth(), min_date.getDate(), i)
-            let hour_str = i.toString()
-            if (hour_str.length < 2) { hour_str = 0 + hour_str }
+    let agg_map = {}
 
-            let date = `${year}-${month}-${day} ${hour_str}:00:00`
+    if (delta <= 86400000) { // <= 1 day(aggregate by hour)
+        // can be in different days!!!
+        let aux = min_date
+        while (aux <= max_date) {
+            agg_map[`${aux.getDate()} ${aux.getHours()}`] = Object.keys(agg_map).length
+
+            let date = `${aux.getFullYear()}-${aux.getMonth()}-${aux.getDate()} ${aux.getHours()}:00:00`
             labels.push(date)
+
+            aux.setHours(aux.getHours()+1)
+        }
+        agg_map.map_func = function (dt_obj) {
+            let key = `${dt_obj.x.getDate()} ${dt_obj.x.getHours()}`
+            return this[key] // mapping
         }
     }
     // else if (delta <= 604800017) { // week
 
     // }
-    else if (delta <= 2629800000) { // month
-        let n_days = new Date(min_date.getFullYear, min_date.getMonth, 0).getDate()
-        for (let i = 0; i < n_days; i++) {
-            //let date = new Date(min_date.getFullYear(),min_date.getMonth(), i)
-            let day_str = i.toString()
-            if (day_str.length < 2) { day_str = 0 + day_str }
+    else if (delta <= 2629800000) { // <= 1 month(aggregate by day)
+        // can be in different months!!!
+        let aux = min_date
+        while (aux <= max_date) {
+            agg_map[`${aux.getMonth()} ${aux.getDate()}`] = Object.keys(agg_map).length
 
-            let date = `${year}-${month}-${day_str}`
+            let date = `${aux.getFullYear()}-${aux.getMonth()}-${aux.getDate()}`
             labels.push(date)
+
+            aux.setDate(aux.getDate()+1)
+        }
+        agg_map.map_func = function (dt_obj) {
+            let key = `${dt_obj.x.getMonth()} ${dt_obj.x.getDate()}`
+            return this[key] // mapping
         }
     }
-    else if (delta <= 31557600000) { // year
-        for (let i = 0; i < 12; i++) {
-            //let date = new Date(min_date.getFullYear(), i)
-            let month_str = i.toString()
-            if (month_str.length < 2) { month_str = 0 + month_str }
+    else if (delta <= 31557600000) { // <= 1 year(aggregate by month)
+        let aux = min_date
+        while (aux <= max_date) {
+            agg_map[`${aux.getFullYear()} ${aux.getMonth()}`] = Object.keys(agg_map).length
 
-            let date = `${year}-${month_str}`
+            let date = `${aux.getFullYear()}-${aux.getMonth()}`
             labels.push(date)
+
+            aux.setMonth(aux.getMonth()+1)
+        }
+        agg_map.map_func = function (dt_obj) {
+            let key = `${dt_obj.x.getFullYear()} ${dt_obj.x.getMonth()}`
+            return this[key] // mapping
+        }
+    }
+    else { // > 1 year(aggregate by year)
+        let aux = min_date
+        while (aux <= max_date) {
+            agg_map[aux.getFullYear()] = Object.keys(agg_map).length
+
+            let date = `${aux.getFullYear()}`
+            labels.push(date)
+
+            aux.setFullYear(aux.getFullYear()+1)
+        }
+        agg_map.map_func = function (dt_obj) {
+            let key = dt_obj.x.getFullYear()
+            return this[key] // mapping
         }
     }
 
     for (let key in ts_dict) {
         datasets[key] = new Array(labels.length)
-        build_dataset(ts_dict[key], datasets[key])
+        build_dataset(ts_dict[key], datasets[key], agg_map)
     }
 
     let result = {"labels": labels, "datasets": datasets}
