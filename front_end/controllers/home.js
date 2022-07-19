@@ -136,6 +136,11 @@ module.exports={
             return
         }
 
+        if (!(json.select.hasOwnProperty("ts") || json.select.hasOwnProperty("hist"))) {
+            res.json({success: false, result: `Invalid select option: ${json.select}`})
+            return
+        }
+
         blockchainModel.getData(json.epoch, json.select,
             function(result){
                 res.json({success: true, result: result})

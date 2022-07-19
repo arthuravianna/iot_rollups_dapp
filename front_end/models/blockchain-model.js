@@ -134,12 +134,12 @@ module.exports = {
             }
 
             let val = body.data.GetProcessedInput
+            let current_epoch = 0
             if (!val || val.length == 0) {
-                callback(null, null, null, null)
+                callback(null, null, null, current_epoch)
                 return
             }
 
-            let current_epoch = 0
             for (var i = 0; i < val.length; i++) {        
                 let epoch_i = parseInt(val[i].epoch_index)
                 if (val[i].epoch_index > current_epoch) {
@@ -265,81 +265,90 @@ module.exports = {
                 return
             }
 
-            const data = body.data.GetNotice
+            const raw_data = body.data.GetNotice
             let response = []
-            if (data.length == 0) {
+            if (raw_data.length == 0) {
                 success(response) // return empty array
                 return
             }
-          
-            if (select.hasOwnProperty("x") && select.hasOwnProperty("y")) {
-                if (select.hasOwnProperty("datasetKey")) {
-                    let temp = {}
-                    for (let i = 0; i < data.length; i++) {
-                        let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
-                        
-                        
-                        let key = payload[select.datasetKey]
 
-                        if (!(temp.hasOwnProperty(key))) {
-                            temp[key] = [{x: payload[select.x], y: payload[select.y]}]
-                        }
-                        else {
-                            temp[key].push({x: payload[select.x], y: payload[select.y]})
-                        }
-                    }
-
-                    for (let key in temp) {
-                        temp[key].sort((a, b) => {
-                            if (a.x < b.x) {
-                                return -1;
-                            }
-                            if (a.x > b.x) {
-                                return 1;
-                            }
-                        })
-                    }
-                    response = temp
+            let selected_bus_id          
+            if (select.hasOwnProperty("ts")) {
+                let time_series = {} // {"bus_line0": [{x: x, y: y}, ...], "bus_line1": [{x: x, y: y}, ...], ...}
+                let min_date
+                let max_date
+                let aggregate = false
+                
+                if (select.ts != "*") {
+                    selected_bus_id = select.ts
                 }
-                else {
-                    for (let i = 0; i < data.length; i++) {
-                        let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
-        
-                        if (!(payload.hasOwnProperty(select.x) && payload.hasOwnProperty(select.y))) {
-                            error(`Notice Payload doesn't have ${select.x} and ${select.y}!`)
-                            return
-                        }
-                        response.push([payload[select.x], payload[select.y]])
-                    }
+                if (select.agg) {
+                    aggregate = true
                 }
-            }
-            else if (select.hasOwnProperty("x")) {
-                let temp = {}
 
-                for (let i = 0; i < data.length; i++) {
-                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + data[i].payload))
-    
-                    if (!(payload.hasOwnProperty(select.x))) {
-                        error(`Notice Payload doesn't have ${select.x}!`)
-                        return
+                for (let i = 0; i < raw_data.length; i++) {
+                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + raw_data[i].payload))
+
+                    if (selected_bus_id && payload.bus_line != selected_bus_id) {
+                        continue
                     }
 
-                    let key = payload[select.x]
-
-                    if (!(temp.hasOwnProperty(key))) {
-                        temp[key] = 1
+                    // populate time series
+                    let ts_date = new Date(payload.ts)
+                    if (!(time_series.hasOwnProperty(payload.bus_line))) {
+                        time_series[payload.bus_line] = [{x: ts_date, y: payload.value}]
                     }
                     else {
-                        temp[key]++
+                        time_series[payload.bus_line].push({x: ts_date, y: payload.value})
+                    }
+
+                    // att min and max ts
+                    if (!min_date || ts_date < min_date) {
+                        min_date = ts_date
+                    }
+                    if (!max_date || ts_date > max_date) {
+                        max_date = ts_date
                     }
                 }
-                for (let x in temp) {
-                    response.push({x: x, y: temp[x]})
+                if (aggregate) {
+                    response = build_ts(time_series, min_date, max_date)
+                }
+                else {
+                    for (let key in time_series) {
+                        time_series[key].sort((a, b) => {
+                            return a.x - b.x;
+                        });
+                    }
+                    response = time_series
                 }
             }
-            else {
-                error("Invalid select option!")
-                return
+            else if (select.hasOwnProperty("hist")) {
+                let hist_dict = {}
+
+                if (select.hist != "*") {
+                    selected_bus_id = select.hist
+                }
+
+                for (let i = 0; i < raw_data.length; i++) {
+                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + raw_data[i].payload))
+
+                    if (selected_bus_id && payload.bus_line != selected_bus_id) {
+                        continue
+                    }
+
+                    // counting bus_line fine's
+                    if (!(hist_dict.hasOwnProperty(payload.bus_line))) {
+                        hist_dict[payload.bus_line] = 1
+                    }
+                    else {
+                        hist_dict[payload.bus_line]++
+                    }
+
+                }
+
+                for (let x in hist_dict) {
+                    response.push({x: x, y: hist_dict[x]})
+                }
             }
 
             success(response)
