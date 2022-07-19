@@ -30,10 +30,12 @@ class ChartControl {
         else if (this.chart.config.type == 'line') {
             this.chart.data.labels = data.labels
             for (let key in data.datasets) {
+                let color = get_random_color()
                 this.chart.data.datasets.push({
-                    labels: data.labels,
+                    //labels: data.labels,
                     fill: false,
-                    borderColor: get_random_color(),
+                    borderColor: color,
+                    backgroundColor: color,
                     label: key,
                     data: data.datasets[key]
                 })

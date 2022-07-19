@@ -10,8 +10,33 @@ function loadFileContent(){
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
 
+function do_json_submit(body, is_async) {
+    if (is_async == undefined) { is_async = true }
 
-function formSubmit() {
+    $.ajax({
+        url:"/submit",
+        type: "POST",
+        async: false,
+        data: body,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        cache : false,
+        success : function (res) {
+            if(res["success"]){
+                alert(res["result"]);
+            }
+            else if (!res["success"]) {
+                alert(res["result"])
+            }
+        },
+        error : function () {
+            // some error handling part
+            alert("Request Failed");
+        }
+    });
+}
+
+function scheduleSubmit() {
     //const fromAddress = document.getElementById("selectedAddress").value
     let body = undefined
 
@@ -36,31 +61,7 @@ function formSubmit() {
         return
     }
 
-    $.ajax({
-        url:"/submit",
-        type: "POST",
-        async: false,
-        data: body,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        // data : {
-        //     fromAddress: document.getElementById("selectedAddress").value,
-        //     data: body
-        // },
-        cache : false,
-        success : function (res) {
-            if(res["success"]){
-                alert(res["result"]);
-            }
-            else if (!res["success"]) {
-                alert(res["result"])
-            }
-        },
-        error : function () {
-            // some error handling part
-            alert("Request Failed");
-        }
-    });
+    do_json_submit(body, false)
 
     // hide modal window
     let myModalEl = document.getElementById('scheduleModal')

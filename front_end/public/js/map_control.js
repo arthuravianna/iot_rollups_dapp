@@ -101,6 +101,29 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
+// to add a fine trhourgh map:
+map.on('click', function(e) {
+    let lat = e.latlng.lat
+    let lng = e.latlng.lng
+    
+    let myModalEl = document.getElementById('fineModal')
+    
+    // get/create modal
+    let modal = bootstrap.Modal.getInstance(myModalEl)
+    if (!modal) {modal = new bootstrap.Modal(myModalEl)}
+    
+    let lat_elem = document.getElementById('fineModalLat')
+    lat_elem.value = lat
+
+    let lng_elem = document.getElementById('fineModalLng')
+    lng_elem.value = lng
+
+
+    modal.toggle()
+} );
+
+
+
 var myStyle = {
     "color": null,
     "fillColor": null,
@@ -112,9 +135,3 @@ var myStyle = {
 
 var routes_in_map = {} // { bus_line: boolean }
 var points_in_map = {} // { "epoch_index;input_index": boolean }
-
-
-// to add a fine trhourgh map:
-// map.on('click', function(e) {
-//     alert(e.latlng);
-// } );

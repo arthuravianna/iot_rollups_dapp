@@ -55,7 +55,7 @@
                 
                 <div class="modal-footer">
                     <div class="text-center">
-                        <button type="submit" id="schedule-btn-submit" class="btn btn-primary text-center" onclick="formSubmit()">Submit</button>
+                        <button type="submit" id="schedule-btn-submit" class="btn btn-light text-center" onclick="scheduleSubmit()">Submit</button>
                     </div>
                 </div>
             
@@ -139,6 +139,58 @@
     </div>
 </div>
 
+
+
+<!-- Add Fine Modal -->
+<div class="modal fade" id="fineModal" tabindex="-1" role="dialog" aria-labelledby="fineModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fineModalLabel">Add Fine</h5>
+            </div>
+
+            <!-- BEGIN FORM -->
+            <form>
+
+                <!-- BEGIN MODAL BODY -->
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="fineModalBusLine" name="fineModalBusLine" value="">
+                        <label for="fineModalBusLine">Bus Line</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="fineModalTimestamp" name="fineModalTimestamp" value="">
+                        <label for="fineModalTimestamp">Timestamp</label>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <div class="form-floating col">
+                            <input type="text" class="form-control" id="fineModalLat" name="fineModalLat" value="" disabled>
+                            <label for="fineModalLat">Latitude</label>
+                        </div>
+
+                        <div class="form-floating col">
+                            <input type="text" class="form-control disabled" id="fineModalLng" name="fineModalLng" value="" disabled>
+                            <label for="fineModalLng">Longitude</label>
+                        </div>
+                    </div>
+
+                <!-- END MODAL BODY -->
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="text-center">
+                        <button type="submit" id="fine-btn-submit" class="btn btn-light text-center" onclick="fineSubmit()">Submit</button>
+                    </div>
+                </div>
+            
+            <!-- END FORM -->                 
+            </form>
+
+        </div>
+    </div>
+</div>
 
 
 <body id="home" style="padding-top: 70px;">

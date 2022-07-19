@@ -9,7 +9,7 @@ function build_table(table_id, pagination_id) {
         for (let i = 0; i < notices_table[curr_page-1].length; i++) {
             let notice = notices_table[curr_page-1][i]
             let tr_html = ''
-            + `<pre><tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
+            + `<tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
             + `<td>${notice.bus_line}</td>`
             + `<td>${notice.ts}</td>`
             + `<td>${notice.value}</td>`
