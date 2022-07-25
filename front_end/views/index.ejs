@@ -29,6 +29,10 @@
     <!-- Chart JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
 
+
+    <!-- Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+
     <!-- My custom css -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -212,6 +216,9 @@
             </a>
         </div>
 
+        <!-- <div class="me">
+            <button type="submit" id="metamask-connect" class="btn btn-light text-center" onclick="metamask_connect()">Metamask Connect</button>
+        </div> -->
         <div class="dropdown me-4">
             <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 <%= `Visualizing Epoch: ${req_epoch}` %>
@@ -322,13 +329,18 @@
 </html>
 
 <script src="js/appUI.js"></script>
-<script src="js/connection.js"></script>
 <script src="js/chart_control.js"></script>
 <script>
     var req_epoch = parseInt('<%-req_epoch%>')
     var curr_epoch = parseInt('<%-current_epoch%>')
     var filter_options = JSON.parse('<%-JSON.stringify(filter_options)%>')
     var notices_table = JSON.parse('<%-JSON.stringify(notices_table)%>')
+    var back_end_chainid = '<%-chainid%>'
+    var metamask_conn_config = JSON.parse('<%-JSON.stringify(metamask_conn_config)%>')
+    var user_account = null // metamask account
+    var web3 = null // web3 object, used to call contracts methods
+    var input_contract = null
+    //console.log(metamask_conn_config)
 
 
     var appUI = new AppUI("map", 
@@ -346,15 +358,13 @@
         },
     )
 </script>
-
+<script src="js/connection.js"></script>
 <script src="js/map_control.js"></script>
 <script src="js/table_control.js"></script>
 <script>
     var barChart = new ChartControl("histogramChart",
         {
             "type": 'bar',
-            "epoch": req_epoch,
-            "select": {x: "bus_line"},
             "options": {
                 scales: {
                     y: {
@@ -378,12 +388,6 @@
     var timeSeriesChart = new ChartControl("timeSeriesChart",
         {
             "type": 'line',
-            "epoch": req_epoch,
-            "select": {
-                datasetKey: "tp",
-                x: "ts",
-                y: "value"
-            },
             "options": {
                 scales: {
                     y: {

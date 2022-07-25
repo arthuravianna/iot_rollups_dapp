@@ -17,29 +17,31 @@ class ChartControl {
             datasets: []
         });
 
-        if (this.chart.config.type == 'bar') {
-            let colors = []
-            for (let i = 0; i < data.length; i++) {
-                colors.push(get_random_color())
-            }
-            this.chart.data.datasets.push({
-                backgroundColor: colors,
-                data: data
-            })
-        }
-        else if (this.chart.config.type == 'line') {
-            this.chart.data.labels = data.labels
-            for (let key in data.datasets) {
-                let color = get_random_color()
+        if (data) {
+            if (this.chart.config.type == 'bar') {
+                let colors = []
+                for (let i = 0; i < data.length; i++) {
+                    colors.push(get_random_color())
+                }
                 this.chart.data.datasets.push({
-                    //labels: data.labels,
-                    fill: false,
-                    borderColor: color,
-                    backgroundColor: color,
-                    label: key,
-                    data: data.datasets[key]
+                    backgroundColor: colors,
+                    data: data
                 })
             }
+            else if (this.chart.config.type == 'line') {
+                this.chart.data.labels = data.labels
+                for (let key in data.datasets) {
+                    let color = get_random_color()
+                    this.chart.data.datasets.push({
+                        //labels: data.labels,
+                        fill: false,
+                        borderColor: color,
+                        backgroundColor: color,
+                        label: key,
+                        data: data.datasets[key]
+                    })
+                }
+            }    
         }
        
         // initial data

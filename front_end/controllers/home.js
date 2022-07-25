@@ -31,14 +31,16 @@ module.exports={
         filter_options.filterBusLine = req.query.filterBusLine
         filter_options.fineTypeSelector = req.query.fineTypeSelector
 
-        blockchainModel.getNoticePage(req_epoch, filter_options, function(notices_table, time_series, histogram, current_epoch) {
+        blockchainModel.getNoticePage(req_epoch, filter_options, function(notices_table, time_series, histogram, current_epoch, chainid, metamask_conn_config) {
             res.render("index", {
                 "notices_table": notices_table,
                 "ts": time_series,
                 "hist": histogram,
                 "filter_options": filter_options,
                 "current_epoch": current_epoch,
-                "req_epoch": req_epoch
+                "req_epoch": req_epoch,
+                "chainid": chainid,
+                "metamask_conn_config": metamask_conn_config,
             });
         });
     },

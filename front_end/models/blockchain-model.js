@@ -3,6 +3,7 @@ const request = require('request');
 
 
 const page_size = 15 // 15 notices per page
+let chainid = null
 
 
 function build_dataset(obj_arr, data, agg_map) {
@@ -41,11 +42,13 @@ function build_ts(ts_dict, min_date, max_date) {
 
     if (delta <= 86400000) { // <= 1 day(aggregate by hour)
         // can be in different days!!!
-        let aux = min_date
+        //let aux = min_date
+        //aux.setMinutes(0);
+        let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-${min_date.getDate()} ${min_date.getHours()}:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getDate()} ${aux.getHours()}`] = Object.keys(agg_map).length
 
-            let date = `${aux.getFullYear()}-${aux.getMonth()}-${aux.getDate()} ${aux.getHours()}:00:00`
+            let date = `${aux.getFullYear()}-${aux.getMonth()+1}-${aux.getDate()} ${aux.getHours()}:00:00`
             labels.push(date)
 
             aux.setHours(aux.getHours()+1)
@@ -60,11 +63,12 @@ function build_ts(ts_dict, min_date, max_date) {
     // }
     else if (delta <= 2629800000) { // <= 1 month(aggregate by day)
         // can be in different months!!!
-        let aux = min_date
+        //let aux = min_date
+        let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-${min_date.getDate()} 00:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getMonth()} ${aux.getDate()}`] = Object.keys(agg_map).length
 
-            let date = `${aux.getFullYear()}-${aux.getMonth()}-${aux.getDate()}`
+            let date = `${aux.getFullYear()}-${aux.getMonth()+1}-${aux.getDate()}`
             labels.push(date)
 
             aux.setDate(aux.getDate()+1)
@@ -75,11 +79,12 @@ function build_ts(ts_dict, min_date, max_date) {
         }
     }
     else if (delta <= 31557600000) { // <= 1 year(aggregate by month)
-        let aux = min_date
+        //let aux = min_date
+        let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-01 00:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getFullYear()} ${aux.getMonth()}`] = Object.keys(agg_map).length
 
-            let date = `${aux.getFullYear()}-${aux.getMonth()}`
+            let date = `${aux.getFullYear()}-${aux.getMonth()+1}`
             labels.push(date)
 
             aux.setMonth(aux.getMonth()+1)
@@ -90,7 +95,8 @@ function build_ts(ts_dict, min_date, max_date) {
         }
     }
     else { // > 1 year(aggregate by year)
-        let aux = min_date
+        //let aux = min_date
+        let aux = new Date(`${min_date.getFullYear()}-01-01 00:00:00`)
         while (aux <= max_date) {
             agg_map[aux.getFullYear()] = Object.keys(agg_map).length
 
@@ -116,6 +122,11 @@ function build_ts(ts_dict, min_date, max_date) {
 
 module.exports = {
     getNoticePage:async function(epoch, filter_options, callback) {
+        if (!chainid) {
+            chainid = conn.web3.utils.toHex(await conn.web3.eth.getChainId())
+            console.log("ChainID:",chainid)
+        }
+
         let options = {
             url: 'http://localhost:4000/graphql',
             json: true,
@@ -129,14 +140,14 @@ module.exports = {
         request.post(options, (err, res, body) => {
             if (err) {       
                 console.log(err)
-                callback(null, null, null, null)
+                callback(null, null, null, null, chainid, conn.metamask_conn_config)
                 return
             }
 
             let val = body.data.GetProcessedInput
             let current_epoch = 0
             if (!val || val.length == 0) {
-                callback(null, null, null, current_epoch)
+                callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                 return
             }
 
@@ -156,13 +167,13 @@ module.exports = {
             request.post(options, (err, res, body) => {
                 if (err) {       
                     console.log(err)
-                    callback(null, null, null, current_epoch)
+                    callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                     return
                 }
             
                 const val = body.data.GetNotice
                 if (val.length == 0) {
-                    callback(null, null, null, current_epoch)
+                    callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                     return
                 }
                 
@@ -205,10 +216,10 @@ module.exports = {
 
                     // att min and max ts
                     if (!min_date || ts_date < min_date) {
-                        min_date = ts_date
+                        min_date = new Date(ts_date.getTime())
                     }
                     if (!max_date || ts_date > max_date) {
-                        max_date = ts_date
+                        max_date = new Date(ts_date.getTime())
                     }
 
                     // counting bus_line fine's
@@ -220,7 +231,7 @@ module.exports = {
                     }
                 }
                 if (notices_table.length == 0) {
-                    callback(null, null, null, current_epoch)
+                    callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                     return
                 }
 
@@ -229,7 +240,7 @@ module.exports = {
                 }
 
                 //callback(notices_table, time_series, histogram, current_epoch)
-                callback(notices_table, build_ts(time_series, min_date, max_date), histogram, current_epoch)
+                callback(notices_table, build_ts(time_series, min_date, max_date), histogram, current_epoch, chainid, conn.metamask_conn_config)
             });
 
         })

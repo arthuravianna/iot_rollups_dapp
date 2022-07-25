@@ -36,19 +36,12 @@ function do_json_submit(body, is_async) {
     });
 }
 
-function scheduleSubmit() {
-    //const fromAddress = document.getElementById("selectedAddress").value
-    let body = undefined
-
-    // if (fromAddress == "") {
-    //     alert("Error: Please select an Address.")
-    //     return
-    // }
+async function scheduleSubmit() {
+    let input
 
     if (textFromFileLoaded) {
         try {
-            let json = JSON.parse(textFromFileLoaded)
-            body = JSON.stringify(json)
+            input = JSON.parse(textFromFileLoaded)
         }
         catch (error) {
             alert(error)
@@ -56,12 +49,22 @@ function scheduleSubmit() {
         }
     }
 
-    if (!body) {
+    if (!input) {
         alert("Error: Nothing to send.")
         return
     }
 
-    do_json_submit(body, false)
+    try {
+        await metamask_connect()
+    }
+    catch (e) {
+        alert(e)
+        return
+    }
+
+    input.new_schedule = true // must add to Cartesi Machine's back-end
+    input = JSON.stringify(input)
+    metamask_send(input)
 
     // hide modal window
     let myModalEl = document.getElementById('scheduleModal')
@@ -69,17 +72,24 @@ function scheduleSubmit() {
     modal.toggle()
 };
 
-function fineSubmit() {
-    let body = {}
-    body.bus_id = document.getElementById('fineModalBusId').value
-    body.trip_id = document.getElementById('fineModalTripId').value
-    body.ts = document.getElementById('fineModalTimestamp').value
-    body.lat = parseFloat(document.getElementById('fineModalLat').value)
-    body.lon = parseFloat(document.getElementById('fineModalLng').value)
+async function fineSubmit() {
+    let input = {}
+    input.bus_id = document.getElementById('fineModalBusId').value
+    input.trip_id = document.getElementById('fineModalTripId').value
+    input.ts = document.getElementById('fineModalTimestamp').value
+    input.lat = parseFloat(document.getElementById('fineModalLat').value)
+    input.lon = parseFloat(document.getElementById('fineModalLng').value)
 
-    body = JSON.stringify(body)
+    try {
+        await metamask_connect()
+    }
+    catch (e) {
+        alert(e)
+        return
+    }
 
-    do_json_submit(body, false)
+    input = JSON.stringify(input)
+    metamask_send(input)
 
     // hide modal window
     let myModalEl = document.getElementById('fineModal')
@@ -104,6 +114,55 @@ function query_chart_data(epoch, select, callback) {
             alert("Request Failed");
         }
     });
+}
+
+// METAMASK HANDLING
+function handle_accounts(accounts) {
+    if (accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
+        throw 'Please connect to MetaMask.'
+    }
+    user_account = accounts[0]
+}
+
+function handle_chainid(chainId) {
+    if (chainId != back_end_chainid) {
+        console.log(`New chainID: ${chainId}`)
+        throw `Set Metamask's Network to the one with ID: ${back_end_chainid}`
+    }
+}
+
+async function metamask_connect() {
+    if (typeof window.ethereum === 'undefined') {
+        throw "Please Install Metamask to use the application."
+    }
+    if (await window.ethereum.request({ method: 'eth_chainId' }) != back_end_chainid) {
+        throw `Set Metamask Network to the one with ID: ${back_end_chainid}`
+    }
+    if (!user_account) {
+        let accounts = await ethereum.request({ method: 'eth_requestAccounts' })
+        handle_accounts(accounts)
+    }
+    if (!web3) {
+        web3 = new Web3(Web3.givenProvider || metamask_conn_config.provider)
+        input_contract = new web3.eth.Contract(metamask_conn_config.abi, metamask_conn_config.address)
+    }
+}
+
+async function metamask_send(input) {
+    let input_hex = web3.utils.utf8ToHex(input)
+    input_contract.methods.addInput(input_hex).send({ from: user_account })
+    .then(console.log)
+    .catch(console.log)
+}
+
+if (typeof window.ethereum !== 'undefined') {
+    //console.log(window.ethereum)
+    window.ethereum.on('chainChanged', handle_chainid);
+    
+    window.ethereum.on('accountsChanged', handle_accounts);
+
+    window.ethereum.on('disconnect', () => { user_account = null })
 }
 
 // prevents page from reloading
