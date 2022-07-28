@@ -34,12 +34,17 @@ def distance_between_coordinates(lat1, lon1, lat2, lon2):
 
 
 def in_route(lat, lon, route):
+    min_distance = None # minimum distance from route
     for r_coord in route:
         r_lat, r_lon = r_coord
-        if distance_between_coordinates(lat, lon, r_lat, r_lon) <= DIST_TOLERANCE:
+        distance = distance_between_coordinates(lat, lon, r_lat, r_lon)
+        if distance <= DIST_TOLERANCE:
             return True
+        
+        if min_distance is None or min_distance > distance:
+            min_distance = distance
     
-    return False
+    return min_distance
 
 
 def is_late(curr_time, stop_time):

@@ -86,7 +86,8 @@ def handle_advance(data):
 
             fine_dsc = None
 
-            if not util.in_route(curr_lat, curr_lon, route):
+            in_route = util.in_route(curr_lat, curr_lon, route)
+            if in_route is not True:
                 fine_dsc = {
                     "ts": ts,
                     "tp": 1,                                    # type 1: different route
@@ -95,7 +96,7 @@ def handle_advance(data):
                     "curr_coords": (curr_lat, curr_lon),
                     "bus_line": bus_id,
                     "trip": trip_id,
-                    "value": 5
+                    "value": round(50 * in_route, 2)           # 50 for each kilometer
                 }
             else: # is on route
                 # get stop
@@ -121,7 +122,7 @@ def handle_advance(data):
                             "late": str(late),                      # how much is late
                             "bus_line": bus_id,
                             "trip": trip_id,
-                            "value": round(0.05 * late.seconds, 2)  # 0.05 cents for each second
+                            "value": round(0.10 * late.seconds, 2)  # 0.10 cents for each second
                         }
 
             if fine_dsc:
