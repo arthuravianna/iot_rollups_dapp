@@ -1,11 +1,4 @@
-function get_random_color() {
-    var makeColorCode = '0123456789ABCDEF';
-    var code = '#';
-    for (var count = 0; count < 6; count++) {
-        code =code+ makeColorCode[Math.floor(Math.random() * 16)];
-    }
-    return code;
-}
+let map
 
 function draw_notice(notice) {
     //let notice = JSON.parse(notice_str)
@@ -95,32 +88,34 @@ function clear_map() {
 }
 
 // MAP GLOBAL VARIABLES
-var map = L.map('map').setView([57.828479, 26.533621], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-}).addTo(map);
-
-// to add a fine trhourgh map:
-map.on('click', function(e) {
-    let lat = e.latlng.lat
-    let lng = e.latlng.lng
+function init_map() {
+    map = L.map('map').setView([57.828479, 26.533621], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
     
-    let myModalEl = document.getElementById('fineModal')
+    // to add a fine trhourgh map:
+    map.on('click', function(e) {
+        let lat = e.latlng.lat
+        let lng = e.latlng.lng
+        
+        let myModalEl = document.getElementById('fineModal')
+        
+        // get/create modal
+        let modal = bootstrap.Modal.getInstance(myModalEl)
+        if (!modal) {modal = new bootstrap.Modal(myModalEl)}
+        
+        let lat_elem = document.getElementById('fineModalLat')
+        lat_elem.value = lat
     
-    // get/create modal
-    let modal = bootstrap.Modal.getInstance(myModalEl)
-    if (!modal) {modal = new bootstrap.Modal(myModalEl)}
+        let lng_elem = document.getElementById('fineModalLng')
+        lng_elem.value = lng
     
-    let lat_elem = document.getElementById('fineModalLat')
-    lat_elem.value = lat
-
-    let lng_elem = document.getElementById('fineModalLng')
-    lng_elem.value = lng
-
-
-    modal.toggle()
-} );
+    
+        modal.toggle()
+    } );    
+}
 
 
 

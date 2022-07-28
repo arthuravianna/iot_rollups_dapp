@@ -7,7 +7,6 @@ let chainid = null
 
 
 function build_dataset(obj_arr, data, agg_map) {
-    //console.log(agg_map)
     for (let i = 0; i < obj_arr.length; i++) {
         let curr_obj = obj_arr[i]
         let pos = agg_map.map_func(curr_obj)
@@ -42,8 +41,6 @@ function build_ts(ts_dict, min_date, max_date) {
 
     if (delta <= 86400000) { // <= 1 day(aggregate by hour)
         // can be in different days!!!
-        //let aux = min_date
-        //aux.setMinutes(0);
         let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-${min_date.getDate()} ${min_date.getHours()}:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getDate()} ${aux.getHours()}`] = Object.keys(agg_map).length
@@ -63,7 +60,6 @@ function build_ts(ts_dict, min_date, max_date) {
     // }
     else if (delta <= 2629800000) { // <= 1 month(aggregate by day)
         // can be in different months!!!
-        //let aux = min_date
         let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-${min_date.getDate()} 00:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getMonth()} ${aux.getDate()}`] = Object.keys(agg_map).length
@@ -79,7 +75,6 @@ function build_ts(ts_dict, min_date, max_date) {
         }
     }
     else if (delta <= 31557600000) { // <= 1 year(aggregate by month)
-        //let aux = min_date
         let aux = new Date(`${min_date.getFullYear()}-${min_date.getMonth()+1}-01 00:00:00`)
         while (aux <= max_date) {
             agg_map[`${aux.getFullYear()} ${aux.getMonth()}`] = Object.keys(agg_map).length
@@ -95,7 +90,6 @@ function build_ts(ts_dict, min_date, max_date) {
         }
     }
     else { // > 1 year(aggregate by year)
-        //let aux = min_date
         let aux = new Date(`${min_date.getFullYear()}-01-01 00:00:00`)
         while (aux <= max_date) {
             agg_map[aux.getFullYear()] = Object.keys(agg_map).length
@@ -239,8 +233,14 @@ module.exports = {
                     histogram.push({x: x, y: hist_dict[x]})
                 }
 
-                //callback(notices_table, time_series, histogram, current_epoch)
-                callback(notices_table, build_ts(time_series, min_date, max_date), histogram, current_epoch, chainid, conn.metamask_conn_config)
+                callback(
+                    notices_table,
+                    JSON.stringify(build_ts(time_series, min_date, max_date)),
+                    JSON.stringify(histogram),
+                    current_epoch,
+                    chainid,
+                    JSON.stringify(conn.metamask_conn_config)
+                )
             });
 
         })

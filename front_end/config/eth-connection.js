@@ -27,5 +27,5 @@ module.exports = {
     web3: web3,
     rollups_contract: rollups_contract,
     input_contract: input_contract,
-    metamask_conn_config: {abi: input_contract_obj.abi, address: address, provider: provider}
+    metamask_conn_config: { abi: input_contract_obj.abi, address: address }
 }

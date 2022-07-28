@@ -328,15 +328,19 @@
 </body>
 </html>
 
+<script src="js/util.js"></script>
 <script src="js/appUI.js"></script>
 <script src="js/chart_control.js"></script>
+<script src="js/connection.js"></script>
+<script src="js/map_control.js"></script>
+<script src="js/table_control.js"></script>
 <script>
     var req_epoch = parseInt('<%-req_epoch%>')
     var curr_epoch = parseInt('<%-current_epoch%>')
     var filter_options = JSON.parse('<%-JSON.stringify(filter_options)%>')
     var notices_table = JSON.parse('<%-JSON.stringify(notices_table)%>')
     var back_end_chainid = '<%-chainid%>'
-    var metamask_conn_config = JSON.parse('<%-JSON.stringify(metamask_conn_config)%>')
+    var metamask_conn_config = JSON.parse('<%-metamask_conn_config%>')
     var user_account = null // metamask account
     var web3 = null // web3 object, used to call contracts methods
     var input_contract = null
@@ -354,14 +358,13 @@
             "div_id": "timeSeries",
             "btn_minimize_id": "timeSeries_btn_minimize", // close
             "btn_id": "timeSeries_btn", // open/close
-            "div_width": 400
+            "div_width": 800
         },
     )
-</script>
-<script src="js/connection.js"></script>
-<script src="js/map_control.js"></script>
-<script src="js/table_control.js"></script>
-<script>
+
+    init_map()
+    build_table("finesTable", "paginationList")
+
     var barChart = new ChartControl("histogramChart",
         {
             "type": 'bar',
@@ -379,10 +382,10 @@
                     legend: {
                         display: false
                     }
-                }
+                },
             }
         },
-        JSON.parse('<%-JSON.stringify(hist)%>') // histogram data sent by NodeJS
+        JSON.parse('<%-hist%>') // histogram data sent by NodeJS
     )
 
     var timeSeriesChart = new ChartControl("timeSeriesChart",
@@ -405,8 +408,7 @@
                 }
             }
         },
-        JSON.parse('<%-JSON.stringify(ts)%>') // time Series data sent by NodeJS
+        JSON.parse('<%-ts%>') // time Series data sent by NodeJS
     )
 
-    build_table("finesTable", "paginationList")
 </script>

@@ -1,12 +1,10 @@
-function get_random_color() {
-    var makeColorCode = '0123456789ABCDEF';
-    var code = '#';
-    for (var count = 0; count < 6; count++) {
-        code =code+ makeColorCode[Math.floor(Math.random() * 16)];
-    }
-    return code;
-}
+let colors = [] // color used for each bus_line in graphs
 
+function generate_colors(n) {
+    for (let i = 0; i < n; i++) {
+        colors.push(get_random_color())
+    }
+}
 
 class ChartControl {
     constructor(chart_id, chart, data) {
@@ -18,20 +16,27 @@ class ChartControl {
         });
 
         if (data) {
-            if (this.chart.config.type == 'bar') {
-                let colors = []
-                for (let i = 0; i < data.length; i++) {
-                    colors.push(get_random_color())
+            if (!data.datasets) {
+                if (!colors.length) {
+                    generate_colors(data.length)
                 }
+
                 this.chart.data.datasets.push({
                     backgroundColor: colors,
                     data: data
                 })
             }
-            else if (this.chart.config.type == 'line') {
+            else {
                 this.chart.data.labels = data.labels
+                if (!colors.length) {
+                    generate_colors(Object.keys(data.datasets).length)
+                }
+
+                let i = 0
                 for (let key in data.datasets) {
-                    let color = get_random_color()
+                    //let color = get_random_color()
+                    let color = colors[i]
+                    i++;
                     this.chart.data.datasets.push({
                         //labels: data.labels,
                         fill: false,
@@ -41,7 +46,7 @@ class ChartControl {
                         data: data.datasets[key]
                     })
                 }
-            }    
+            }
         }
        
         // initial data

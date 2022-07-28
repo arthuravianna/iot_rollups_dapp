@@ -144,7 +144,7 @@ async function metamask_connect() {
         handle_accounts(accounts)
     }
     if (!web3) {
-        web3 = new Web3(Web3.givenProvider || metamask_conn_config.provider)
+        web3 = new Web3(Web3.givenProvider)
         input_contract = new web3.eth.Contract(metamask_conn_config.abi, metamask_conn_config.address)
     }
 }
@@ -157,8 +157,14 @@ async function metamask_send(input) {
 }
 
 if (typeof window.ethereum !== 'undefined') {
-    //console.log(window.ethereum)
-    window.ethereum.on('chainChanged', handle_chainid);
+    window.ethereum.on('chainChanged', (chainid) => {
+        try { 
+            handle_chainid(chainid)
+        }
+        catch (e) {
+            alert(e)
+        }
+    });
     
     window.ethereum.on('accountsChanged', handle_accounts);
 
