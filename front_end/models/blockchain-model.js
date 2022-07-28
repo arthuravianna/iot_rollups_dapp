@@ -235,11 +235,11 @@ module.exports = {
 
                 callback(
                     notices_table,
-                    JSON.stringify(build_ts(time_series, min_date, max_date)),
-                    JSON.stringify(histogram),
+                    build_ts(time_series, min_date, max_date),
+                    histogram,
                     current_epoch,
                     chainid,
-                    JSON.stringify(conn.metamask_conn_config)
+                    conn.metamask_conn_config
                 )
             });
 
