@@ -1,22 +1,25 @@
 var express = require('express');
 
-var homeController = require('../controllers/home');
+var noticesController = require('../controllers/notices');
+var inspectController = require('../controllers/inspect');
+var blockchainController = require('../controllers/blockchain')
 
 var router = express.Router();
 
 // index page(dashboard)
-router.get('/', homeController.homePage);
-router.post('/', homeController.homePageFilter);
-//router.post('/dashboard-form', homeController.dashboard_form);
+router.get('/', noticesController.homePage);
+router.post('/', noticesController.homePageFilter);
 
-// form page
-router.get('/form', homeController.formPage);
+// query Notices data
+router.post("/query", noticesController.query);
 
-// submit data
-router.post("/submit", homeController.submit);
+// inspect dapp BD (inside Cartesi Machine)
+router.post("/inspect", inspectController.inspect);
 
 
-// get data
-router.post("/query", homeController.query);
+// submit data (used only for test)
+router.post("/submit", blockchainController.submit);
+
+
 
 module.exports = router

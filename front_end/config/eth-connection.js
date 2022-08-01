@@ -3,6 +3,8 @@ const fs = require('fs')
 
 
 const provider = "http://localhost:8545" // node running Hardhat
+const notices_db_url = "http://localhost:4000/graphql"
+const dapp_inspect_url = " http://localhost:5002/inspect"
 const web3 = new Web3(Web3.givenProvider || provider)
 
 web3.eth.getAccounts()
@@ -27,5 +29,7 @@ module.exports = {
     web3: web3,
     rollups_contract: rollups_contract,
     input_contract: input_contract,
+    notices_db_url: notices_db_url,
+    dapp_inspect_url: dapp_inspect_url,
     metamask_conn_config: { abi: input_contract_obj.abi, address: address }
 }
