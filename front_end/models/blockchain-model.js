@@ -2,7 +2,7 @@
 // it adds inputs using an default account
 
 
-const conn = require("../config/eth-connection.js")
+const conn = require("../config/connection.js")
 
 
 module.exports = {

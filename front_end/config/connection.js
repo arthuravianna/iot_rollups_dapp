@@ -13,7 +13,7 @@ web3.eth.getAccounts()
     console.log("Default Account:", web3.eth.defaultAccount)
 })
 .catch(function(error) {
-    console.log("Error: Couldn't get accounts list!\n",error)
+    console.log("Error: Couldn't get accounts list!\n", error)
 });
 
 // Cartesi Rollups 0.3

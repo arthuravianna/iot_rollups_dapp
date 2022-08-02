@@ -1,4 +1,4 @@
-const conn = require("../config/eth-connection.js")
+const conn = require("../config/connection.js")
 const request = require('request');
 
 module.exports={
