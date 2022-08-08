@@ -122,7 +122,7 @@ To be able to interact with the DApp using Metamask is necessary to go through t
 1) Install the Metamask extension in the desired browser.
 2) Create a wallet.
 3) Add the localhost 8545 network. [How to add a network](https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-a-custom-network-RPC).
-4) Import one of the hardhat accounts to metamask. [How to import an Account](https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-Account). Use one of the private keys bellow:
+4) Import one of the hardhat accounts to metamask (Use one of the private keys bellow). [How to import an Account](https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-Account).
 
     Account 0: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
@@ -170,7 +170,7 @@ Click on the upload button, browser through your files and select the desired sc
 
 
 ### Send Vehicle Data
-Click anywhere in the map and a modal window with lat and lng information already filled (extracted from the position clicked on map) will be open. Fill the form with the missing informations and click "submit", like the bus schedule it will also prompt a transaction in Metamask, confirm it to send the data.
+Click anywhere in the map and a modal window with lat and lng information already filled (extracted from the position clicked on map) will be open. Fill the form with the missing informations, then click "submit". Like the bus schedule interaction, the DApp will ask to connect to metamask first (if it is not connected yet), then will prompt a transaction. Confirm the transaction to send the data.
 
 ## interacting-using-curl
 This form of interaction is used for tests because it uses a "default" hardhat account to cover expenses of the contracts methods execution.
