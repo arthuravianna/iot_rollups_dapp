@@ -1,7 +1,7 @@
 # IoT Rollups DApp
 
 ## Project Overview
-This project uses Cartesi Rollups to build a DApp (Decentralized Application) with verifiable logic. The purpose of this application is to verify verify if a public transportation service is complying with its schedules and routes, if not, the DApp will automatically generate a fine for that bus line.
+This project uses Cartesi Rollups to build a DApp (Decentralized Application) with verifiable logic. The purpose of this application is to verify if a public transportation service is complying with its schedules and routes, if not, the DApp will automatically generate a fine for that bus line.
 
 To be able to do that the DApp only needs to load (once) the schedule of the Public Transport. After that whenever it receives GPS data from one vehicle that has to comply with the loaded schedule it will generate or not a fine.
 
@@ -10,8 +10,8 @@ To be able to do that the DApp only needs to load (once) the schedule of the Pub
 - npm
 - nodeJS
 - python3
-- docker
-- docker-compose
+- docker (version >= 20.10.12)
+- metamask (browser extension)
 
 
 ## Running the Dapp
@@ -19,15 +19,16 @@ To run the DApp is necessary to execute the front-end and the back-end, the late
 
 In Production Mode the back-end will run inside the Cartesi Machine, in Host Mode it will run on the local machine, this mode is usefull when developing an application.
 
-After executing the Front-End and **one** of the Back-End modes the user will be able to interact with de DApp the way described [in this section](#interacting-with-the-application).
+After executing the Front-End and **one** of the Back-End modes the user will be able to interact with de DApp [using Metamask](#interacting-using-Metamask) or [using the curl command](#interacting-using-curl).
 
 ## Front-End
 The DApp front-end consists of a Web server developed in NodeJS, it's objective is to insteract with Cartesis's contracts in the Blockchain (Layer-1), and for that it uses the Web3.js module.
 
-The server runs on port `3000` and has 3 routes:
+The server runs on port `3000` and has 4 routes:
 - `/` : Dashboard containing info about the fines to be paid. To retrive this information the Web Server makes queries to the graphql server running on port `4000`. Each page of the dashboard has data of an different epoch;
-- `/form` : A page were an user can upload a bus line schedule. The bus line schedule should be stored in a JSON file and should follow the same format of the files in the `demo/schedules_demo` directory;
-- `/submit` : Doesn't have a page, it's the route used to send inputs(real-time GPS data) to the Web server, the Web server will then forward this data to the Contract in the Blockchain and the Contract will forward it to the back-end.
+- `/submit` : Doesn't have a page, it's the route used to send inputs(real-time GPS data or a schedules) to the Web server, the Web server will then forward this data to the Contract in the Blockchain and the Contract will forward it to the back-end. **This route uses a default hardhat account and is ideal for tests.**
+- `/inspect` : Used to access the inspect state of the Cartesi Machine. In this app this feature is used to get information stored in the Database (SQLite) inside the Cartesi Machine, like the know bus lines or the route of a bus line.
+- `/query` : Used to query emitted fines information in form of Histogram or Time Series.
 
 ### Installing & Running
 ``` Bash
@@ -47,15 +48,6 @@ To build the application, run the following command:
 
 ``` Bash
 docker buildx bake -f docker-bake.hcl -f docker-bake.override.hcl --load
-```
-
-In some Linux distributions you may need to configure the ``buildx`` command before running the build command, for that execute the commands bellow (You will need jq command to be able to get the latest version).
-``` Bash
-LATEST=$(wget -qO- "https://api.github.com/repos/docker/buildx/releases/latest" | jq -r .name)
-wget https://github.com/docker/buildx/releases/download/$LATEST/buildx-$LATEST.linux-amd64
-chmod a+x buildx-$LATEST.linux-amd64
-mkdir -p ~/.docker/cli-plugins
-mv buildx-$LATEST.linux-amd64 ~/.docker/cli-plugins/docker-buildx
 ```
 
 ### Production Mode
@@ -107,33 +99,92 @@ Then, remove the containers and associated volumes by executing:
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose-host.yml down -v
 ```
 
+
+
+
+
+
 ## Advancing Time
 The command bellow advance 1 epoch
 ``` Bash
 curl --data '{"id":1337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[864010]}' http://localhost:8545
 ```
 
+
+
+
+
 ## interacting-with-the-application
-Before sending vehicle data, first upload a bus schedule.
+Before sending vehicle data, first upload a bus schedule. These operations can be done using the interface (Metamask) or the curl command to the `/submit` route.
+
+## interacting-using-Metamask
+To be able to interact with the DApp using Metamask is necessary to go through the following steps:
+1) Install the Metamask extension in the desired browser.
+2) Create a wallet.
+3) Add the localhost 8545 network. [How to add a network](https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-a-custom-network-RPC).
+4) Import one of the hardhat accounts to metamask. [How to import an Account](https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-Account). Use one of the private keys bellow:
+
+    Account 0: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+    Account 1: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+
+    Account 2: 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
+
+    Account 3: 0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
+
+    Account 4: 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
+
+    Account 5: 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
+
+    Account 6: 0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e
+
+    Account 7: 0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356
+
+    Account 8: 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97
+
+    Account 9: 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
+
+    Account 10: 0xf214f2b2cd398c806f84e317254e0f0b801d0643303237d97a22a48e01628897
+
+    Account 11: 0x701b615bbdfb9de65240bc28bd21bbc0d996645a3dd57e7b12bc2bdf6f192c82
+
+    Account 12: 0xa267530f49f8280200edf313ee7af6b827f2a8bce2897751d06a843f644967b1
+
+    Account 13: 0x47c99abed3324a2707c28affff1267e45918ec8c3f20b8aa892e8b065d2942dd
+
+    Account 14: 0xc526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa
+
+    Account 15: 0x8166f546bab6da521a8369cab06c5d2b9e46670292d85c875ee9ec20e84ffb61
+
+    Account 16: 0xea6c44ac03bff858b476bba40716402b03e41b8e97e276d1baec7c37d42484a0
+
+    Account 17: 0x689af8efa8c651a91ad287602527f3af2fe9f6501a7ac4b061667b5a93e037fd
+
+    Account 18: 0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0
+
+    Account 19: 0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e
+
 
 ### Send Bus Schedule
-This operation can be done in two ways, using the interface or direct communication with the web server via ``curl`` command.
+Click on the upload button, browser through your files and select the desired schedule file, then click "submit". The DApp will ask to connect to metamask first (if it is not connected yet), then will prompt a transaction. Confirm the transaction to send the schedule to the blockchain and it will be fowarded to the Cartesi Machine's back-end.
 
-#### Web Page
-1) Go to page http://localhost:3000/form
-2) Select a valid schedule file. (it can be one of the located in "demo/schedules_demo" folder)
-3) Press "Submit"
 
-Now the back-end has added that bus line schedule to its database.
+### Send Vehicle Data
+Click anywhere in the map and a modal window with lat and lng information already filled (extracted from the position clicked on map) will be open. Fill the form with the missing informations and click "submit", like the bus schedule it will also prompt a transaction in Metamask, confirm it to send the data.
 
-#### Via curl command
+## interacting-using-curl
+This form of interaction is used for tests because it uses a "default" hardhat account to cover expenses of the contracts methods execution.
+
+
+### Send Bus Schedule
 Execute the curl command bellow.
+
 ``` Bash
 curl -H "Content-Type: application/json" -d @demo/schedules_demo/schedule1.json http://localhost:3000/submit
 ```
 
 ### Send Vehicle Data
-The Vehicle Data doesn't have a page for it, assuming that this operation will be done by IoT devices there won't be need of a web page.
+Execute one of the curl commands bellow.
 
 Example 1) Execute the curl command bellow to send data of a vehicle that is out of its route. This vehicle is of bus line "18C" described in "schedule1.json".
 
@@ -142,6 +193,7 @@ curl -H "Content-Type: application/json" -d '{"bus_id": "18C", "trip_id":"18C;1"
 ```
 
 Example 2) Execute the curl command bellow to send data of a vehicle that is late. This vehicle is of bus line "18C" described in "schedule1.json".
+
 ``` Bash
 curl -H "Content-Type: application/json" -d '{"bus_id": "18C", "trip_id":"18C;1", "lat": 57.82847892, "lon": 26.53362055,"ts": "2022-05-04 07:48:30"}' http://localhost:3000/submit
 ```
