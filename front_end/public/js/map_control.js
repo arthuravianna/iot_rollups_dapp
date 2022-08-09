@@ -1,6 +1,6 @@
 let map
 
-function draw_notice(notice) {
+async function draw_notice(notice) {
     //let notice = JSON.parse(notice_str)
     let features = []
     myStyle.color = get_random_color()
@@ -23,9 +23,16 @@ function draw_notice(notice) {
 
         if (!routes_in_map.hasOwnProperty(notice.bus_line)) {
             let route = []
-            for (let i = 0; i < notice.expected_route.length; i++) {
-                route.push([ notice.expected_route[i][1], notice.expected_route[i][0] ])
-            }
+            await inspect_query({"route": notice.bus_line}, (response) => {
+                if (!response.success) {
+                    console.log("Failed to inspect route of line ",notice.bus_line)
+                    return
+                }
+                for (let i = 0; i < response.result.length; i++) {
+                    route.push([ response.result[i][1], response.result[i][0] ])
+                }
+    
+            })
 
             features.push({
                 "type": "LineString",
@@ -112,7 +119,22 @@ function init_map() {
         let lng_elem = document.getElementById('fineModalLng')
         lng_elem.value = lng
     
-    
+        
+        let bus_id_elem = document.getElementById('fineModalBusId')
+        inspect_query({ "bus_id": 1 }, (res) => {
+            if (!res.success) {
+                alert("Unable to inspect bus_id")
+                return
+            }
+
+            let options_html = ""
+            for (let i = 0; i < res.result.length; i++) {
+                options_html += `<option value=${res.result[i]} selected> ${res.result[i]} </option>`
+            }
+
+            bus_id_elem.innerHTML = options_html
+        })
+
         modal.toggle()
     } );    
 }

@@ -10,29 +10,20 @@ function loadFileContent(){
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
 
-function do_json_submit(body, is_async) {
+function do_json_submit(body, url, is_async) {
+    if (url == undefined) { return }
     if (is_async == undefined) { is_async = true }
 
-    $.ajax({
-        url:"/submit",
+    body = JSON.stringify(body)
+
+    return $.ajax({
+        url: url,
         type: "POST",
         async: is_async,
         data: body,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        cache : false,
-        success : function (res) {
-            if(res["success"]){
-                alert(res["result"]);
-            }
-            else if (!res["success"]) {
-                alert(res["result"])
-            }
-        },
-        error : function () {
-            // some error handling part
-            alert("Request Failed");
-        }
+        cache : false
     });
 }
 
@@ -97,23 +88,29 @@ async function fineSubmit() {
     modal.toggle()
 }
 
-function query_chart_data(epoch, select, callback) {
-    let body = JSON.stringify({"epoch": epoch,"select": select})
+async function query_chart_data(epoch, select, callback) {
+    if (epoch == undefined) { return }
+    if (select == undefined) { return }
+    if (callback == undefined) { return }
+    let body = {"epoch": epoch,"select": select}
 
+    try {
+        do_json_submit(body, "/query").then(callback)
+    } catch(err) {
+        alert(err)
+    }
+    
+}
 
-    return $.ajax({
-        url:"/query",
-        type: "POST",
-        //async: false,
-        data: body,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        cache : false,
-        success : callback,
-        error : function () {
-            alert("Request Failed");
-        }
-    });
+async function inspect_query(option, callback, is_async) {
+    if (option == undefined) { return }
+    if (callback == undefined) { return }
+
+    try {
+        callback(await do_json_submit(option, "/inspect", is_async))
+    } catch(err) {
+        alert(err);
+    }
 }
 
 // METAMASK HANDLING
