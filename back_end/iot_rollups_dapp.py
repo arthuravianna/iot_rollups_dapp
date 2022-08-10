@@ -152,25 +152,41 @@ def handle_inspect(data):
         payload_dict = json.loads(payload_utf8)
         logger.info(f"Payload DICT {payload_dict}")
 
-        # get route of bus
-        if "route" in payload_dict:
-            conn = db.create_connection(DB_FILE)
-            bus_id = payload_dict["route"]
-            route = db.select_route_of_line(conn, bus_id)
-            conn.close()
+        select_options = {
+            "route": db.select_route_of_line,
+            "trips": db.count_trips
+        }
 
-            result = util.str_to_eth_hex(json.dumps(route))
-        elif "bus_id" in payload_dict:
-            conn = db.create_connection(DB_FILE)
-            ids = db.select_lines_id(conn)
-            conn.close()
+        if "bus_id" not in payload_dict:
+            result = util.str_to_eth_hex("Invalid JSON: Must have 'bus_id' key.")
+            response = requests.post(rollup_server + "/report", json={"payload": result})
+            logger.info(f"Received report status {response.status_code}")
+            return "accept"
 
-            result = util.str_to_eth_hex(json.dumps(ids))
+        conn = db.create_connection(DB_FILE)
+        bus_id = payload_dict["bus_id"]
+
+        if bus_id == "*":
+            result = db.select_lines_id(conn)
         else:
-            result = util.str_to_eth_hex("Invalid JSON Options. Inspect must have <route> or <bus_id>.\n")
-        
+            if "select" not in payload_dict:
+                result = util.str_to_eth_hex("Invalid JSON: Must have 'select' key.")
+                response = requests.post(rollup_server + "/report", json={"payload": result})
+                logger.info(f"Received report status {response.status_code}")
+                return "accept"
 
+            option = payload_dict["select"]
+            if option not in select_options:
+                result = util.str_to_eth_hex(f"Invalid select option, valid options are: {list(select_options.keys())}")
+                response = requests.post(rollup_server + "/report", json={"payload": result})
+                logger.info(f"Received report status {response.status_code}")
+                return "accept"
 
+            option_func = select_options[option]
+            result = option_func(conn, bus_id)
+            conn.close()
+
+        result = util.str_to_eth_hex(json.dumps(result))
         logger.info("Adding report")
         response = requests.post(rollup_server + "/report", json={"payload": result})
         logger.info(f"Received report status {response.status_code}")

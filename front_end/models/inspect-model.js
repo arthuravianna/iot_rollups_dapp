@@ -17,9 +17,18 @@ module.exports={
             }
 
             body = JSON.parse(body)
+            if (!body.reports[0]) {
+                error("Don't have a report.")
+                return
+            }
             let payload_str = conn.web3.utils.hexToUtf8(body.reports[0].payload)
 
-            success(JSON.parse(payload_str))
+            try {
+                success(JSON.parse(payload_str))
+            }
+            catch (Error) {
+                error(payload_str)
+            }
         })
     },
 }

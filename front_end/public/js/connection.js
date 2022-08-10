@@ -71,11 +71,21 @@ async function fineSubmit() {
     input.lat = parseFloat(document.getElementById('fineModalLat').value)
     input.lon = parseFloat(document.getElementById('fineModalLng').value)
 
+    let form_is_valid = true
+    if (input.bus_id == "") form_is_valid = false
+    if (input.trip_id == "") form_is_valid = false
+    if (input.ts == "") form_is_valid = false
+
+    if (!form_is_valid) {
+        alert("Please complete the Send Trip Info Form")
+        return
+    }
+
     try {
         await metamask_connect()
     }
     catch (e) {
-        alert(e)
+        alert(`Code: ${e.code}\nMessage: ${e.message}`)
         return
     }
 

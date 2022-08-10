@@ -169,16 +169,22 @@
                             <select class="form-select" id="fineModalBusId" name="bus_id" aria-label="Fine Bus Id">
                             </select>
 
-                            <label for="fineModalBusId">Fine Type</label>
+                            <label for="fineModalBusId">Bus Line</label>
                         </div>
 
-                        <div class="form-floating col">
+                        <!-- <div class="form-floating col">
                             <input type="text" class="form-control" id="fineModalTripId" name="trip_id" value="">
                             <label for="fineModalTripId">Trip Id</label>
+                        </div> -->
+                        <div class="form-floating col">
+                            <select class="form-select" id="fineModalTripId" name="trip_id" aria-label="Bus Line Trip">
+                            </select>
+
+                            <label for="fineModalTripId">Trip</label>
                         </div>
                     </div>
 
-                    <div class="form-floating mb-3">
+                    <div class="form-floating has-validation mb-3">
                         <input type="text" class="form-control" id="fineModalTimestamp" name="ts" value="">
                         <label for="fineModalTimestamp">Timestamp</label>
                     </div>

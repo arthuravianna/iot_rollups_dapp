@@ -23,7 +23,7 @@ async function draw_notice(notice) {
 
         if (!routes_in_map.hasOwnProperty(notice.bus_line)) {
             let route = []
-            await inspect_query({"route": notice.bus_line}, (response) => {
+            await inspect_query({"bus_id": notice.bus_line, "select": "route"}, (response) => {
                 if (!response.success) {
                     console.log("Failed to inspect route of line ",notice.bus_line)
                     return
@@ -101,7 +101,25 @@ function init_map() {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
-    
+
+    let bus_id_elem = document.getElementById('fineModalBusId')
+    bus_id_elem.onchange = function() {
+        inspect_query({"bus_id": bus_id_elem.value, "select": "trips"}, (res) => {
+            if (!res.success) {
+                alert("Unable to inspect bus line trips")
+                return
+            }
+
+            let trip_id_elem = document.getElementById('fineModalTripId')
+            let trips_html = ""
+            for (let i = 1; i <= res.result; i++) {
+                trips_html += `<option value=${bus_id_elem.value};${i}> ${bus_id_elem.value};${i} </option>`
+            }
+            
+            trip_id_elem.innerHTML = trips_html
+        })
+    }
+
     // to add a fine trhourgh map:
     map.on('click', function(e) {
         let lat = e.latlng.lat
@@ -120,23 +138,22 @@ function init_map() {
         lng_elem.value = lng
     
         
-        let bus_id_elem = document.getElementById('fineModalBusId')
-        inspect_query({ "bus_id": 1 }, (res) => {
+        inspect_query({ "bus_id": "*" }, (res) => {
             if (!res.success) {
                 alert("Unable to inspect bus_id")
                 return
             }
 
-            let options_html = ""
+            let options_html = "<option selected value=''> Seleact a Line </option>"
             for (let i = 0; i < res.result.length; i++) {
-                options_html += `<option value=${res.result[i]} selected> ${res.result[i]} </option>`
+                options_html += `<option value=${res.result[i]}> ${res.result[i]} </option>`
             }
 
             bus_id_elem.innerHTML = options_html
         })
 
         modal.toggle()
-    } );    
+    } );
 }
 
 

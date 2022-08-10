@@ -229,6 +229,13 @@ def select_trip_schedule(conn, trip_id):
     return cur.fetchone()[0].split(";")
 
 
+def count_trips(conn, bus_line):
+    sql = ''' SELECT COUNT(*) FROM trip_schedule WHERE bus_line_id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, (bus_line,))
+
+    return cur.fetchone()[0]
+
 def select_stop_schedule(conn, next_stop, bus_line_id, trip_id):
     result = [None, None]
     
