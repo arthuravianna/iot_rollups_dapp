@@ -6,10 +6,10 @@ module.exports={
     inspect:function(req, res) {
         let json = req.body
 
-        if (!(json.hasOwnProperty("route") || json.hasOwnProperty("bus_id"))) {
-            res.json({success: false, result: "Body must have 'route' or 'bus_id'!"})
-            return
-        }
+        // if (!(json.hasOwnProperty("select"))) {
+        //     res.json({success: false, result: "Body must have 'select' key!"})
+        //     return
+        // }
 
         inspectModel.doInspect(JSON.stringify(json),
         function (result) {

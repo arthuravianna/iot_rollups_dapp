@@ -23,7 +23,7 @@ async function draw_notice(notice) {
 
         if (!routes_in_map.hasOwnProperty(notice.bus_line)) {
             let route = []
-            await inspect_query({"bus_id": notice.bus_line, "select": "route"}, (response) => {
+            await inspect_query({ "select": "routes", "routes": notice.bus_line }, (response) => {
                 if (!response.success) {
                     console.log("Failed to inspect route of line ",notice.bus_line)
                     return
@@ -62,13 +62,6 @@ async function draw_notice(notice) {
         }
     }
 
-
-    // console.log(features)
-    // L.geoJSON(features, {
-    //     style: myStyle,
-    //     onEachFeature: (feature, layer) => {layer.bindPopup(feature.popup)}
-    // }).addTo(map);
-    
     L.geoJSON(features, {
         style: myStyle,
         onEachFeature: (feature, layer) => {layer.bindPopup(feature.popup)},
@@ -104,9 +97,9 @@ function init_map() {
 
     let bus_id_elem = document.getElementById('fineModalBusId')
     bus_id_elem.onchange = function() {
-        inspect_query({"bus_id": bus_id_elem.value, "select": "trips"}, (res) => {
+        inspect_query({ "select": "trips", "trips": bus_id_elem.value }, (res) => {
             if (!res.success) {
-                alert("Unable to inspect bus line trips")
+                alert(`Error: ${res.result}`)
                 return
             }
 
@@ -138,9 +131,9 @@ function init_map() {
         lng_elem.value = lng
     
         
-        inspect_query({ "bus_id": "*" }, (res) => {
+        inspect_query({ "select": "lines" }, (res) => {
             if (!res.success) {
-                alert("Unable to inspect bus_id")
+                alert(`Error: ${res.result}`)
                 return
             }
 
