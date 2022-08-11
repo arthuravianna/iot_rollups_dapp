@@ -143,8 +143,6 @@ def handle_advance(data):
 
 def handle_inspect(data):
     try:
-        #logger.info(f"Received inspect request data {data}")
-        
         ### payload to UTF-8
         payload_utf8 = util.hex_to_str(data["payload"])
         logger.info(f"Inspect Payload UTF-8 {payload_utf8}")
@@ -152,44 +150,52 @@ def handle_inspect(data):
         payload_dict = json.loads(payload_utf8)
         logger.info(f"Payload DICT {payload_dict}")
 
-        select_options = {
-            "route": db.select_route_of_line,
-            "trips": db.count_trips
-        }
-
-        if "bus_id" not in payload_dict:
-            result = util.str_to_eth_hex("Invalid JSON: Must have 'bus_id' key.")
+        def generate_report(msg):
+            result = util.str_to_eth_hex(msg)
+            logger.info("Adding report")
             response = requests.post(rollup_server + "/report", json={"payload": result})
             logger.info(f"Received report status {response.status_code}")
-            return "accept"
 
+
+        if "select" not in payload_dict:
+            generate_report(f"Must have 'select' key! Valid values are: {list(select_options.keys())}")
+            return "reject"
+
+            
         conn = db.create_connection(DB_FILE)
-        bus_id = payload_dict["bus_id"]
+        option = payload_dict["select"]
+        select_options = {
+            "lines": { "required": False, "function": db.select_lines_id },
+            "routes": { "required": True, "function": db.select_route_of_line },
+            "trips": { "required": True, "function": db.count_trips }
+        }
+        
 
-        if bus_id == "*":
-            result = db.select_lines_id(conn)
+        if option not in select_options:
+            generate_report(f"Invalid select option! Valid options are: {list(select_options.keys())}")
+            return "reject"
+
+        select_function = select_options[option]["function"]
+        if not select_options[option]["required"]:
+            result = select_function(conn)
         else:
-            if "select" not in payload_dict:
-                result = util.str_to_eth_hex("Invalid JSON: Must have 'select' key.")
-                response = requests.post(rollup_server + "/report", json={"payload": result})
-                logger.info(f"Received report status {response.status_code}")
-                return "accept"
+            if option not in payload_dict:
+                generate_report(f"Missing key: {option}")
+                return "reject"
 
-            option = payload_dict["select"]
-            if option not in select_options:
-                result = util.str_to_eth_hex(f"Invalid select option, valid options are: {list(select_options.keys())}")
-                response = requests.post(rollup_server + "/report", json={"payload": result})
-                logger.info(f"Received report status {response.status_code}")
-                return "accept"
+            option_value = payload_dict[option]
+            if type(option_value) == str:
+                result = select_function(conn, option_value)
+            elif type(option_value) == list:
+                result = {}
+                for val in option_value:
+                    result[val] = select_function(conn, val)
+            else:
+                generate_report(f"{option} value must be a list or a string!")
+                return "reject"
+                
 
-            option_func = select_options[option]
-            result = option_func(conn, bus_id)
-            conn.close()
-
-        result = util.str_to_eth_hex(json.dumps(result))
-        logger.info("Adding report")
-        response = requests.post(rollup_server + "/report", json={"payload": result})
-        logger.info(f"Received report status {response.status_code}")
+        generate_report(json.dumps(result))
         return "accept"
     
     except Exception as e:
