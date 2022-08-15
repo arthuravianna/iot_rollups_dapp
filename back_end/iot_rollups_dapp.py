@@ -92,7 +92,8 @@ def handle_advance(data):
                     "ts": ts,
                     "tp": 1,                                    # type 1: different route
                     "dsc": "Out of route",
-                    "expected_route": route,
+                    #"expected_route": route,
+                    "distance": round(in_route,2),
                     "curr_coords": (curr_lat, curr_lon),
                     "bus_line": bus_id,
                     "trip": trip_id,
