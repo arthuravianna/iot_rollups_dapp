@@ -10,11 +10,7 @@ x-credentials: &postgres-config
 
 services:
   rollups_dispatcher:
-<<<<<<< HEAD
     image: cartesi/rollups-dispatcher:0.5.0
-=======
-    image: cartesi/rollups-dispatcher:0.4.0
->>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--rd-dapp-contract-address-file",
@@ -52,11 +48,7 @@ services:
       - ./deployments:/deployments
 
   state_server:
-<<<<<<< HEAD
     image: cartesi/rollups-state-server:0.5.0
-=======
-    image: cartesi/delegate-server:0.4.0
->>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--sf-genesis-block",
@@ -111,11 +103,7 @@ services:
       RUST_LOG: info
 
   rollups_indexer:
-<<<<<<< HEAD
     image: cartesi/rollups-indexer:0.5.0
-=======
-    image: cartesi/rollups-indexer:0.4.0
->>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--dapp-contract-address-file",
@@ -150,11 +138,7 @@ services:
       - ./deployments:/deployments
 
   query_server:
-<<<<<<< HEAD
     image: cartesi/query-server:0.5.0
-=======
-    image: cartesi/query-server:0.4.0
->>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     ports:
       - "4000:4000"
     depends_on:
