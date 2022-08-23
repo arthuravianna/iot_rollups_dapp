@@ -10,7 +10,11 @@ x-credentials: &postgres-config
 
 services:
   hardhat:
+<<<<<<< HEAD
     image: cartesi/rollups-hardhat:0.5.0
+=======
+    image: cartesi/rollups-hardhat:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "node",
@@ -33,7 +37,11 @@ services:
       - ./deployments:/app/deployments
 
   rollups_dispatcher:
+<<<<<<< HEAD
     image: cartesi/rollups-dispatcher:0.5.0
+=======
+    image: cartesi/rollups-dispatcher:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--rd-dapp-contract-address-file",
@@ -74,7 +82,11 @@ services:
       - ./deployments:/deployments
 
   state_server:
+<<<<<<< HEAD
     image: cartesi/rollups-state-server:0.5.0
+=======
+    image: cartesi/delegate-server:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--sf-genesis-block",
@@ -105,7 +117,11 @@ services:
   server_manager:
     restart: always
     ports:
+<<<<<<< HEAD
       - "5001:5001"
+=======
+      - '5001:5001'
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     #    healthcheck:
     #      test: ["CMD", "curl", "-f", "http://locahost:5001"]
     #      interval: 10s
@@ -115,7 +131,11 @@ services:
       - machine:/opt/cartesi/share/dapp-bin
 
   deployer:
+<<<<<<< HEAD
     image: cartesi/rollups-cli:0.5.0
+=======
+    image: cartesi/rollups-cli:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     restart: on-failure
     depends_on:
       hardhat:
@@ -192,7 +212,11 @@ services:
       RUST_LOG: info
 
   rollups_indexer:
+<<<<<<< HEAD
     image: cartesi/rollups-indexer:0.5.0
+=======
+    image: cartesi/rollups-indexer:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     command:
       [
         "--dapp-contract-address-file",
@@ -230,7 +254,11 @@ services:
       - ./deployments:/deployments
 
   query_server:
+<<<<<<< HEAD
     image: cartesi/query-server:0.5.0
+=======
+    image: cartesi/query-server:0.4.0
+>>>>>>> 852599aca06744a85da9a4c85adf33fc3a3f52db
     ports:
       - "4000:4000"
     depends_on:
