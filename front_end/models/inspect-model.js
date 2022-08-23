@@ -3,7 +3,7 @@ const request = require('request');
 
 module.exports={
     doInspect:async function(data, success, error) {
-        const data_hex = conn.web3.utils.utf8ToHex(data)
+        const data_hex = data//conn.web3.utils.utf8ToHex(data)
 
         let options = {
             url: `${conn.dapp_inspect_url}/${data_hex}`,

@@ -125,12 +125,10 @@ module.exports = {
             url: conn.notices_db_url,
             json: true,
             body: {
-                query: 'query processed {GetProcessedInput (query: {input_index: "0"}) {epoch_index} }'
+                query: 'query { epochs { totalCount } }'
             }
         };
 
-        // Get first Processed Input of each epoch
-        // is used to calculate the most recent epoch
         request.post(options, (err, res, body) => {
             if (err) {       
                 console.log(err)
@@ -138,26 +136,36 @@ module.exports = {
                 return
             }
 
-            let val = body.data.GetProcessedInput
-            let current_epoch = 0
-            if (!val || val.length == 0) {
-                callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
-                return
-            }
-
-            for (var i = 0; i < val.length; i++) {        
-                let epoch_i = parseInt(val[i].epoch_index)
-                if (val[i].epoch_index > current_epoch) {
-                    current_epoch = epoch_i
-                }
-            }
+            let current_epoch = body.data.epochs.totalCount - 1
 
             // if (epoch === undefined) {
             //     epoch = current_epoch
             // }
 
             // Get Notices of epoch "page"
-            options.body.query = `query getNotice { GetNotice( query: { epoch_index: "${epoch}" } ) { session_id epoch_index input_index notice_index payload } }`
+            options.body.query = `
+            query noticesByEpoch {
+                epoch: epochI(index: ${epoch}) {
+                    inputs {
+                        nodes {
+                            notices {
+                                nodes {
+                                    id
+                                    index
+                                    payload
+                                    input {
+                                        index
+                                        epoch {
+                                            index
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            `
             request.post(options, (err, res, body) => {
                 if (err) {       
                     console.log(err)
@@ -165,8 +173,14 @@ module.exports = {
                     return
                 }
             
-                const val = body.data.GetNotice
-                if (val.length == 0) {
+                const inputs_nodes = body.data.epoch.inputs.nodes // list of inputs with its notices
+                let input_no_notices = 0
+                inputs_nodes.forEach(input => {
+                    if (input.notices.totalCount > 0) { // dif 0
+                        input_no_notices++
+                    }
+                });
+                if (input_no_notices == inputs_nodes.length) {
                     callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                     return
                 }
@@ -178,52 +192,111 @@ module.exports = {
                 let hist_dict = {}
                 let min_date
                 let max_date
-                for (let i = 0; i < val.length; i++) {
-                    let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
-                    // apply filter
-                    if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
-                        continue
-                    }
-                    else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
+                for (let i = 0; i < inputs_nodes.length; i++) {
+                    let input = inputs_nodes[i]
+
+                    if (input.notices.totalCount == 0) {
                         continue
                     }
 
-                    payload.epoch_index = val[i].epoch_index
-                    payload.input_index = val[i].input_index
-                    
-                    // populate notices table
-                    if (notices_table.length > 0 && notices_table[notices_table.length -1].length < page_size) {
-                        notices_table[notices_table.length -1].push(payload)
-                    }
-                    else {
-                        notices_table.push([payload]) // new notice page
-                    }
+                    let notice
+                    for (let j = 0; j < input.notices.nodes.length; j++) { // notices of input
+                        notice = input.notices.nodes[j]
+                        //let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + notice.payload))
+                        let payload = JSON.parse(conn.web3.utils.hexToUtf8(notice.payload))
+                        // apply filter
+                        if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
+                            continue
+                        }
+                        else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
+                            continue
+                        }
+                        payload.input_index = notice.input.index
+                        payload.epoch_index = notice.input.epoch.index
+                        
+                        // populate notices table
+                        if (notices_table.length > 0 && notices_table[notices_table.length -1].length < page_size) {
+                            notices_table[notices_table.length -1].push(payload)
+                        }
+                        else {
+                            notices_table.push([payload]) // new notice page
+                        }
 
-                    // populate time series
-                    let ts_date = new Date(payload.ts)
-                    if (!(time_series.hasOwnProperty(payload.bus_line))) {
-                        time_series[payload.bus_line] = [{x: ts_date, y: payload.value}]
-                    }
-                    else {
-                        time_series[payload.bus_line].push({x: ts_date, y: payload.value})
-                    }
+                        // populate time series
+                        let ts_date = new Date(payload.ts)
+                        if (!(time_series.hasOwnProperty(payload.bus_line))) {
+                            time_series[payload.bus_line] = [{x: ts_date, y: payload.value}]
+                        }
+                        else {
+                            time_series[payload.bus_line].push({x: ts_date, y: payload.value})
+                        }
 
-                    // att min and max ts
-                    if (!min_date || ts_date < min_date) {
-                        min_date = new Date(ts_date.getTime())
-                    }
-                    if (!max_date || ts_date > max_date) {
-                        max_date = new Date(ts_date.getTime())
-                    }
+                        // att min and max ts
+                        if (!min_date || ts_date < min_date) {
+                            min_date = new Date(ts_date.getTime())
+                        }
+                        if (!max_date || ts_date > max_date) {
+                            max_date = new Date(ts_date.getTime())
+                        }
 
-                    // counting bus_line fine's
-                    if (!(hist_dict.hasOwnProperty(payload.bus_line))) {
-                        hist_dict[payload.bus_line] = 1
-                    }
-                    else {
-                        hist_dict[payload.bus_line]++
+                        // counting bus_line fine's
+                        if (!(hist_dict.hasOwnProperty(payload.bus_line))) {
+                            hist_dict[payload.bus_line] = 1
+                        }
+                        else {
+                            hist_dict[payload.bus_line]++
+                        }
                     }
                 }
+
+
+
+                // for (let i = 0; i < val.length; i++) {
+                //     let payload = JSON.parse(conn.web3.utils.hexToUtf8("0x" + val[i].payload))
+                //     // apply filter
+                //     if (filter_options.filterBusLine && (payload.bus_line != filter_options.filterBusLine)) {
+                //         continue
+                //     }
+                //     else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
+                //         continue
+                //     }
+
+                //     payload.epoch_index = val[i].epoch_index
+                //     payload.input_index = val[i].input_index
+                    
+                //     // populate notices table
+                //     if (notices_table.length > 0 && notices_table[notices_table.length -1].length < page_size) {
+                //         notices_table[notices_table.length -1].push(payload)
+                //     }
+                //     else {
+                //         notices_table.push([payload]) // new notice page
+                //     }
+
+                //     // populate time series
+                //     let ts_date = new Date(payload.ts)
+                //     if (!(time_series.hasOwnProperty(payload.bus_line))) {
+                //         time_series[payload.bus_line] = [{x: ts_date, y: payload.value}]
+                //     }
+                //     else {
+                //         time_series[payload.bus_line].push({x: ts_date, y: payload.value})
+                //     }
+
+                //     // att min and max ts
+                //     if (!min_date || ts_date < min_date) {
+                //         min_date = new Date(ts_date.getTime())
+                //     }
+                //     if (!max_date || ts_date > max_date) {
+                //         max_date = new Date(ts_date.getTime())
+                //     }
+
+                //     // counting bus_line fine's
+                //     if (!(hist_dict.hasOwnProperty(payload.bus_line))) {
+                //         hist_dict[payload.bus_line] = 1
+                //     }
+                //     else {
+                //         hist_dict[payload.bus_line]++
+                //     }
+                // }
                 if (notices_table.length == 0) {
                     callback(null, null, null, current_epoch, chainid, conn.metamask_conn_config)
                     return

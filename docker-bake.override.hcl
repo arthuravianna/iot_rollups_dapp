@@ -1,15 +1,25 @@
 
 target "dapp" {
+  # default context is "."
+  # default dockerfile is "Dockerfile"
+}
+
+variable "TAG" {
+  default = "devel"
+}
+
+variable "DOCKER_ORGANIZATION" {
+  default = "cartesi"
 }
 
 target "server" {
-  tags = ["cartesi/dapp:iot_rollups_dapp-devel-server"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-server"]
 }
 
 target "console" {
-  tags = ["cartesi/dapp:iot_rollups_dapp-devel-console"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-console"]
 }
 
 target "machine" {
-  tags = ["cartesi/dapp:iot_rollups_dapp-devel-machine"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-machine"]
 }

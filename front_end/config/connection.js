@@ -4,7 +4,7 @@ const fs = require('fs')
 
 const provider = "http://localhost:8545" // node running Hardhat
 const notices_db_url = "http://localhost:4000/graphql"
-const dapp_inspect_url = " http://localhost:5002/inspect"
+const dapp_inspect_url = " http://localhost:5005/inspect"
 const web3 = new Web3(Web3.givenProvider || provider)
 
 web3.eth.getAccounts()
