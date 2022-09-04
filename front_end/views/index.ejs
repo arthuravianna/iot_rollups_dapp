@@ -219,104 +219,122 @@
 </div>
 
 
-<body id="home" style="padding-top: 70px;">
+<!-- <body id="home" style="padding-top: 70px;"> -->
+<body id="home">
 
-    <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top border-bottom">
-		<div class="container position-relative">
-           <a class="navbar-brand" href="/">
-               <img src="assets/images/logo.png" style="height: 48px;" alt="IoT Rollups DApp">
-            </a>
+    <nav class="navbar" style="height: 71px; background-color: #212529; border-bottom: 5px solid; border-color: #EB7A29;">
+        <div class="ms-5" style="font-size: 24px; color: #FFFFFF; letter-spacing: 0.06em;">
+            IoT Rollups DApp
         </div>
 
-        <!-- <div class="me">
-            <button type="submit" id="metamask-connect" class="btn btn-light text-center" onclick="metamask_connect()">Metamask Connect</button>
-        </div> -->
-        <div class="dropdown me-4">
-            <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= `Visualizing Epoch: ${req_epoch}` %>
-            </a>
-          
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <% for (let i = 0; i <= current_epoch; i++) { %>
-                    <% if (i == req_epoch) { %>
-                        <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %> disabled> <%= i %> </a></li>
-                    <% } else {%>
-                        <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %>> <%= i %> </a></li>
-                    <% } %>
-                <% } %>
-            </ul>
-          </div>
+        <div class="me-5">
+            <img src="assets/images/metamask.png" alt="Metamask Logo" style="border-radius: 17px;">
+            <button type="submit" id="metamask-connect" class="btn text-center" onclick="metamask_connect()">
+                <div id="metamask-text">
+                    Connect to Metamask
+                </div>
+            </button>
+        </div>
     </nav>
 
-    <div class="row mt-4 mx-2" style="position: relative; z-index: 0">
-        <div id="map" class="col-9"></div>
+    <div class="row m-5" style="position: relative; z-index: 0">
+        <div class="col-3 ps-0 pe-4">
+            <div style="background: #FFFFFF; border: 1px solid #E8E8E8; box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.08);">
+                <div class="p-2">
+                    <ul class="list-group list-group-horizontal mb-1">
+                        <li class="list-group-item border-0 flex-fill p-0">
+                            <!-- <h4 class="m-0">Fines's Table</h4> -->
+                            <div style="font-size: 20px; line-height: 16px; font-weight: bold;">
+                                Fines's Table
+                            </div>
+                            
+                            <div class="dropdown me-4">
+                                <a class="btn dropdown-toggle p-0" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <small style="color:#7A7A7A"><%= `Epoch: ${req_epoch}/${current_epoch}` %></small>
+                                    <img src="assets/images/expand_more.png">
+                                </a>
+                            
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <% for (let i = 0; i <= current_epoch; i++) { %>
+                                        <% if (i == req_epoch) { %>
+                                            <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %> disabled> <%= i %> </a></li>
+                                        <% } else {%>
+                                            <li><a class="dropdown-item" href= <%= `/?epoch=${i}` %>> <%= i %> </a></li>
+                                        <% } %>
+                                    <% } %>
+                                </ul>
+                            </div>
 
-        <div class="col-3">
-            <div>
-                <ul class="list-group list-group-horizontal mb-1">
-                    <li class="list-group-item border-0 flex-fill p-0">
-                        <h4 class="m-0">Fines's Table</h4>
-                        <small class="text-muted"><%= `Epoch: ${req_epoch}/${current_epoch}` %></small>
-                    </li>
+                            <!-- <small class="text-muted"><%= `Epoch: ${req_epoch}/${current_epoch}` %></small> -->
+                        </li>
 
-                    <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button trigger modal schedule -->
-                        <button type="button" title="Clear Map" class="btn btn-light" onclick="clear_map()">
-                            <i class="bi bi-x-circle"></i>
-                        </button>
-                    </li>
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button trigger modal schedule -->
+                            <button type="button" title="Clear Map" class="btn btn-light" onclick="clear_map()">
+                                <!-- <i class="bi bi-x-circle"></i> -->
+                                <img src="assets/images/clear.png">
+                            </button>
+                        </li>
 
-                    <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button trigger modal schedule -->
-                        <button type="button" title="Upload Bus Schedule" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#scheduleModal">
-                            <i class="bi bi-upload"></i>
-                        </button>
-                    </li>
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button trigger modal schedule -->
+                            <button type="button" title="Upload Bus Schedule" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                                <!-- <i class="bi bi-upload"></i> -->
+                                <img src="assets/images/upload.png">
+                            </button>
+                        </li>
 
 
-                    <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button to open/close histogram graph -->
-                        <button type="button" id="histogram_btn" title="Histogram" class="btn btn-light">
-                            <i class="bi bi-bar-chart-line"></i>
-                        </button>
-                    </li>
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button to open/close histogram graph -->
+                            <button type="button" id="histogram_btn" title="Histogram" class="btn btn-light">
+                                <!-- <i class="bi bi-bar-chart-line"></i> -->
+                                <img src="assets/images/bar_chart.png">
+                            </button>
+                        </li>
 
-                    <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button to open/close time-series graph -->
-                        <button type="button" id="timeSeries_btn" title="Time Series" class="btn btn-light">
-                            <i class="bi bi-graph-up"></i>
-                        </button>
-                    </li>
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button to open/close time-series graph -->
+                            <button type="button" id="timeSeries_btn" title="Time Series" class="btn btn-light">
+                                <!-- <i class="bi bi-graph-up"></i> -->
+                                <img src="assets/images/trending_up.png">
+                            </button>
+                        </li>
 
-                    <li class="list-group-item border-0 p-0 me-auto">
-                        <!-- Button trigger modal filter -->
-                        <button type="button" title="Filter" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
-                            <i class="bi bi-filter-circle"></i>
-                        </button>
-                    </li>
-                </ul>
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button trigger modal filter -->
+                            <button type="button" title="Filter" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
+                                <i class="bi bi-filter-circle"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <table id="finesTable" class="table table-striped m-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Bus Line</th>
+                            <th scope="col" class="text-center">Timestamp</th>
+                            <!-- <th scope="col">Fine Description</th> -->
+                            <th scope="col" class="text-end">Fine Value (R$)</th>
+                        </tr>
+                    </thead>
+                    
+                    <!-- Notices -->
+                    <tbody id="finesTableBody" style="border: 0px;">
+                    </tbody>
+                </table>
+        
             </div>
-            <table id="finesTable" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Bus Line</th>
-                        <th scope="col">Timestamp</th>
-                        <!-- <th scope="col">Fine Description</th> -->
-                        <th scope="col">Fine Value (R$)</th>
-                    </tr>
-                </thead>
-                
-                <!-- Notices -->
-                <tbody id="finesTableBody">
-                </tbody>
-            </table>
-    
             <!-- Pagination -->
             <nav aria-label="Page navigation">
                 <ul id="paginationList" class="pagination justify-content-center">
                 </ul>
             </nav>
         </div>
+
+        <div id="map" class="col-9" style="border: 1px solid #E8E8E8; border-radius: 10px;"></div>
+
     </div>
 
     <div id="histogram" style="width: 400px;position: absolute; z-index: 1" class="card visually-hidden">

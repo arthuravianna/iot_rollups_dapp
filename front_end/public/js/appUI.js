@@ -1,5 +1,6 @@
-const navbar_height = 58 + 16 + 1 // navbar + padding + border-bottom
-const div_margin_top = 24 // map parent div margin top
+//const navbar_height = 58 + 16 + 1 // navbar + padding + border-bottom
+const navbar_height = 71 // navbar + padding + border-bottom
+const div_margin = 48 // map parent div margin
 
 
 class AppUI {
@@ -29,7 +30,7 @@ class AppUI {
     //  Window Resize functions
     //-------------------------------------------
     prepare_elements() {
-        document.getElementById(this.map_id).style.height = `${window.innerHeight - navbar_height - div_margin_top}px`
+        document.getElementById(this.map_id).style.height = `${window.innerHeight - navbar_height - div_margin*2}px`
 
         let histogram_elem = document.getElementById(this.histogram_conf.div_id)
         histogram_elem.style.top = navbar_height + "px"

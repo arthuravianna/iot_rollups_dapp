@@ -1,3 +1,63 @@
+body {
+    font-family: 'Kanit';
+}
+
+td {
+    border: 0px;
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+#page-title {
+    position: absolute;
+    left: 3.05%;
+    right: 80.47%;
+    top: 21.13%;
+    bottom: 26.76%;
+
+    font-family: 'Kanit';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 156%;
+
+    /* or 37px */
+    letter-spacing: 0.06em;
+
+    color: #FFFFFF;
+}
+
+#metamask-connect {
+    padding: 8px 16px;
+    margin-left: 10px;
+
+    background: #EB7A29;
+    border-radius: 2px;
+}
+
+#metamask-text {
+    /* width: 115px; */
+    height: 18px;
+    
+    font-family: 'Kanit';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 18px;
+    
+    /* identical to box height */
+    
+    color: #FFFFFF;
+    
+    
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0
+}
+
 .clickable-row {
     cursor:pointer;
 }
