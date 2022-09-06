@@ -41,8 +41,8 @@ function build_table(table_id, pagination_id) {
         let tr_html = ''
         + `<tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
         + `<td>${notice.bus_line}</td>`
-        + `<td>${notice.ts}</td>`
-        + `<td>${notice.value}</td>`
+        + `<td class="text-center">${notice.ts}</td>`
+        + `<td class="text-end">${notice.value}</td>`
         + `</tr>`
 
         table_elem.insertAdjacentHTML("beforeend", tr_html)

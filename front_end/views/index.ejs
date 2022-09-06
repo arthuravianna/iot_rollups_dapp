@@ -238,7 +238,7 @@
     </nav>
 
     <div class="row m-5" style="position: relative; z-index: 0">
-        <div class="col-3 ps-0 pe-4">
+        <div class="col-4 ps-0 pe-4">
             <div style="background: #FFFFFF; border: 1px solid #E8E8E8; box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.08);">
                 <div class="p-2">
                     <ul class="list-group list-group-horizontal mb-1">
@@ -333,7 +333,7 @@
             </nav>
         </div>
 
-        <div id="map" class="col-9" style="border: 1px solid #E8E8E8; border-radius: 10px;"></div>
+        <div id="map" class="col-8" style="border: 1px solid #E8E8E8; border-radius: 10px;"></div>
 
     </div>
 
@@ -400,8 +400,16 @@
             "type": 'bar',
             "options": {
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        }
                     }
                 },
                 plugins: {
@@ -423,8 +431,16 @@
             "type": 'line',
             "options": {
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        }
                     }
                 },
                 plugins: {

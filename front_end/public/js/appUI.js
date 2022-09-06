@@ -1,6 +1,7 @@
 //const navbar_height = 58 + 16 + 1 // navbar + padding + border-bottom
 const navbar_height = 71 // navbar + padding + border-bottom
 const div_margin = 48 // map parent div margin
+const graphs_margin = 8 // margin added to position graphs
 
 
 class AppUI {
@@ -33,12 +34,13 @@ class AppUI {
         document.getElementById(this.map_id).style.height = `${window.innerHeight - navbar_height - div_margin*2}px`
 
         let histogram_elem = document.getElementById(this.histogram_conf.div_id)
-        histogram_elem.style.top = navbar_height + "px"
-        histogram_elem.style.left = 0
+        histogram_elem.style.top = (navbar_height + div_margin + graphs_margin)+ "px"
+        histogram_elem.style.left = (window.innerWidth - this.histogram_conf.div_width - div_margin - graphs_margin) + "px"
 
         let timeSeries_elem = document.getElementById(this.timeSeries_conf.div_id)
-        timeSeries_elem.style.top = navbar_height + "px"
-        timeSeries_elem.style.left = 0
+        //timeSeries_elem.style.top = navbar_height + "px"
+        timeSeries_elem.style.top = (window.innerHeight / 2 - graphs_margin) + "px"
+        timeSeries_elem.style.left = (window.innerWidth - this.timeSeries_conf.div_width - div_margin - graphs_margin) + "px"
 
     }
 
