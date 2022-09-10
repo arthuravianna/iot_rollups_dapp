@@ -270,16 +270,7 @@
 
                         <li class="list-group-item border-0 p-0 me-auto">
                             <!-- Button trigger modal schedule -->
-                            <button type="button" title="Clear Map" class="btn btn-light" onclick="clear_map()">
-                                <!-- <i class="bi bi-x-circle"></i> -->
-                                <img src="assets/images/clear.png">
-                            </button>
-                        </li>
-
-                        <li class="list-group-item border-0 p-0 me-auto">
-                            <!-- Button trigger modal schedule -->
                             <button type="button" title="Upload Bus Schedule" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#scheduleModal">
-                                <!-- <i class="bi bi-upload"></i> -->
                                 <img src="assets/images/upload.png">
                             </button>
                         </li>
@@ -288,7 +279,6 @@
                         <li class="list-group-item border-0 p-0 me-auto">
                             <!-- Button to open/close histogram graph -->
                             <button type="button" id="histogram_btn" title="Histogram" class="btn btn-light">
-                                <!-- <i class="bi bi-bar-chart-line"></i> -->
                                 <img src="assets/images/bar_chart.png">
                             </button>
                         </li>
@@ -296,7 +286,6 @@
                         <li class="list-group-item border-0 p-0 me-auto">
                             <!-- Button to open/close time-series graph -->
                             <button type="button" id="timeSeries_btn" title="Time Series" class="btn btn-light">
-                                <!-- <i class="bi bi-graph-up"></i> -->
                                 <img src="assets/images/trending_up.png">
                             </button>
                         </li>
@@ -304,9 +293,17 @@
                         <li class="list-group-item border-0 p-0 me-auto">
                             <!-- Button trigger modal filter -->
                             <button type="button" title="Filter" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
-                                <i class="bi bi-filter-circle"></i>
+                                <img src="assets/images/filter.png">
                             </button>
                         </li>
+
+                        <li class="list-group-item border-0 p-0 me-auto">
+                            <!-- Button trigger modal schedule -->
+                            <button type="button" title="Clear Map" class="btn btn-light" onclick="clear_map()">
+                                <img src="assets/images/clear.png">
+                            </button>
+                        </li>
+
                     </ul>
                 </div>
 
@@ -337,19 +334,40 @@
 
     </div>
 
-    <div id="histogram" style="width: 400px;position: absolute; z-index: 1" class="card visually-hidden">
-        <div id="histogramHeader" class="card-header bg-light p-0" style="cursor: move">
-            <button type="button" id="histogram_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button>
+    <div id="histogram" style="width: 450px;position: absolute; z-index: 1" class="card p-4 visually-hidden">
+        <div id="histogramHeader" class="card-header bg-light p-0 border-0 mb-4" style="cursor: move">
+            <div class="row">
+                <div class="col-9">
+                    <p class="p-0 m-0 fw-bold fs-4">Qty of Bus Fines<br></p>
+                    <small>Per lines (Fines x Bus lines)</small>
+                </div>
+
+                <div class="col">
+                    <button type="button" id="histogram_btn_minimize" class="btn btn-light p-3 float-end"><i class="bi bi-x-lg"></i></button>
+                </div>    
+            </div>
         </div>
+
         <div id="histogramBody" class="card-body p-0">
             <canvas id="histogramChart"></canvas>
         </div>            
     </div>
 
-    <div id="timeSeries" style="width: 800px;position: absolute; z-index: 1" class="card visually-hidden">
-        <div id="timeSeriesHeader" class="card-header bg-light p-0" style="cursor: move">
-            <button type="button" id="timeSeries_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button>
+    <div id="timeSeries" style="width: 650px;position: absolute; z-index: 1" class="card p-4 visually-hidden">
+        <div id="timeSeriesHeader" class="card-header bg-light p-0 border-0 mb-4" style="cursor: move">
+            <!-- <button type="button" id="timeSeries_btn_minimize" class="btn btn-light py-0 float-end">&mdash;</button> -->
+            <div class="row">
+                <div class="col-9">
+                    <p class="p-0 m-0 fw-bold fs-4">Fines's Values (avg)<br></p>
+                    <small>(Fines Value x Date)</small>
+                </div>
+
+                <div class="col">
+                    <button type="button" id="timeSeries_btn_minimize" class="btn btn-light p-3 float-end"><i class="bi bi-x-lg"></i></button>
+                </div>    
+            </div>
         </div>
+
         <div id="timeSeriesBody" class="card-body p-0">
             <canvas id="timeSeriesChart"></canvas>
         </div>            
@@ -382,13 +400,13 @@
             "div_id": "histogram",
             "btn_minimize_id": "histogram_btn_minimize", // close
             "btn_id": "histogram_btn", // open/close
-            "div_width": 400
+            "div_width": 450
         },
         {
             "div_id": "timeSeries",
             "btn_minimize_id": "timeSeries_btn_minimize", // close
             "btn_id": "timeSeries_btn", // open/close
-            "div_width": 800
+            "div_width": 650
         },
     )
 
@@ -399,6 +417,7 @@
         {
             "type": 'bar',
             "options": {
+                maintainAspectRatio: false,
                 scales: {
                     x: {
                         grid: {
@@ -409,13 +428,29 @@
                         beginAtZero: true,
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 18,
+                                weight: "bold"
+                            }
                         }
                     }
                 },
                 plugins: {
                     title: {
-                        display: true,
-                        text: 'Qty of Bus Fines'
+                        display: false,
+                        text: 'Qty of Bus Fines',
+                        align: "start",
+                        font: {
+                            size: 14,
+                            family: "Kanit",
+                        }
+                    },
+                    subtitle: {
+                        display: false,
+                        text: 'Per lines (Fines x Bus lines)',
+                        align: "start"
                     },
                     legend: {
                         display: false
@@ -440,16 +475,26 @@
                         beginAtZero: true,
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 18,
+                                weight: "bold"
+                            }
                         }
                     }
                 },
                 plugins: {
                     title: {
-                        display: true,
+                        display: false,
                         text: "Fines's Values(avg)"
                     },
                     legend: {
-                        display: true
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            textAlign: "right"
+                        }
                     }
                 }
             }
