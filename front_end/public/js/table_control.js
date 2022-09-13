@@ -38,10 +38,19 @@ function build_table(table_id, pagination_id) {
     table_elem.innerHTML = ""
     for (let i = 0; i < notices_table[curr_page-1].length; i++) {
         let notice = notices_table[curr_page-1][i]
+        let icon_html
+        if (notice.tp == 1) {
+            icon_html = '<img class="" data-bs-toggle="tooltip" title="Out of route" style="width:14;height:16;" src="assets/images/directions_off.png" alt="directions off icon">'
+        } else {
+            icon_html = '<img class="" data-bs-toggle="tooltip" title="Late" style="width:14;height:16;" src="assets/images/late.png" alt="directions off icon">'
+        }
+
+
         let tr_html = ''
         + `<tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
         + `<td>${notice.bus_line}</td>`
         + `<td class="text-center">${notice.ts}</td>`
+        + `<td class="text-end">${icon_html}</td>`
         + `<td class="text-end">${notice.value}</td>`
         + `</tr>`
 
