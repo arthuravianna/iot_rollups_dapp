@@ -1,5 +1,8 @@
 body {
     font-family: 'Kanit';
+    overflow-x: hidden;
+    width: auto !important;
+    min-width: 560px;
 }
 
 td {
@@ -64,11 +67,27 @@ td {
 .clickable-row:hover {
     background-color: bisque;
 }
-.btn-light:hover {
-    background-color: bisque;
-}
 
-.btn-light:active:focus, .btn-light:focus {
+.btn-light:hover, .btn-white:hover {
+    background-color: bisque;
+} 
+/* 
+.btn-light:active:focus, .btn-light:focus, .btn-white:active:focus, .btn-white:focus {
     outline: none;
     box-shadow: none;
+}
+ */
+
+.btn:focus, .form-select:focus, .form-control:focus {
+    /* outline: none; */
+    outline: auto;
+    outline-width: 1px;
+    outline-color: bisque;
+    box-shadow: none;
+}
+
+
+.myShadow {
+    /* box-shadow: [h-offset] [v-offset] [blur-radius] [spread-radius] [color] */
+    box-shadow: 0 2px 1px -1px lightgray;
 }
