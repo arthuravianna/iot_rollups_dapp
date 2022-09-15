@@ -11,16 +11,6 @@ async function draw_notice(notice) {
         let curr_coord = [ notice.curr_coords[1], notice.curr_coords[0] ]
         mark = notice.curr_coords
 
-        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
-            features.push({
-                "type": "Point",
-                "popup": `Bus of line ${notice.bus_line} was out of route at ${notice.ts}.`,
-                "coordinates": curr_coord
-            })
-            points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
-            console.log(points_in_map)
-        }
-
         if (!routes_in_map.hasOwnProperty(notice.bus_line)) {
             let route = []
             await inspect_query({ "select": "routes", "routes": notice.bus_line }, (response) => {
@@ -46,6 +36,16 @@ async function draw_notice(notice) {
             myStyle.color = routes_in_map[notice.bus_line]
             myStyle.fillColor = myStyle.color
         }
+
+        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
+            features.push({
+                "type": "Point",
+                "popup": `Bus of line <span style="color: ${myStyle.color};">${notice.bus_line}</span> was out of route at <strong>${notice.ts}</strong>.`,
+                "coordinates": curr_coord
+            })
+            points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
+            console.log(points_in_map)
+        }
     }
     else if (notice.tp == 2) { // Late fine
         let curr_coord = [ notice.curr_stop[1], notice.curr_stop[0] ]
@@ -54,7 +54,7 @@ async function draw_notice(notice) {
         if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
             features.push({
                 "type": "Point",
-                "popup": `Bus of line ${notice.bus_line} was ${notice.late} late.`,
+                "popup": `Bus of line <span style="color: ${myStyle.color};">${notice.bus_line}</span> was <strong>${notice.late}</strong> late.`,
                 "coordinates": curr_coord
             })
             points_in_map[`${notice.epoch_index};${notice.input_index}`] = true

@@ -19,14 +19,37 @@ function build_url() {
 }
 
 
-function build_table(table_id, pagination_id) {
+function notices_count_info() {
+    let info = {"begin": 1, "end": undefined, "total": 0}
+
+    // calc begin
+    for (let i = 0; i < curr_page-1; i++) {
+        info.begin += notices_table[i].length
+    }
+
+    // calc end
+    info.end = info.begin + notices_table[curr_page-1].length -1
+
+    for (let i = 0; i < notices_table.length; i++) {
+        info.total += notices_table[i].length
+    }
+
+    return info
+}
+
+//function build_table(table_id, pagination_id, pagination_info_id) {
+function build_table(table_id, pagination_div_id) {
+    let pagination_div_elem = document.getElementById(pagination_div_id)
+
     let table_elem = document.getElementById(table_id+"Body")
-    let pagination_elem = document.getElementById(pagination_id)
+    let pagination_info_elem = pagination_div_elem.getElementsByTagName("div")[0] //pagination_div_elem.children[0]
+    let pagination_elem = pagination_div_elem.getElementsByTagName("nav")[0].children[0] //pagination_div_elem.children[1].children[0]
 
 
     if (!notices_table) {
         table_elem.innerHTML = '<tr><td colspan="3" class="text-center">No data to show</td></tr>'
         pagination_elem.innerHTML = ''
+        pagination_info_elem.innerHTML = ''
         return
     }
 
@@ -40,9 +63,9 @@ function build_table(table_id, pagination_id) {
         let notice = notices_table[curr_page-1][i]
         let icon_html
         if (notice.tp == 1) {
-            icon_html = '<img class="" data-bs-toggle="tooltip" title="Out of route" style="width:14;height:16;" src="assets/images/directions_off.png" alt="directions off icon">'
+            icon_html = '<span class="material-icons fs-6" data-bs-toggle="tooltip" title="Out of route">directions_off</span>'
         } else {
-            icon_html = '<img class="" data-bs-toggle="tooltip" title="Late" style="width:14;height:16;" src="assets/images/late.png" alt="directions off icon">'
+            icon_html = '<span class="material-icons fs-6" data-bs-toggle="tooltip" title="Late">running_with_errors</span>'
         }
 
 
@@ -67,83 +90,118 @@ function build_table(table_id, pagination_id) {
     let pagination_html = ''
     let prev_btn_html
     let next_btn_html
+    let first_page_btn_html
+    let last_page_btn_html
+    let last_page = notices_table.length
+    let info = notices_count_info()
+
+    // add notices count info
+    pagination_info_elem.innerHTML = `
+        <span class="text-muted" style="font-size: 20px;padding: 6px">
+            ${info.begin}-${info.end} of ${info.total}
+        </span>
+    `
+
 
     // page check
     if (curr_page == 1) {
         prev_disabled = "disabled"
+
+        // epoch check
+        if (req_epoch > 0) {
+            prev_epoch = req_epoch - 1
+        }
     }
-    if (curr_page == notices_table.length) {
+    if (curr_page == last_page) {
         next_disabled = "disabled"
+        
+        // epoch check
+        if (req_epoch < curr_epoch) {
+            next_epoch = req_epoch + 1
+        }
     }
 
-    // epoch check
-    if (req_epoch < curr_epoch) {
-        next_epoch = req_epoch + 1
-    }
-    if (req_epoch > 0) {
-        prev_epoch = req_epoch - 1
+    
+    // first page button
+    first_page_btn_html = `
+        <li class="page-item ${prev_disabled}">
+            <button class="page-link btn btn-white border-0 fs-5 material-icons" 
+                onclick="page_change('${table_id}','${pagination_div_id}',${1})" title="First-Page" >
+                    first_page 
+            </button>
+        </li>
+    `
+
+    // pagination info (Go to the previous epoch)
+    if (prev_epoch != undefined) {
+        pagination_info_elem.innerHTML = `
+            <a class="btn btn-white" href="${url}epoch=${prev_epoch}">
+                <span class="material-icons  fs-6">
+                    chevron_left
+                </span>
+                
+                Go to previous epoch
+            </a>
+        `
     }
     
     // previous button
-    if (prev_epoch != undefined && curr_page == 1) {
-        prev_btn_html = `<li class="page-item"><a class="page-link" href="${url}epoch=${prev_epoch}" title="Previous-Epoch" > prev epoch </a></li>`
-    }
-    else {
-        prev_btn_html = `<li class="page-item ${prev_disabled}"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${curr_page-1})" title="Previous-Page" > prev </button></li>`
-    }
-    pagination_html += prev_btn_html
-
-
-    if (notices_table.length <= 5) {
-        for (var i = 1; i <= notices_table.length; i++) {
-            if (i == curr_page) {
-                pagination_html += `<li class="page-item disabled"><button class="page-link" title="Page-${i}" > ${i} </button></li>`
-            }
-            else {
-                pagination_html += `<li class="page-item"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${i})" title="Page-${i}" > ${i} </button></li>`
-            }   
-        }                  
-    }
-    else {
-        if (curr_page - 3 > 1) {
-            pagination_html += `<li class="page-item"><button class="page-link" onclick="page_change(1)" title="Page-${1}" > "${1}" </button></li>`
-            pagination_html += `<li class="page-item"><button class="page-link" title="" > "..." </button></li>`
-            pagination_html += `<li class="page-item"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${curr_page-1})" title="Page-${curr_page-1}" > Page-${curr_page-1} </button></li>`
-        }
-        else {
-            for (let i = 1; i < curr_page; i++) {
-                pagination_html += `<li class="page-item"><button class="page-link" title="Page-${i}" > ${i} </button></li>`
-            }
-        }
-        
-        pagination_html += `<li class="page-item disabled"><button class="page-link" title="Page-${curr_page}" > ${curr_page} </button></li>`
-
-        if (curr_page + 3 < notices_table.length) {
-            pagination_html += `<li class="page-item"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${curr_page+1})" title="Page-${curr_page+1}" > Page-${curr_page+1} </button></li>`
-            pagination_html += `<li class="page-item"><button class="page-link" title="" > "..." </button></li>`
-            pagination_html += `<li class="page-item"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${notices_table.length})" title="Page-${notices_table.length}" > ${notices_table.length} </button></li>`
-        }
-        else {
-            for (let i = page+1; i <= notices_table.length; i++) {
-                pagination_html += `<li class="page-item"><button class="page-link" title="Page-${i}" > ${i} </button></li>`
-            }
-        }
-    }
+    prev_btn_html = `
+        <li class="page-item ${prev_disabled}">
+            <button class="page-link btn btn-white border-0 fs-5 material-icons"
+            onclick="page_change('${table_id}','${pagination_div_id}',${curr_page-1})"
+            title="Previous-Page" >
+                chevron_left
+            </button>
+        </li>
+    `
+    
+    pagination_html += first_page_btn_html + prev_btn_html
 
     // next button
-    if (next_epoch != undefined && curr_page == notices_table.length) {
-        next_btn_html = `<li class="page-item"><a class="page-link" href="${url}epoch=${next_epoch}" title="Next-Epoch" > next epoch </a></li>`
-    }
-    else {
-        next_btn_html = `<li class="page-item ${next_disabled}"><button class="page-link" onclick="page_change('${table_id}','${pagination_id}',${curr_page+1})" title="Next-Page" > next </button></li>`
-    }
-    pagination_html += next_btn_html
+    next_btn_html = `
+        <li class="page-item ${next_disabled}">
+            <button class="page-link btn btn-white border-0 fs-5 material-icons"
+            onclick="page_change('${table_id}','${pagination_div_id}',${curr_page+1})"
+            title="Next-Page">
+                chevron_right
+            </button>
+        </li>
+    `
 
-
+    // last page button
+    last_page_btn_html = `
+        <li class="page-item ${next_disabled}">
+            <button class="page-link btn btn-white border-0 fs-5 material-icons"
+            onclick="page_change('${table_id}','${pagination_div_id}',${last_page})"
+            title="Last-Page">
+                last_page
+            </button>
+        </li>
+    `
+    
+    pagination_html += next_btn_html + last_page_btn_html
     pagination_elem.innerHTML = pagination_html
+
+    
+    // pagination info (Go to the next epoch)
+    if (next_epoch != undefined) {
+        pagination_info_elem.innerHTML = `
+            <a class="btn btn-white p-1" href="${url}epoch=${next_epoch}">
+                Go to next epoch
+                
+                <span class="material-icons fs-6">
+                    chevron_right
+                </span>
+            </a>
+        `
+        pagination_div_elem.replaceChildren(pagination_elem.parentElement, pagination_info_elem)
+    } else {
+        pagination_div_elem.replaceChildren(pagination_info_elem, pagination_elem.parentElement)
+    }
 }
 
-function page_change(table_id, pagination_id, page) {
+function page_change(table_id, pagination_div_id, page) {
     curr_page = page
-    build_table(table_id, pagination_id)
+    build_table(table_id, pagination_div_id)
 }
