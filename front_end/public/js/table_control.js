@@ -53,6 +53,8 @@ function build_table(table_id, pagination_div_id) {
         return
     }
 
+    pagination_div_elem.classList.add("p-1")
+
     if (!url) {
         build_url()
     }
