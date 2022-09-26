@@ -26,7 +26,7 @@ async function draw_notice(notice) {
 
             features.push({
                 "type": "LineString",
-                "popup": `Route of bus ${notice.bus_line}.`,
+                "popup": `Route of bus line <span style="color: ${myStyle.color};">${notice.bus_line}</span>.`,
                 "coordinates": route
             })
             routes_in_map[notice.bus_line] = myStyle.color
