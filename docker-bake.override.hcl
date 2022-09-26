@@ -1,7 +1,5 @@
 
 target "dapp" {
-  # default context is "."
-  # default dockerfile is "Dockerfile"
 }
 
 variable "TAG" {
@@ -13,13 +11,13 @@ variable "DOCKER_ORGANIZATION" {
 }
 
 target "server" {
-  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-server"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot_rollups_dapp-${TAG}-server"]
 }
 
 target "console" {
-  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-console"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot_rollups_dapp-${TAG}-console"]
 }
 
 target "machine" {
-  tags = ["${DOCKER_ORGANIZATION}/dapp:iot-rollups-dapp-${TAG}-machine"]
+  tags = ["${DOCKER_ORGANIZATION}/dapp:iot_rollups_dapp-${TAG}-machine"]
 }

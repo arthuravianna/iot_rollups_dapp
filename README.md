@@ -57,14 +57,14 @@ To execute the back-end in production mode it's necessary to generate a cartesi 
 #### Running the environment
 In order to start the containers in production mode, simply run:
 ``` Bash
-docker compose -f docker-compose.yml -f docker-compose.override.yml up
+docker compose up
 ```
 
 #### Stopping the environment
 To stop the containers, first end the process with `Ctrl + C`.
 Then, remove the containers and associated volumes by executing:
 ``` Bash
-docker compose -f docker-compose.yml -f docker-compose.override.yml down -v
+docker compose down -v
 ```
 
 

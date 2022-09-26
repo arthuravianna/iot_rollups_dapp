@@ -13,4 +13,4 @@
 
 set -e
 python3 back_end/db_manager.py           # create sqlite database
-python3 back_end/iot_rollups_dapp.py
+rollup-init python3 back_end/iot_rollups_dapp.py
