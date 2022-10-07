@@ -138,7 +138,7 @@ function build_table(table_id, pagination_div_id) {
     if (prev_epoch != undefined) {
         pagination_info_elem.innerHTML = `
             <a class="btn btn-white" href="${url}epoch=${prev_epoch}">
-                <span class="material-icons  fs-6">
+                <span class="material-icons pb-1 fs-6 align-middle">
                     chevron_left
                 </span>
                 
@@ -189,10 +189,10 @@ function build_table(table_id, pagination_div_id) {
     // pagination info (Go to the next epoch)
     if (next_epoch != undefined) {
         pagination_info_elem.innerHTML = `
-            <a class="btn btn-white p-1" href="${url}epoch=${next_epoch}">
+            <a class="btn btn-white" href="${url}epoch=${next_epoch}">
                 Go to next epoch
                 
-                <span class="material-icons fs-6">
+                <span class="material-icons fs-6 pb-1 align-middle">
                     chevron_right
                 </span>
             </a>

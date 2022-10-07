@@ -41,8 +41,14 @@
 <div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleModalLabel">Upload Bus Schedule</h5>
+            <div class="modal-header d-block">
+                <div class="d-flex">
+                    <h5 class="modal-title fw-bold" id="scheduleModalLabel">Upload Bus Schedule</h5>
+                    <button type="button" data-bs-dismiss="modal" class="btn btn-white py-2 px-3 float-end material-icons fs-6 ms-auto">close</button>    
+                </div>
+                
+                <small class="modal-title text-muted d-block">Load Schedule From JSON file</small>
+
             </div>
 
             <!-- BEGIN FORM -->
@@ -50,8 +56,7 @@
 
                 <!-- BEGIN MODAL BODY -->
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="scheduleFile" class="form-label">Load Schedule From JSON file</label>
+                    <div class="">
                         <input class="form-control" type="file" accept=".json" id="scheduleFile" onchange="loadFileContent()">
                     </div>        
                 <!-- END MODAL BODY -->
@@ -75,8 +80,14 @@
 <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="filterModalLabel">Fines's Filter</h5>
+            <div class="modal-header d-block">
+                <div class="d-flex">
+                    <h5 class="modal-title fw-bold" id="filterModalLabel">Fines's Filter</h5>
+                    <button type="button" data-bs-dismiss="modal" class="btn btn-white py-2 px-3 float-end material-icons fs-6 ms-auto">close</button>    
+                </div>
+                
+                <small class="modal-title text-muted d-block">Choose the filters necessary for your search</small>
+
             </div>
 
             <!-- BEGIN FORM -->
@@ -114,7 +125,7 @@
                             <label for="fineTypeSelector">Fine Type</label>
                         </div>
                         
-                        <div class="form-floating mb-3">
+                        <div class="form-floating">
                             <select class="form-select" id="epochSelector" name="epochSelector" aria-label="Epoch Select">
                                 <% for (var e = 0; e <= current_epoch; e++) { %>
                                     <% if (e == req_epoch) {%>
@@ -149,8 +160,14 @@
 <div class="modal fade" id="fineModal" tabindex="-1" role="dialog" aria-labelledby="fineModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fineModalLabel">Send Trip Info</h5>
+            <div class="modal-header d-block">
+                <div class="d-flex">
+                    <h5 class="modal-title fw-bold" id="fineModalLabel">Send Trip Info</h5>
+                    <button type="button" data-bs-dismiss="modal" class="btn btn-white py-2 px-3 float-end material-icons fs-6 ms-auto">close</button>    
+                </div>
+                
+                <small class="modal-title text-muted d-block">Submit a trip info</small>
+
             </div>
 
             <!-- BEGIN FORM -->
@@ -169,7 +186,7 @@
                             <select class="form-select" id="fineModalBusId" name="bus_id" aria-label="Fine Bus Id">
                             </select>
 
-                            <label for="fineModalBusId">Bus Line</label>
+                            <label class="ms-1" for="fineModalBusId">Bus Line</label>
                         </div>
 
                         <!-- <div class="form-floating col">
@@ -180,24 +197,24 @@
                             <select class="form-select" id="fineModalTripId" name="trip_id" aria-label="Bus Line Trip">
                             </select>
 
-                            <label for="fineModalTripId">Trip</label>
+                            <label class="ms-1" for="fineModalTripId">Trip</label>
                         </div>
                     </div>
 
                     <div class="form-floating has-validation mb-3">
                         <input type="text" class="form-control" id="fineModalTimestamp" name="ts" value="">
-                        <label for="fineModalTimestamp">Timestamp</label>
+                        <label class="ps-1" for="fineModalTimestamp">Timestamp</label>
                     </div>
 
-                    <div class="mb-3 row">
+                    <div class="row">
                         <div class="form-floating col">
                             <input type="text" class="form-control" id="fineModalLat" name="lat" value="" readonly>
-                            <label for="fineModalLat">Latitude</label>
+                            <label class="ms-1" for="fineModalLat">Latitude</label>
                         </div>
 
                         <div class="form-floating col">
                             <input type="text" class="form-control disabled" id="fineModalLng" name="lon" value="" readonly>
-                            <label for="fineModalLng">Longitude</label>
+                            <label class="ms-1" for="fineModalLng">Longitude</label>
                         </div>
                     </div>
 
@@ -207,7 +224,6 @@
                 <div class="modal-footer">
                     <div class="text-center">
                         <button type="submit" id="fine-btn-submit" class="btn btn-light text-center" onclick="fineSubmit()">Submit</button>
-                        <!-- <button type="submit" id="fine-btn-submit" class="btn btn-light text-center">Submit</button> -->
                     </div>
                 </div>
             
