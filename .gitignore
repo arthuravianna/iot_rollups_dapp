@@ -3,4 +3,4 @@ __pycache__
 node_modules
 back_end/*.db
 deployments
-front_end/public/ABI/*
+front_end/public/ABI/localhost.json
