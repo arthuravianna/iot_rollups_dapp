@@ -17,12 +17,13 @@ web3.eth.getAccounts()
 });
 
 // Cartesi Rollups 0.3
-const address = fs.readFileSync("public/deployments/localhost/dapp.address", 'utf8');
+const address = fs.readFileSync("public/deployments/dapp.address", 'utf8');
 
-const rollups_contract_obj = require("../public/deployments/localhost/RollupsFacet.json")
+const blockchain_obj = require("../public/ABI/blockchain.json")
+
+const rollups_contract_obj = blockchain_obj.contracts.RollupsFacet
 const rollups_contract = new web3.eth.Contract(rollups_contract_obj.abi, address)
-
-const input_contract_obj = require("../public/deployments/localhost/InputFacet.json")
+const input_contract_obj = blockchain_obj.contracts.InputFacet
 const input_contract = new web3.eth.Contract(input_contract_obj.abi, address)
 
 module.exports = { 

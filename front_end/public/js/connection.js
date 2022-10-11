@@ -45,13 +45,7 @@ async function scheduleSubmit() {
         return
     }
 
-    try {
-        await metamask_connect()
-    }
-    catch (e) {
-        alert(e)
-        return
-    }
+    if (!try_metamask_connect()) return
 
     input.new_schedule = true // must add to Cartesi Machine's back-end
     input = JSON.stringify(input)
@@ -81,13 +75,7 @@ async function fineSubmit() {
         return
     }
 
-    try {
-        await metamask_connect()
-    }
-    catch (e) {
-        alert(`Code: ${e.code}\nMessage: ${e.message}`)
-        return
-    }
+    if (!try_metamask_connect()) return
 
     input = JSON.stringify(input)
     metamask_send(input)
@@ -139,20 +127,40 @@ function handle_chainid(chainId) {
     }
 }
 
+async function try_metamask_connect() {
+    try {
+        await metamask_connect()
+    }
+    catch (e) {
+        alert(e)
+        return false
+    }
+    
+    return true
+}
+
 async function metamask_connect() {
     if (typeof window.ethereum === 'undefined') {
-        throw "Please Install Metamask to use the application."
+        throw "Please, install Metamask to use the application."
     }
     if (await window.ethereum.request({ method: 'eth_chainId' }) != back_end_chainid) {
-        throw `Set Metamask Network to the one with ID: ${back_end_chainid}`
+        throw `Please, set Metamask Network to the one with ID: ${back_end_chainid}`
     }
     if (!user_account) {
-        let accounts = await ethereum.request({ method: 'eth_requestAccounts' })
-        handle_accounts(accounts)
+        try {
+            let accounts = await ethereum.request({ method: 'eth_requestAccounts' })
+            handle_accounts(accounts)    
+        } catch (e) {
+            throw `Code: ${e.code}\nMessage: ${e.message}`
+        }
     }
     if (!web3) {
-        web3 = new Web3(Web3.givenProvider)
-        input_contract = new web3.eth.Contract(metamask_conn_config.abi, metamask_conn_config.address)
+        try {
+            web3 = new Web3(Web3.givenProvider)
+            input_contract = new web3.eth.Contract(metamask_conn_config.abi, metamask_conn_config.address)    
+        } catch (e) {
+            throw `Code: ${e.code}\nMessage: ${e.message}`
+        }
     }
 }
 
