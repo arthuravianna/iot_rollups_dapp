@@ -1,6 +1,8 @@
 var express = require("express");
 var bodyParser = require('body-parser')
- 
+
+require('dotenv').config()
+
 var app = express();
 
 app.set("view engine", "ejs");

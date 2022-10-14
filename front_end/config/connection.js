@@ -2,19 +2,22 @@ const Web3 = require('web3')
 const fs = require('fs')
 
 
-const provider = "http://localhost:8545" // node running Hardhat
-const notices_db_url = "http://localhost:4000/graphql"
-const dapp_inspect_url = " http://localhost:5005/inspect"
+const provider = process.env.PROVIDER // node running Hardhat
+const notices_db_url = process.env.GRAPHQL 
+const dapp_inspect_url = process.env.INSPECT
+
 const web3 = new Web3(Web3.givenProvider || provider)
 
-web3.eth.getAccounts()
-.then(function(result) {
-    web3.eth.defaultAccount = result[4] // to set a default "from" parameter
-    console.log("Default Account:", web3.eth.defaultAccount)
-})
-.catch(function(error) {
-    console.log("Error: Couldn't get accounts list!\n", error)
-});
+if (process.env.LOCAL_MODE) {
+    web3.eth.getAccounts()
+    .then(function(result) {
+        web3.eth.defaultAccount = result[4] // to set a default "from" parameter
+        console.log("Default Account:", web3.eth.defaultAccount)
+    })
+    .catch(function(error) {
+        console.log("Error: Couldn't get accounts list!\n", error)
+    });
+}
 
 // Cartesi Rollups 0.3
 const address = fs.readFileSync("public/deployments/dapp.address", 'utf8');
