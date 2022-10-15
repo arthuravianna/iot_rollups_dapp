@@ -45,8 +45,6 @@ async function scheduleSubmit() {
         return
     }
 
-    if (!try_metamask_connect()) return
-
     input.new_schedule = true // must add to Cartesi Machine's back-end
     input = JSON.stringify(input)
     metamask_send(input)
@@ -71,12 +69,17 @@ async function fineSubmit() {
     if (input.ts == "") form_is_valid = false
 
     if (!form_is_valid) {
-        alert("Please complete the Send Trip Info Form")
+        alert("Please, complete the Send Trip Info Form.")
         return
     }
 
-    if (!try_metamask_connect()) return
-
+    
+    let date_time = new Date(input.ts).getTime()
+    if (!date_time) {
+        alert("Invalid Timestamp! Must be YYYY-mm-dd HH:MM:SS")
+        return
+    }
+    
     input = JSON.stringify(input)
     metamask_send(input)
 
@@ -165,6 +168,11 @@ async function metamask_connect() {
 }
 
 async function metamask_send(input) {
+    if (!web3) {
+        alert("Please, connect to Metamask first.")
+        return
+    }
+    
     let input_hex = web3.utils.utf8ToHex(input)
     input_contract.methods.addInput(input_hex).send({ from: user_account })
     .then(console.log)
