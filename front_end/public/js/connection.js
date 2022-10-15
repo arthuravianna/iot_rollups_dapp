@@ -167,12 +167,23 @@ async function metamask_connect() {
     }
 }
 
+function metamask_already_connected() {
+    let accounts = window.ethereum._state.accounts
+    if (!accounts.length) return false
+
+    handle_accounts(accounts)
+    web3 = new Web3(Web3.givenProvider)
+    input_contract = new web3.eth.Contract(metamask_conn_config.abi, metamask_conn_config.address)
+
+    return true
+}
+
 async function metamask_send(input) {
-    if (!web3) {
+    if (!web3 && !metamask_already_connected()) {
         alert("Please, connect to Metamask first.")
         return
     }
-    
+
     let input_hex = web3.utils.utf8ToHex(input)
     input_contract.methods.addInput(input_hex).send({ from: user_account })
     .then(console.log)
