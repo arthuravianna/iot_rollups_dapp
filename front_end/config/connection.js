@@ -8,7 +8,7 @@ const dapp_inspect_url = process.env.INSPECT
 
 const web3 = new Web3(Web3.givenProvider || provider)
 
-if (process.env.LOCAL_MODE) {
+if (process.env.USE_LOCAL_ACCOUNT) {
     web3.eth.getAccounts()
     .then(function(result) {
         web3.eth.defaultAccount = result[4] // to set a default "from" parameter
@@ -20,10 +20,9 @@ if (process.env.LOCAL_MODE) {
 }
 
 // Cartesi Rollups 0.3
-const address = fs.readFileSync("public/deployments/dapp.address", 'utf8');
+const address = process.env.DAPP_ADDRESS
 
-const blockchain_file = process.env.LOCAL_MODE || "blockchain.json"
-const blockchain_obj = require(`../public/ABI/${blockchain_file}`)
+const blockchain_obj = require(`../${process.env.ABI_FILE}`)
 
 const rollups_contract_obj = blockchain_obj.contracts.RollupsFacet
 const rollups_contract = new web3.eth.Contract(rollups_contract_obj.abi, address)

@@ -13,8 +13,12 @@ then
 fi
 
 # get dapp.address
-mkdir -p ./public/deployments
-cp ../deployments/localhost/dapp.address ./public/deployments
+if [ `grep -c "DAPP_ADDRESS=" .env` == 0 ]
+then
+    echo -ne "\nDAPP_ADDRESS=\"" >> .env
+    cat ../deployments/localhost/dapp.address >> .env
+    echo -n "\"" >> .env
+fi
 
 # run the web server
-LOCAL_MODE=localhost.json node app.js
+USE_LOCAL_ACCOUNT=1 node app.js
