@@ -105,7 +105,7 @@
                             <label for="filterBusLine">Filter by Bus Line</label>
                         </div>
                 
-                        <div class="form-floating mb-3">
+                        <div class="form-floating">
                             <select class="form-select" id="fineTypeSelector" name="fineTypeSelector" aria-label="Fine Select Filter">
                                 <% if (filter_options.fineTypeSelector) { %>
                                     <% let options = {"0": "All", "1": "Out of Route", "2": "Late"} %>
@@ -125,7 +125,7 @@
                             <label for="fineTypeSelector">Fine Type</label>
                         </div>
                         
-                        <div class="form-floating">
+                        <!-- <div class="form-floating">
                             <select class="form-select" id="epochSelector" name="epochSelector" aria-label="Epoch Select">
                                 <% for (var e = 0; e <= current_epoch; e++) { %>
                                     <% if (e == req_epoch) {%>
@@ -136,7 +136,7 @@
                                 <% } %>
                             </select>
                             <label for="epochSelector">Epoch</label>
-                        </div>
+                        </div> -->
                     </div>
                 
                 <!-- END MODAL BODY -->
@@ -264,13 +264,12 @@
                             </div>
                             
                             <div class="dropdown me-4">
-                                <a class="btn dropdown-toggle p-0" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                <!-- <a class="btn dropdown-toggle p-0" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                                     <small class="text-muted">
                                         <%= `Epoch: ${req_epoch}/${current_epoch}` %>
-                                        <!-- <i class="bi bi-chevron-down"></i> -->
                                         <i class="material-icons fs-6">expand_more</i>
                                     </small>
-                                </a>
+                                </a> -->
                             
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <% for (let i = 0; i <= current_epoch; i++) { %>

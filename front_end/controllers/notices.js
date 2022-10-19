@@ -65,12 +65,12 @@ module.exports={
         
         url = build_filter_url(filter_options)
 
-        if (url.length > 1) {
-            url = url + `&epoch=${filter_options.epochSelector}`
-        }
-        else {
-            url = url + `?epoch=${filter_options.epochSelector}`
-        }
+        // if (url.length > 1) {
+        //     url = url + `&epoch=${filter_options.epochSelector}`
+        // }
+        // else {
+        //     url = url + `?epoch=${filter_options.epochSelector}`
+        // }
 
         res.redirect(url)
     },
