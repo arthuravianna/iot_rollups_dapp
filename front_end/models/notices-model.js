@@ -219,7 +219,7 @@ module.exports = {
                         else if (filter_options.fineTypeSelector && (payload.tp != filter_options.fineTypeSelector)) {
                             continue
                         }
-                        payload.input_index = notice.input.index
+                        payload.notice_index = notice.index
                         payload.epoch_index = notice.input.epoch.index
                         
                         // populate notices table

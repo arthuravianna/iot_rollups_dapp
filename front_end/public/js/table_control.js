@@ -72,7 +72,7 @@ function build_table(table_id, pagination_div_id) {
 
 
         let tr_html = ''
-        + `<tr class="clickable-row" id="${notice.epoch_index};${notice.input_index}">`
+        + `<tr class="clickable-row" id="${notice.epoch_index};${notice.notice_index}">`
         + `<td>${notice.bus_line}</td>`
         + `<td class="text-center">${notice.ts}</td>`
         + `<td class="text-end">${icon_html}</td>`
@@ -80,7 +80,7 @@ function build_table(table_id, pagination_div_id) {
         + `</tr>`
 
         table_elem.insertAdjacentHTML("beforeend", tr_html)
-        document.getElementById(`${notice.epoch_index};${notice.input_index}`).onclick = () => {draw_notice(notice)}
+        document.getElementById(`${notice.epoch_index};${notice.notice_index}`).onclick = () => {draw_notice(notice)}
     }    
     
     

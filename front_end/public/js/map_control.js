@@ -37,13 +37,13 @@ async function draw_notice(notice) {
             myStyle.fillColor = myStyle.color
         }
 
-        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
+        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.notice_index}`)) {
             features.push({
                 "type": "Point",
                 "popup": `Bus of line <span style="color: ${myStyle.color};">${notice.bus_line}</span> was out of route at <strong>${notice.ts}</strong>.`,
                 "coordinates": curr_coord
             })
-            points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
+            points_in_map[`${notice.epoch_index};${notice.notice_index}`] = true
             console.log(points_in_map)
         }
     }
@@ -51,13 +51,13 @@ async function draw_notice(notice) {
         let curr_coord = [ notice.curr_stop[1], notice.curr_stop[0] ]
         mark = notice.curr_stop
 
-        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.input_index}`)) {
+        if (!points_in_map.hasOwnProperty(`${notice.epoch_index};${notice.notice_index}`)) {
             features.push({
                 "type": "Point",
                 "popup": `Bus of line <span style="color: ${myStyle.color};">${notice.bus_line}</span> was <strong>${notice.late}</strong> late.`,
                 "coordinates": curr_coord
             })
-            points_in_map[`${notice.epoch_index};${notice.input_index}`] = true
+            points_in_map[`${notice.epoch_index};${notice.notice_index}`] = true
             console.log(points_in_map)
         }
     }
@@ -161,4 +161,4 @@ var myStyle = {
 };
 
 var routes_in_map = {} // { bus_line: boolean }
-var points_in_map = {} // { "epoch_index;input_index": boolean }
+var points_in_map = {} // { "epoch_index;notice_index": boolean }

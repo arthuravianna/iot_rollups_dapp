@@ -12,5 +12,7 @@
 # specific language governing permissions and limitations under the License.
 
 set -e
+export PYTHONPATH=/mnt/dapp/.venv/cross/lib/python3.10/site-packages
+
 python3 back_end/db_manager.py           # create sqlite database
 rollup-init python3 back_end/iot_rollups_dapp.py

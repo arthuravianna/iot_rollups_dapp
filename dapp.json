@@ -1,5 +1,11 @@
 {
   "fs": {
-    "files": ["./back_end/iot_rollups_dapp.py", "./back_end/db_manager.py", "./back_end/util.py", "entrypoint.sh"]
+    "files": [
+      ".venv",
+      "./back_end/iot_rollups_dapp.py",
+      "./back_end/db_manager.py",
+      "./back_end/util.py",
+      "entrypoint.sh"],
+      "size": 128000
   }
 }
