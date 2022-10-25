@@ -279,7 +279,7 @@ while True:
     else:
         rollup_request = response.json()
         metadata = rollup_request["data"].get("metadata")
-        if metadata and metadata["epoch_index"] == 0 and metadata["notice_index"] == 0:
+        if metadata and metadata["epoch_index"] == 0 and metadata["input_index"] == 0:
             rollup_address = metadata["msg_sender"]
             logger.info(f"Captured rollup address: {rollup_address}")
         else:
