@@ -53,7 +53,7 @@ def create_database(DATABASE, conn = None):
                             ); """
 
     sql_trip_schedule_table = """ CREATE TABLE IF NOT EXISTS trip_schedule (
-                                id VARCHAR(48),
+                                id INT,
                                 bus_line_id VARCHAR(32),
                                 schedule TEXT,
 

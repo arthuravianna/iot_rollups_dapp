@@ -9,7 +9,7 @@ module.exports={
             let schedule_input = false
 
             // check if is vehicle input
-            const has_bus_id = json.hasOwnProperty("bus_id")
+            const has_bus_id = json.hasOwnProperty("line_id")
             const has_trip_id = json.hasOwnProperty("trip_id")
             const has_lat = json.hasOwnProperty("lat")
             const has_lon = json.hasOwnProperty("lon")
@@ -30,7 +30,7 @@ module.exports={
 
             // check if is schedule input
             if (!vehicle_input) {
-                const has_bus_id = json.hasOwnProperty("bus_id")
+                const has_bus_id = json.hasOwnProperty("line_id")
                 const has_route = json.hasOwnProperty("route")
                 const has_stops = json.hasOwnProperty("stops")
                 const has_schedule = json.hasOwnProperty("schedule")

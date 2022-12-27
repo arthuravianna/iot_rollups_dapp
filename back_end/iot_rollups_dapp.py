@@ -32,10 +32,10 @@ logger.info(f"HTTP rollup_server url is {rollup_server}")
 
 
 def is_schedule(data):
-    if "bus_id" not in data:
+    if "line_id" not in data:
         return False
-    if "line_name" not in data:
-        return False
+    # if "line_name" not in data:
+    #     return False
     if "route" not in data:
         return False
     if "stops" not in data:
@@ -62,27 +62,26 @@ def handle_advance(data):
 
         #### is new Schedule
         if is_schedule(payload_dict):
-            count = 0
-            bus_id = payload_dict["bus_id"]  # bus line id
+            trip_id = 0
+            line_id = payload_dict["line_id"]  # bus line id
             route = payload_dict["route"]
             stops = payload_dict["stops"]
             schedules = payload_dict["schedule"]
 
-            if not db.insert_bus_line(conn, bus_id, route):
+            if not db.insert_bus_line(conn, line_id, route):
                 conn.close()
                 return "reject"
 
             for schedule in schedules:
-                count += 1
-                trip_id = f"{bus_id};{count}"
-                if not db.insert_trip_schedule(conn, trip_id, bus_id, schedule):
+                trip_id += 1
+                if not db.insert_trip_schedule(conn, trip_id, line_id, schedule):
                     conn.close()
                     return "reject"
 
             stop_id = 0
             for stop in stops:
                 stop_id += 1
-                if not db.insert_stop(conn, stop_id, bus_id, stop):
+                if not db.insert_stop(conn, stop_id, line_id, stop):
                     conn.close()
                     return "reject"
 
@@ -111,24 +110,20 @@ def handle_advance(data):
                 msg, signature
             )  # will raise Exception if signature is not authentic
 
-            prev_bus_id = None
-            route = None
-            stops = None
-            for data in payload_dict["data"]:
+            line_id = payload_dict["data"]["line_id"]
+            route = db.select_route_of_line(conn, line_id)
+
+            if route is None:
+                conn.close()
+                return "reject"
+
+            stops = db.select_stops(conn, line_id)
+            for data in payload_dict["data"]["value"]:
                 print(data)
-                bus_id = data["bus_id"]
                 trip_id = data["trip_id"]
                 curr_lat = data["lat"]
                 curr_lon = data["lon"]
                 ts = data["ts"]
-
-                # check route
-                if bus_id != prev_bus_id:
-                    route = db.select_route_of_line(conn, bus_id)
-
-                if route is None:
-                    conn.close()
-                    return "reject"
 
                 fine_dsc = None
 
@@ -140,20 +135,17 @@ def handle_advance(data):
                         "dsc": "Out of route",
                         "distance": round(in_route, 2),
                         "curr_coords": (curr_lat, curr_lon),
-                        "bus_line": bus_id,
+                        "bus_line": line_id,
                         "trip": trip_id,
                         "value": round(50 * in_route, 2),  # 50 for each kilometer
                     }
                 else:  # is on route -> check schedule
                     # get stop
-                    if bus_id != prev_bus_id:
-                        stops = db.select_stops(conn, bus_id)
-
                     stop_id = util.next_stop(curr_lat, curr_lon, stops)
 
                     # check schedule
                     if stop_id is not None:  # arrived at next_stop
-                        result = db.select_stop_schedule(conn, stop_id, bus_id, trip_id)
+                        result = db.select_stop_schedule(conn, stop_id, line_id, trip_id)
                         if result is None:  # invalid trip id
                             conn.close()
                             return "reject"
@@ -168,7 +160,7 @@ def handle_advance(data):
                                 "dsc": "Late, according to Schedule",
                                 "curr_stop": stop,
                                 "late": str(late),  # how much is late
-                                "bus_line": bus_id,
+                                "bus_line": line_id,
                                 "trip": trip_id,
                                 "value": round(
                                     0.10 * late.seconds, 2
@@ -188,7 +180,7 @@ def handle_advance(data):
                         f"Received notice status {response.status_code} body {response.content}"
                     )
 
-                prev_bus_id = bus_id
+                prev_bus_id = line_id
 
         conn.close()
         return "accept"
